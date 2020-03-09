@@ -1,0 +1,269 @@
+﻿
+@{
+    
+    ViewData["Title"] = "New Action";
+}
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+@* ============================= TopBar ============================= *@
+<div class="TopBar0 pl-4">
+    <div class="row">
+        <div class="col-md-3 col-6 align-self-center">
+            <!-- Basic dropdown -->
+            <select id="SelectAgent" class="mdb-select md-form" onchange="showMessage()">
+                <option value="" disabled selected>Choose user</option>
+            </select>
+        </div>
+           
+        <div class="col-md-9 col-6 text-md-right align-self-center">
+            <span class="stock-card d-flex flex-column justify-content-center align-items-center float-right" id="AvailableStock">
+               
+            </span>
+        </div>
+    </div>
+    <div class="row col-9"> <label id="Msg" class="text-danger" style="display:none;">Please Select User</label></div>
+</div>
+@* ============================= Content After Bar ============================= *@
+
+
+<div class="ContentAfterTopBar0 mb-4">
+    <label class="p-2">BBO’s & Products</label>
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5" id="trans_actions_container">
+
+    </div>
+    <div class="viewAll text-right mt-3 mb-3">
+        <button class="btn-action btn-primary" onclick="ConfirmAction()">Confirm</button>
+    </div>
+</div>
+@* ============================= Modal ============================= *@
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content mt-3 p-3">
+            <div class="modal-body text-center">
+                <h3 class="text-center"></h3>
+                <a class="m-1 px-3 btn btn-success" data-dismiss="modal" style="color:white">Close</a>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+
+<script>
+    var ToId;
+    
+    $('#SelectAgent').on('change', function () {
+        ToId = $('#SelectAgent').val()
+    });
+    // ================== JQUERY ================== //
+    $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        $("#hello1").text("New Delivery - Cycle Name Here");
+        GetUsers();
+    });
+    // ================== GLOBAL VARIABLES ================== //
+    var x = Object.fromEntries(new URLSearchParams(location.search));
+    var CycleID = x.cycleId;
+    var ActionId = x.ActionId;
+    // ================== GET AVAILABLE USERS FUNCTION ================== //
+    function showMessage() {
+        $("#Msg").css("display", "none");
+    }
+
+    function GetUsers() {
+        var cycleid = CycleID;
+        var actionId = ActionId;
+        var Available_Agent = $("#SelectAgent");
+        $.ajax({
+            url: "/CycleActions/GetUsersAction",
+            type: "Get",
+            data: { cycleid, actionId},
+            success: response => {
+           //    console.log(response);
+
+                if (response.data) {
+                    for (var item = 0; item < response.data.length; item++) {
+                        var Agent = `<option class="dropdown-item" value ='${response.data[item].id}' > ${response.data[item].name} - <span class="d-inline" style="opacity:0.5">${response.data[item].jobTitleName}</span></option>`
+                        Available_Agent.append(Agent);
+                    }
+                    var AvailableAmount = ` <h5>Available in hand</h5>
+                                                        <span class="SmallNum"><span class="BigNum">${response.remaining.remainingItems}</span>/${response.remaining.totalItems}</span>`
+                    $("#AvailableStock").append(AvailableAmount);
+                }
+                else {
+                    Available_Agent.empty();
+                }
+                GetTransactions();
+                //  GetCycleTotalItems();
+            },
+        });
+
+    }
+
+
+
+    ///////////////////////////////////////////////// GET Transaction Products ///////////////// 
+
+    function GetTransactions() {
+
+        var cycleid = CycleID;
+         var ValArray = [] , y;
+        $.ajax({
+            url: "/CycleActions/GetUserClearanceProducts",
+            type: "Get",
+            data: { cycleid },
+            success: response => {
+                console.log(response);
+
+                var res;
+                res = response.data;
+                if (res) {
+                    for (let prod of res) {
+
+                        var trans_action = ` <div class="row">
+                                            <div class="col-3 m-auto">
+                                                <img src="${prod.productImg}" style="border-radius:50%" width="80" height="80">
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>${prod.productName}</h4>
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>${prod.code}</h4>
+                                            </div>
+                                          
+                                            <div class="col-3 text-md-right m-auto">
+                                                <input class="ProductCount" id=${prod.productId} type="number" data-trans=${prod.quantity} data-product=${prod.productId} name="value" maxlength="4" size="1" style="height:40px; width:70px; text-align:center; font-size:18px; border-radius:5px;" onkeyup="checkValues(event)" min=0 value="0"> <h4 class="d-inline"> &nbsp;/ </h4>
+                                                <h4 class="d-inline-block" style="width:60px">${prod.quantity}</h4>
+                                            </div>
+                                        </div><hr />`
+                      
+                        $("#trans_actions_container").append(trans_action);
+                        y = `${prod.quantity}`
+                        ValArray.push(y);
+                    }
+
+                }
+
+                else {
+                    $("#Transactions").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">No Actions Available !!</div>`);
+                }
+                $('#dtBasicExample').DataTable();
+                $(".loader").fadeOut();
+
+             },
+        });
+
+    }
+
+   
+    // ================== CONFIRM WITH VALIDATION FUNCTIONS ================== //
+
+    function GetUserInputProductNum() {
+        var ProductUserInputArray = [];
+     
+        for (let item of $(".ProductCount")) {
+
+            var Product = $(item);
+            var obj = {
+                "productId": Product.data('product'),
+                "count": Product.val()
+            };
+            if (obj.count > 0) {
+                ProductUserInputArray.push(obj)
+            }
+        }
+       //var filterData= ProductUserInputArray.filter(obj => { obj.count > 0 });
+        return ProductUserInputArray;
+    }
+
+    function ConfirmAction() {
+
+        var obj = {
+            "cycle_id": CycleID,
+            "to_user_id": ToId,
+            "action_id": ActionId,
+            "transaction_items": GetUserInputProductNum(),
+        };
+
+        var data =
+            JSON.stringify(obj);
+        if (ToId == null) {
+            $("#Msg").css("display", "inline-block");
+        }
+
+        if (checkValues() == true && check == 1 && ToId) {
+
+            Swal.fire({
+                text: "Are you sure to add this transaction ?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ok',
+
+            }).then((res) => {
+                if (res.value) {
+                    $.ajax({
+                        url: '@Url.Action("NewTransaction")',
+                        type: "POST",
+                        contentType: "application/json",
+                        data: data,
+                        success: data => {
+                            if (data && data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    text: data.message,
+                                    showConfirmButton: true,
+
+                                }).then((result) => {
+                                    if (result) {
+                                        window.location.href = '@Url.Action("CycleIndex")'
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    text: data.message,
+                                });
+                            }
+                        },
+                        error: function (x, y, z) {
+                            Swal.fire({
+                                icon: 'error',
+                                text: err,
+                                showConfirmButton: true,
+
+
+                            });
+                        }
+                    });
+
+                }
+                else if (result.dismiss === swal.DismissReason.cancel) {
+
+                }
+            }
+            )
+        }
+        else if (check == 0 && ToId != null) {
+
+            swal.fire({
+                text: 'Please add at least one item',
+
+                icon: 'info',
+             //   buttonsStyling: false
+            })
+        }
+    }
+    
+     
+
+
+    //////////////////// Check values ///////////////
+   
+
+</script>
+

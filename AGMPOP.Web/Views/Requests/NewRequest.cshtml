@@ -1,0 +1,172 @@
+﻿@model AGMPOP.BL.Models.Domain.Request
+
+@{
+    ViewData["Title"] = "New Request";
+}
+
+<div class="card card-body mt-2">
+    <div class="row">
+        <div class="col-4">
+            <label asp-for="CycleId">Cycle</label>
+            <select asp-for="CycleId" class="mdb-select" id="cycle"> 
+                <option value="">Select One</option>  
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="card-body card" id="div_productlist" style="display:none">
+
+    <div id="ProductList">
+
+
+    </div>
+    <div class="d-flex justify-content-end">
+        <button type="button" onclick="AddNewRequest()" class="btn btn-blue">Add</button>
+
+    </div>
+
+</div>
+
+ 
+<script>
+
+    $(document).ready(function () {
+        $(".ProductList").addClass('d-none');
+        function DisplyFooter() {
+            $(".ProductList").removeClass('d-none');
+            $(".Dfooter").addClass('d-inline');
+        }
+        loadCycleName();
+    });
+</script>
+<script>
+        function loadCycleName() {
+         $.ajax({
+            url: '@Url.Action("RequestUserCycle", "Common")',
+            type: "Get",
+            contentType: "application/json; charset=utf-8",
+             success: function (data) {
+                 if (data.length >0) {
+
+                     for (var i = 0; i < data.length; i++) {
+                         $('#cycle').append(new Option(data[i].name, data[i].cycleId));
+
+                     }
+                 }
+             },
+            //error: function (x) {
+            //    alert("error" + x);
+            //},
+        });
+    }
+
+
+
+
+    $("#cycle").change(function () {
+        var CycleId = $("#cycle").val(); 
+        if (CycleId) {
+            $("#div_productlist").css("display", "block"); 
+            //Get Partial for product cycle
+            var IsRequest = true;
+                $.ajax({
+                    url: '@Url.Action("_CycleProductList","Transaction")',
+                    method: 'Get',
+                    data: { CycleId, IsRequest },
+                    success: response => {
+                        if (response) {
+                            $('#ProductList').html('');
+                            $('#ProductList').html(response);
+                        }
+                    }, error: function () {
+                        alert("Error");
+                    }
+                })
+
+            //    DisplyFooter();
+            }
+       
+        });
+
+
+</script>
+
+@* Post Request *@
+ 
+
+<script>
+    @* Post Request *@
+    function AddNewRequest() {
+        var cycleId = $("#cycle").val();
+        var Arr = [];
+        var checkValues = 0;
+        var myTrackingContent = "<table class='table table-bordered' width='100%'>"
+        $(".product").each(function (i, item) {
+            var id = item.id;
+            var name = item.name;
+            var val = $("#" + item.id).val();
+            checkValues++;
+            Arr.push(id + ":" + val);
+            myTrackingContent += "<tr><td class='text-left'><span>" + name + "</span></td> <td><span>" + val + "</span></td></tr>";
+        });
+        myTrackingContent += "</table>";
+        if (checkValues > 0) {
+            swal.fire({
+                text: "Review & Confirm",
+                html: myTrackingContent,
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#888',
+                confirmButtonText: 'Ok',
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        url: '/Requests/NewRequest',
+                        type: "POST",
+                        data: { cycleId, Arr },
+                        success: function (result) {
+                            if (result != null) {
+                                // done
+                                if (result.success) {
+                                    Swal.fire({
+                                        text: result.message,
+                                        icon: 'success',
+
+                                    }
+                    
+                                    ).then(
+                                        function () {
+                                            location.reload();
+                                        }
+                                    );
+                                }
+                                // when cant add
+                                else {
+                                    Swal.fire({
+                                        text: result.message,
+                                        icon: 'error',
+                                    })
+                                }
+
+                            }
+
+                        },
+                        error: function (err) {
+                            alert(err.statusText);
+                        }
+                    });
+                }
+                else if (result.dismiss === swal.DismissReason.cancel) {
+                    swal.fire({
+                        text: 'No Request created.',
+                        icon: 'info',
+                     })
+                }
+            });
+        }
+
+    }
+</script>
+ 

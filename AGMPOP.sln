@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AGMPOP.BL", "AGMPOP.BL\AGMPOP.BL.csproj", "{4E78FB44-3AB2-4C32-B173-20AFED0B1885}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AGMPOP.Web", "AGMPOP.Web\AGMPOP.Web.csproj", "{F1074F5C-C962-4D73-8660-EA32F3C020DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E78FB44-3AB2-4C32-B173-20AFED0B1885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E78FB44-3AB2-4C32-B173-20AFED0B1885}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E78FB44-3AB2-4C32-B173-20AFED0B1885}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E78FB44-3AB2-4C32-B173-20AFED0B1885}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1074F5C-C962-4D73-8660-EA32F3C020DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1074F5C-C962-4D73-8660-EA32F3C020DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1074F5C-C962-4D73-8660-EA32F3C020DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1074F5C-C962-4D73-8660-EA32F3C020DB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F1748188-A7CB-4A24-8FAF-0C6DF0FAD2F9}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://agm-londoncabdispatching.visualstudio.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = AGMPOP.BL\\AGMPOP.BL.csproj
+		SccProjectName1 = AGMPOP.BL
+		SccLocalPath1 = AGMPOP.BL
+		SccProjectUniqueName2 = AGMPOP.Web\\AGMPOP.Web.csproj
+		SccProjectName2 = AGMPOP.Web
+		SccLocalPath2 = AGMPOP.Web
+	EndGlobalSection
+EndGlobal

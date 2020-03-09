@@ -1,0 +1,551 @@
+﻿
+@{
+    ViewData["Title"] = "New Delivery Confirmation";
+}
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<!--TOP BAR-->
+<div class="TopBar0 pl-4" style="padding:10px;">
+    <div class="row">
+        <div class="col-8 col-lg-9 d-flex flex-column justify-items-center align-self-center cycleDetails">
+            <div class="pb-2"><h2 class="d-inline">Cycle Name</h2> <h5 class="d-inline">(hello)</h5></div>
+            <label> &nbsp; 01/01/2018 - 31/03/2018</label>
+            <label> &nbsp; From : mohamed kamal</label>
+        </div>
+        <div class="col-4 col-lg-3 text-right align-self-center">
+            <!-- Horizontal Steppers -->
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Stepers Wrapper -->
+                    <ul class="stepper stepper-horizontal">
+
+                        <!-- First Step -->
+                        <li class="active">
+
+                            <a href="NewDeliveryConfirmation">
+                                <span class="circle">1</span>
+                            </a>
+                        </li>
+
+                        <!-- Second Step -->
+                        <li class="disabled">
+                            <a href="NewDeliveryConfirmation2Step">
+                                <span class="circle">2</span>
+                            </a>
+                        </li>
+
+                        <!-- Third Step -->
+                        <li class="disabled">
+                            <a href="NewDeliveryConfirmation3Step">
+                                <span class="circle">3</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- /.Stepers Wrapper -->
+
+                </div>
+            </div>
+            <!-- /.Horizontal Steppers -->
+        </div>
+    </div>
+</div>
+<!-- Content After Top Bar First Step Clearance -->
+
+<div class="ContentAfterTopBar FirstStep">
+    <label class="p-2">BBO’s & Products I have</label>
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5" id="Clearance">
+
+    </div>
+    <div class="viewAll text-right mt-3 mb-3">
+    </div>
+</div>
+<!-- Content After Top Bar Second Step Confirmation -->
+@*<div class="ContentAfterTopBar SecondStep  d-none">
+        <h6 class="text-center">Please review the data below</h6>
+        <label class="p-2">Added BBO’s & Products</label>
+        <div class=" card card-body p-3 pl-5 pr-5" id="Requests">
+            <table id="dtBasicExample2" class="table table-responsive-sm" cellspacing="0" width="100%">
+                <thead class="d-none">
+                    <tr>
+                        <th class="th-sm">
+                            Name
+                        </th>
+                        <th class="th-sm">
+                            Position
+                        </th>
+                        <th class="th-sm">
+                            Office
+                        </th>
+                        <th class="th-sm">
+                            Age
+                        </th>
+                        <th class="th-sm">
+                            Age
+                        </th>
+                    </tr>
+                </thead>
+                <tbody >
+                </tbody>
+            </table>
+        </div>
+
+    </div>*@
+
+
+<div class="ContentAfterTopBar SecondStep d-none">
+    <h6 class="text-center">Please review the data below</h6>
+    <label class="p-2">Added BBO’s & Products</label>
+
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5" id="DeliveryItems">
+    </div>
+
+    <div class="viewAll2 text-right mt-3 mb-3">
+        <button class="UndoFirstButton" onclick="UndoFirstButton()" style="background-color:#848484;">Back</button> <button class="UndoSecondButton" onclick="UndoSecondButton()" style="background-color:#848484;">Back</button>   <button class="ThirdStepBtn d-none" onclick="ConfirmBtn()">Confirm</button>
+    </div>
+
+</div>
+<!--============================== Modal =================================-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content mt-3 p-3">
+            <div class="modal-body text-center">
+                <h3 class="text-center"></h3>
+                <a class="m-1 px-3 btn btn-success" data-dismiss="modal" style="color:white">Close</a>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+
+<script>
+    // ================== JQUERY ================== //
+
+    $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        $("#hello1").text("New Delivery Confirmation");
+        $(".cycleDetails").empty();
+        GetCycleName();
+    });
+
+    // ================== BUTTONS FUNCTIONS ================== //
+
+    function SecondButton() {
+        $(".FirstStep").removeClass("d-none");
+        $(".FirstStep .viewAll").addClass("d-none");
+        $(".SecondStep ").addClass("mt-3");
+        $(".TopBar0 ul li:nth-of-type(3)").removeClass("disabled").addClass("active")
+        $("button.ThirdStepBtn").removeClass("d-none");
+        $(".SecondStep .viewAll2 .SecondStepBtn").addClass("d-none");
+        $(".UndoFirstButton").addClass("d-none");
+        $(".UndoSecondButton").removeClass("d-none");
+    }
+    function UndoFirstButton() {
+        $(".FirstStep").removeClass("d-none");
+        $(".SecondStep").addClass("d-none");
+        $(".TopBar0 ul li:nth-of-type(2)").removeClass("active").addClass("disabled")
+        $(".FirstStep input").attr("readonly", false);
+
+    }
+    function UndoSecondButton() {
+        $(".FirstStep").addClass("d-none");
+        $(".FirstStep .viewAll").removeClass("d-none");
+        $(".SecondStep ").removeClass("mt-3");
+        $(".TopBar0 ul li:nth-of-type(3)").addClass("disabled").removeClass("active")
+        $("button.ThirdStepBtn").addClass("d-none");
+        $(".SecondStep .viewAll2 .SecondStepBtn").removeClass("d-none");
+        $(".UndoFirstButton").removeClass("d-none");
+        $(".UndoSecondButton").addClass("d-none");
+    }
+
+    // ================== GLOBAL VARIABLES ================== //
+    var x = Object.fromEntries(new URLSearchParams(location.search));
+    var NotificationID = x.NotificationId;
+    var CycleID = x.CycleId;
+    var TransID = x.TransactionId;
+    // ================== GET CYCLE NAME ================== //
+
+    function GetCycleName() {
+        var cycleId = CycleID;
+        $.ajax({
+            url: '@Url.Action("GetCycleName", "Notification")',
+            type: "Get",
+            data: { cycleId },
+            success: response => {
+                var res = response;
+                if (res) {
+                    var cycletype = res.type.id == 0 ? "NW" : "Ev";
+                    var CycleName = `<h2 style="display:contents">${res.name}</h2><label style="display:contents; font-size : 16px" > - ${cycletype}</label>
+                    <label class="mt-2">${moment(res.start_date).format('DD/MM/YYYY')} - ${moment(res.end_date).format('DD/MM/YYYY')}</label>`
+                    $(".cycleDetails").append(CycleName);
+                }
+                else {
+                    $(".cycleDetails").append("ERROR");
+                }
+              //  GetCycleDetails();
+            },
+
+        });
+
+    }
+    //async function GetCycleName() {
+
+    //    var currLocation = await getCurrentLocation();
+    //    var userlat = currLocation.latitude;
+    //    var userlng = currLocation.longitude;
+    //    const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/cycles/" + CycleID;
+
+    //    let apiResponse = await fetch(proxyurl + APIurl, {
+    //        method: 'GET',
+    //        headers: {
+    //            'Authorization': 'Bearer ' + AccessToken,
+    //            'Accept': 'application/json',
+    //            'Content-Type': 'application/json',
+    //            'Access-Control-Allow-Origin': '*',
+    //        },
+    //    });
+
+    //    var res;
+    //    if (apiResponse.ok) {
+    //        res = await apiResponse.json();
+    //        if (res.data) {
+    //            var cycletype = res.data.type.id == 0 ? "NW" : "Ev";
+    //            var CycleName = `<h2 style="display:contents">${res.data.name}</h2><label style="display:contents; font-size : 16px" > - ${cycletype}</label>
+    //                <label class="mt-2">${moment(res.data.start_date).format('DD/MM/YYYY')} - ${moment(res.data.end_date).format('DD/MM/YYYY')}</label>`
+    //            $(".cycleDetails").append(CycleName);
+    //        }
+    //        else {
+    //            $(".cycleDetails").append("ERROR");
+    //        }
+    //    } GetCycleDetails()
+    //}
+    // ================== GET CYCLE DETAILES ================== //
+
+    async function GetCycleDetails() {
+
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        var x = Object.fromEntries(new URLSearchParams(location.search));
+        var CycleID = x.cycleId;
+        var TransID = x.TransactionId;
+        if (!TransID) {
+            return;
+        }
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + TransID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res.data) {
+                //append total items
+                var AvailableItems = `${res.data.total_items}`
+                $(".BigNum").append(AvailableItems);
+                //append cycle name & date
+                var CycleDetails = ` ${res.data.from.user_id == userID ? `<label><b>to : </b> ${res.data.to.Full_Name}</label>` : `<label><b>from: </b> ${res.data.from.Full_Name}</label>`}`
+                $(".cycleDetails").append(CycleDetails);
+            }
+            else {
+                $(".cycleDetails").append("ERROR");
+            }
+        } Clearance()
+        ShowNotification()
+    }
+
+    // ================== CLEARANCE PRODUCTS FUNCTION ================== //
+    var ValArray = [],
+        y;
+
+    async function Clearance() {
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        var x = Object.fromEntries(new URLSearchParams(location.search));
+        var CycleID = x.CycleId;
+        var TransID = x.TransactionId;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + "items/" + CycleID + "?AllItems=false";
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            }
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res.data && res.data.length) {
+
+                for (i = 0; i < res.data.length; i++) {
+                    var addDelivery = `<div class="row">
+                                            <div class="col-2 m-auto">
+                                                <img src="${res.data[i].product.image}" style="border-radius:50%" width="80" height="80">
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>${res.data[i].product.name}</h4>
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>${res.data[i].product.code}</h4>
+                                            </div>
+                                            <div class="col-2 m-auto">
+                                                <h4>${res.data[i].product.type.name}</h4>
+                                            </div>
+                                            <div class="col-2 text-md-right m-auto">
+                                                <input class="ProductCount" type="text" max="${res.data[i].available_items}" name="value" maxlength="4" data-product="${res.data[i].product.id}" size="1" style="height:40px; width:70px; text-align:center; font-size:18px; border-radius:5px;" value="0" > <h4 class="d-inline"> &nbsp;/ </h4>
+                                                <h4 class="d-inline">${res.data[i].available_items}</h4>
+                                            </div>
+                                        </div><hr />`
+
+
+
+                    y = `${res.data[i].available_items}`
+                    ValArray.push(y);
+                    $("#Clearance").append(addDelivery);
+
+                }
+                var ConfirmBtn = `<button onclick=" NextBtn()">Next</button> `
+                $(".viewAll").append(ConfirmBtn);
+            }
+            else {
+                $("#Clearance").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert"> No Clearance Needed !! </div>`);
+                var ConfirmBtn = ` <a href="NewDeliveryConfirmation2Step?TransactionId=${TransID}&cycleId=${CycleID}"><button>Next</button></a>`
+                $(".viewAll").append(ConfirmBtn);
+            }
+            DeliveryConfirm()
+        }
+
+    }
+    // ================== GET NEW ITEMS TO RECIVE AND CONFIRM FUNCTION ================== //
+    async function DeliveryConfirm() {
+
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        var x = Object.fromEntries(new URLSearchParams(location.search));
+        var CycleID = x.cycleId;
+        var TransID = x.TransactionId;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + TransID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            }
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res.data) {
+                for (i = 0; i < res.data.items.length; i++) {
+                    var addDelivery = `<div class="row">
+                                            <div class="col-2 m-auto">
+                                                <img src="${res.data.items[i].product.image}" style="border-radius:50%" width="80" height="80">
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>${res.data.items[i].product.name}</h4>
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>#${res.data.items[i].product.code}</h4>
+                                            </div>
+                                            <div class="col-2 m-auto">
+                                                <h4>${res.data.items[i].product.type.name}</h4>
+                                            </div>
+                                            <div class="col-2 text-md-right m-auto">
+                                            <span class="d-inline ProductsNum">${res.data.items[i].total_items}</span>
+
+                                            </div>
+                                        </div><hr />`
+                    $("#DeliveryItems").append(addDelivery);
+                }
+                var ConfirmBtn = ` <button class="SecondStepBtn" onclick="SecondButton()">Next</button> `
+                $(".viewAll2").append(ConfirmBtn);
+            }
+            else {
+                $("#Requests").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert"> No Requests found !! </div>`);
+                var ConfirmBtn = `<button class="SecondStepBtn" onclick="SecondButton()">Next</button> `
+                $(".viewAll2").append(ConfirmBtn);
+            }
+        } $('#dtBasicExample2').DataTable();
+        $(".loader").fadeOut();
+    }
+
+    // ================== VALIDATION FUUNCTION ================== //
+    async function NextBtn() {
+
+        var clearanceItems = [];
+        function GetProductVal() {
+            for (let item of $(".ProductCount")) {
+                var x = $(item)
+                var obj = {
+                    "product_id": x.data('product'),
+                    "count": x.val()
+                };
+                clearanceItems.push(obj)
+            }
+        } GetProductVal();
+
+        function Validation_Function() {
+
+            function FirstButton() {
+                $(".FirstStep").addClass("d-none");
+                $(".SecondStep").removeClass("d-none");
+                $(".TopBar0 ul li:nth-of-type(2)").removeClass("disabled").addClass("active")
+                $(".FirstStep input").attr("readonly", true);
+                $(".UndoSecondButton").addClass("d-none");
+            }
+
+            var AllProductValueEntered = [];
+
+            for (i = 0; i < clearanceItems.length; i++)
+                if (clearanceItems[i].count != "" && clearanceItems[i].count != null) {
+                    AllProductValueEntered.push(clearanceItems[i]);
+                } else {
+                    $(".modal-body h3").text("Please complete Products numbers1").addClass("success");
+                    $("#exampleModal").modal("show");
+                    break;
+                }
+            if (clearanceItems.length == AllProductValueEntered.length) {
+                var SumOfAllProducts = 0;
+                var d;
+                var e = [];
+                for (i = 0; i < AllProductValueEntered.length; i++) {
+                    if (Number(AllProductValueEntered[i].count) <= Number(ValArray[i]) && Number(AllProductValueEntered[i].count) >= 0) {
+                        d = Number(AllProductValueEntered[i].count);
+                        e.push(d);
+                        SumOfAllProducts += Number(AllProductValueEntered[i].count);
+
+                        if (e.length == AllProductValueEntered.length) {
+                            if (SumOfAllProducts > 0) {
+                                FirstButton();
+                            } else {
+                                $(".modal-body h3").text("Error! .. you should enter a quantity for one product at least").addClass("success");
+                                $("#exampleModal").modal("show");
+                            }
+                        }
+                    } else {
+                        $(".modal-body h3").text("Error! .. transferred quantities should not exceed available ones").addClass("success");
+                        $("#exampleModal").modal("show");
+                        break;
+                    }
+                }
+            } else {
+                $(".modal-body h3").text("Every product should have quantity").addClass("success");
+                $("#exampleModal").modal("show");
+            }
+        } Validation_Function()
+    }
+
+    // ================== CONFIRM FUUNCTION ================== //
+    async function ConfirmBtn() {
+        $(".loader").fadeIn();
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + TransID + "/approve";
+
+        var clearanceItems = [];
+        function GetProductVal() {
+            for (let item of $(".ProductCount")) {
+                var x = $(item)
+
+                var obj = {
+                    "product_id": x.data('product'),
+                    "count": x.val()
+                };
+
+                clearanceItems.push(obj)
+            }
+        } GetProductVal();
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                //'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify(clearanceItems)
+        });
+
+        var res;
+        if (apiResponse.ok) {
+
+            res = await apiResponse.json();
+            if (res["data"] != null) {
+                $("#exampleModal").empty();
+                var modal = `<div class="modal-dialog" role="document">
+                        <div class="modal-content mt-3 p-3">
+                            <div class="modal-body text-center">
+                                <h3 class="text-center"></h3>
+                                <a class="m-1 px-3 btn btn-success" href="CycleName?cycleId=${CycleID}">Close</a>
+                            </div>
+                        </div>
+                    </div> `
+                $("#exampleModal").append(modal);
+                $(".loader").fadeOut();
+                $(".modal-body h3").text("Confirmed").addClass("success")
+                $("#exampleModal").modal("show");
+
+            } else {
+                $(".loader").fadeOut();
+                $(".modal-body").text("Failed").addClass("danger")
+                $("#exampleModal").modal("show");
+            }
+        }
+    }
+
+    // ================== NOTIFICATION FUUNCTION ================== //
+    async function ShowNotification() {
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/users/" + userID + "/notification/" + NotificationID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                //'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res["data"] != null) {
+                console.log(res["data"])
+            } else {
+                console.log("false")
+            }
+        }
+    }
+
+</script>
+

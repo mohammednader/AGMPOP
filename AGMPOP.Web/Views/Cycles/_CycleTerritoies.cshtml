@@ -1,0 +1,89 @@
+﻿@{
+    Layout = null;
+}
+
+<div>
+    <fieldset>
+        <div class="col-12">
+            <div id="geo-tree"></div>
+            <input type="hidden" name="jsfields" id="jsfields" value="" />
+        </div>
+    </fieldset>
+</div>
+<script>
+    $(function () {
+
+        var url = '@Url.Action("TerritoiesData", "Cycles")';
+        if (CycleId) {
+            url += `?cycleId=${CycleId}`;
+        }
+        $.ajax({
+            url,
+            method: "Get",
+            success: (data) => {
+                LoadExtOrgTree(data.data);
+            },
+            error: (e) => { console.log(e); }
+        });
+    });
+    //load Territories
+    function LoadExtOrgTree(data) {
+
+        $('#geo-tree')
+            .jstree({
+                "core": {
+                    "animation": 0,
+                    "check_callback": true,
+                    'force_text': true,
+                    "themes": { "": true },
+                    'data': JSON.parse(data)
+                }
+                ,
+                "types": {
+                    "#": { "max_children": 1, "max_depth": 4, "valid_children": ["root"] },
+                    "root": { "icon": "", "valid_children": ["default"] },
+                    "default": { "icon": "fas fa-file text-primary", "valid_children": ["default", "file"] },
+                    "file": { "icon": "", "valid_children": [] }
+                },
+                "plugins": ["types", "wholerow", "checkbox"]
+            }).on('changed.jstree', function (e, data) {
+                if (data.selected.length) {
+                    $('#hfTerritories').val(data.selected.join(','));
+                } else {
+                    $('#hfTerritories').val('');
+                }
+
+                var i, j, r = [];
+                for (i = 0, j = data.selected.length; i < j; i++) {
+                    r.push(data.instance.get_node(data.selected[i]).id.trim());
+                }
+
+                $('#jsfields').val(r.join(', '));
+            });
+    };
+
+
+// Next Step
+    function validateCycleTerritories() {
+        var selected = $('#jsfields').val();
+        if (!selected) {
+
+            swal.fire({
+                //title: 'Select Territories',
+                text: "No Territories Selected",
+                icon: 'warning',
+                showCancelButton: false,
+                //cancelButtonClass: 'btn btn-danger',
+                confirmButtonText: 'Ok',
+            });
+            return null;
+        }
+        else {
+            return selected;
+        }
+    }
+
+
+</script>
+
+

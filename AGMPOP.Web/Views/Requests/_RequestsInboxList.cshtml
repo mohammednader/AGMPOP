@@ -1,0 +1,117 @@
+﻿@model IEnumerable<AGMPOP.Web.Models.Requests.RequestsInboxVM>
+
+@{
+    Layout = null;
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-body">
+            <table id="dtBasicExample" class="table table-responsive-sm table-responsive-md table-striped table-bordered" cellspacing="0" width="100%">
+
+                <thead>
+                    <tr>
+                        <th data-field="name" data-sortable="true">Cycle Name</th>
+                        <th data-field="" data-sortable="true">Cycle Type</th>
+                        <th data-field="" data-sortable="true">Req By</th>
+                        <th data-field="" data-sortable="true">Req Date</th>
+                        <th data-field="">Req Status</th>
+                        <th data-field="">Total Items</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model != null)
+                    {
+
+
+                        foreach (var item in Model)
+                        {
+
+                            <tr>
+                                <td>@item.CycleName</td>
+                                @if (@item.CycleType == 1)
+                                {
+                                    <td>NationWide</td>
+                                }
+                                else
+                                {
+                                    <td>Event</td>
+                                }
+
+                                <td>
+                                    @item.CreartedByName
+                                </td>
+                                <td>@item.ReqDate</td>
+                                @if (@item.ReqStatus == false)
+                                {
+                                    <td>Pending</td>
+                                }
+                                else
+                                {
+                                    <td>Received</td>
+                                }
+
+                                <td>
+                                    <span class="badge badge-pill badge-primary">
+                                        <a class="btn-link " data-toggle="modal" data-target="#ProductDetails" onclick="GetDetails(@item.ReqID)" title=''>@item.ReqAmount</a>
+                                    </span>
+                                </td>
+
+                                @if (@item.ReqStatus == false)
+                                {
+                                    <td>
+                                        <button type="button" class="btn btn-primary" onclick="AcceptRequest(@item.ReqID)">Acknowledged</button>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <button type="button" class="btn btn-primary " disabled><i class="fa fa-check"></i></button>
+                                    </td>
+                                }
+
+                            </tr>
+
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ProductDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="p-n m-n pull-left" id="CycleName"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="stock-table" class="table table-bordered">
+                    <thead><tr><th>Item Name</th><th>Quantity</th></tr></thead>
+
+                    <tbody></tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*<script>
+        $(document).ready(function () {
+
+            $('#dtBasicExample').DataTable();
+
+
+        });
+    </script>*@

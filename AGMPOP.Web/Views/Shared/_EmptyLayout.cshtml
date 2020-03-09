@@ -1,0 +1,75 @@
+﻿<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>@ViewData["Title"] - AGM</title>
+    <!--font awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" />
+
+    <!--===================== Styles =====================-->
+    <!--===================== bootstrap =====================-->
+    <link href="~/css/bootstrap/LTR/bootstrap.min.css" rel="stylesheet" />
+    <!--===================== MDB pro =====================-->
+    <link href="~/css/mdb-pro 4.10.0/LTR/mdb-pro.min.css" rel="stylesheet" />
+    <!--===================== labraries ======================-->
+    <link href="~/css/libraries/libraries.min.css" rel="stylesheet" />
+    <!--===================== sweet alert ======================-->
+    <link href="~/css/libraries/sweetalert2.min.css" rel="stylesheet" />
+    <!--===================== Sidebar =====================-->
+    <link href="~/css/libraries/sidebar.css" rel="stylesheet" />
+    <!--===================== custom style ======================-->
+    <link href="~/css/style.css" rel="stylesheet" />
+
+
+    <!--===================== Scripts =====================-->
+    <!--===================== jQuery =====================-->
+    <script src="~/js/jquery/jquery.min.js"></script>
+    <!--=====================  include a polyfill for ES6 Promises for IE11 ===================== -->
+    <environment include="Development">
+        <script src="~/lib/promise-polyfill/dist/polyfill.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/lib/promise-polyfill/dist/polyfill.min.js"></script>
+    </environment>
+    <!--===================== Bootstrap tooltips JavaScript=====================-->
+    <script src="~/js/popper/popper.min.js"></script>
+    <!--===================== Bootstrap core JavaScript =====================-->
+    <script src="~/js/bootstrap/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
+    <!--===================== sweet alert =====================-->
+    <script src="~/js/sweetalert/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <!--===================== Datatables =====================-->
+    <script src="~/js/mdb-pro/datatables.min.js"></script>
+    <!--===================== moment js =====================-->
+    <script src="~/js/moment js/moment.min.js"></script>
+    <!--===================== Wow js & animate js =====================-->
+    <script src="~/js/animate css/wow.js"></script>
+    <!--===================== bootstrap wizard (div stepper) =====================-->
+    <script src="~/js/bootstrap wizard (div stepper)/jquery.bootstrap.wizard.min.js"></script>
+    <!--===================== date range picker =====================-->
+    <script src="~/js/date range picker/daterangepicker.js"></script>
+    <!--===================== full calendar =====================-->
+    <script src="~/js/full calender/fullcalendar.min.js"></script>
+    <!--===================== js tree =====================-->
+    <script src="~/js/jstree/jstree.min.js"></script>
+
+    <style>
+        .validation-summary-errors > ul {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <main style="height:100vh; padding-top:50px">
+        <div class="container-fluid">
+            @RenderBody()
+        </div>
+    </main>
+
+    @RenderSection("Scripts", false);
+</body>
+</html>

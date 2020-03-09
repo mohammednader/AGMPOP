@@ -1,0 +1,14 @@
+﻿[
+  {
+    "outputFile": "wwwroot/css/style.css",
+    "inputFile": "wwwroot/sass/style.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/mdb/mdb.css",
+    "inputFile": "wwwroot/sass/mdb-pro 4.10.0/ltr/mdb-pro.scss"
+  },
+  {
+    "outputFile": "wwwroot/css/bootstrap/bootstrap.css",
+    "inputFile": "wwwroot/sass/bootstrap/ltr/bootstrap.scss"
+  }
+]

@@ -1,0 +1,57 @@
+﻿@model List<AGMPOP.BL.Models.ViewModels.ProductCycleModel>
+
+
+@if (Model != null)
+{
+    <div class="modal-header d-flex justify-content-between">
+        <h5  class="modal-title p-n m-n pull-left ">Transaction's Products @Model.Count() items</h5>
+        <button data-dismiss="modal" class="close">&times;</button>
+    </div>
+    <div class="modal-body">
+
+        <table id="cycles-table" class="table">
+            <thead>
+                <tr>
+                    <th data-field="photo">Photo</th>
+                    <th data-field="name">Name</th>
+                    <th data-field="code">Code</th>
+                    <th data-field="type">Quantity</th>
+    
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="">
+                            <img src="@item.ProductImg" style="height:40px; width:40px;" />
+                        </td>
+                        <td>
+                            <a>@item.ProductName</a>
+                        </td>
+                        <td>@item.Code</td>
+    
+    
+                        <td class="text-center">
+                            @item.Quantity
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="p-sm">
+        <div>
+            <strong class="title pull-left">
+                There is no Transaction Detials on this Transaction!
+            </strong>
+        </div>
+    </div>
+}
+
+
+
+

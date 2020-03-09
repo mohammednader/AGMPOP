@@ -1,0 +1,194 @@
+﻿@model AGMPOP.Web.Models.ProductVM
+@{
+    Layout = "_PartialLayout";
+}
+
+
+
+
+
+<form id="formCreateProduct" autocomplete="off" enctype="multipart/form-data" asp-action="Create" asp-controller="Product">
+    <div class="modal-body">
+
+        <div class="row">
+            <div class="col-12 ">
+                <label class=" control-label">
+                    Item Name
+                </label>
+                <div class="form-group">
+                    <input asp-for="Name" class="form-control" required="required" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+
+
+            <div class="col-12 ">
+                <div class="form-group">
+                    <label class=" control-label">
+                        Code
+                    </label>
+                    <div class="form-group">
+                        <input asp-for="Code" class="form-control" />
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        <div class="col-12">
+            <label class="control-label">
+                Product quantity
+            </label>
+
+                <input asp-for="InventoryQnty" min="0" class="form-control" />
+                <span asp-validation-for="InventoryQnty" class="text-danger"></span>
+            </div>
+
+
+
+            <style>
+                .select-wrapper input.select-dropdown {
+                    padding: 0px !important;
+                }
+            </style>
+            <div class="col-12 mt-2">
+                <label class="control-label">
+                    Department
+                </label>
+                <select id="DepartmentId" class="md-form mdb-select mt-0" name="DepartmentID" asp-for="DepartmentID" Searchable="Search here...">
+                    <option value="" disabled>Select Department</option>
+                </select>
+            </div>
+
+
+            @*<div class="col-12 mt-2">
+                <label class="control-label">
+                    Type
+                </label>
+                <select class="md-form mdb-select mt-0" name="TypeId" asp-for="TypeId" Searchable="Search here...">
+                    <option value="" disabled>Select Type</option>
+                </select>
+            </div>*@
+
+            <div class="col-12 mt-1">
+                <label class="control-label">
+                    Product Photo
+                </label>
+                <input type="file" asp-for="Image" accept="image/png, image/jpeg" name="file" onchange="readfile(this);">
+             </div>
+
+
+
+            <div class="col-12 mt-1">
+                <img id="image_preview" class="" src="#" loading="lazy" alt="" style="max-height:50px;min-width:50px; width:50px;" />
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer pb-0">
+        @*    <button class="btn btn-primary" type="submit" id="savedbtn">Save</button>*@
+        <button type="button" class="btn btn-grey" data-dismiss="modal">Close</button> 
+        <button type="submit" class="btn btn-primary">Save</button>
+
+
+    </div>
+</form>
+
+
+<script>
+    // Material Select Initialization
+    $(document).ready(function () {
+        getAllDept();
+      //  getAllType();
+        $('#DepartmentId').materialSelect();
+        $('#TypeId').materialSelect();
+
+
+    });
+</script>
+<!--preview pic-->
+<script>
+
+    function readfile(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#image_preview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+</script>
+
+@*button click*@
+
+
+<script>
+
+
+    $('#formCreateProduct').ajaxForm(response => {
+        if (response) {
+            if (response.success) {
+                $('#CreateProductModal').modal('hide');
+                Swal.fire({
+                    icon: 'success',
+                    text: response.message,
+                }).then(_ => {
+                    loadProduct();
+
+
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    text: response.message,
+                });
+            }
+        }
+    });
+
+     @*function getAllType() {
+         $('#TypeId').empty();
+         $('#TypeId').append('<option  disabled>Select Type</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllProductTypes","common")',
+            method: 'GET',
+
+            success: response => {
+                console.log(response);
+
+                if (response && response.length) {
+                    response.forEach(r => {
+                        $('#TypeId').append(`<option value="${r.id}">${r.name}</option>`);
+                    });
+                }
+            }
+        });
+    }*@
+
+     function getAllDept() {
+        $('#DepartmentId').empty();
+        $('#DepartmentId').append('<option value="" disabled>Select Department</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllDepartments", "common")',
+            method: 'GET',
+            async: false,
+
+            success: response => {
+                console.log(response);
+                if (response ) {
+                    response.forEach(d => {
+                        $('#DepartmentId').append(`<option value="${d.id}">${d.name}</option>`);
+                    });
+                }
+            }
+        });
+    }
+
+
+</script>

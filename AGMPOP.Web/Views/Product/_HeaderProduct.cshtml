@@ -1,0 +1,76 @@
+﻿
+@using AGMPOP.BL.Models.Domain
+
+
+<div class="container-with-shadow p3 relative mb-sm">
+    <div class="neptune-grid">
+        <nav class="search-filters-bar align-items-center  display-flex justify-space-between">
+
+            <ul class="search-filters-bar__filter-grouping display-flex align-items-center list-style-none jobs-search-facets-list--initial-facets pl-sm">
+                <li class="pr-sm inline-block search-s-facet--f_TP search-s-facet--is-closed ember-view">
+
+
+                    @if (ViewBag.ProductName != null)
+                    {
+                        <input class="form-control" placeholder="Name" value="@(ViewBag.ProductName as string)" id="ProductName">
+
+                    }
+                    else
+                    {
+                        <input class="form-control" placeholder="Name" id="ProductName">
+                    }
+                </li>
+
+                <li class="pr-sm inline-block search-s-facet--f_TP search-s-facet--is-closed ember-view">
+
+                    @if (ViewBag.ProductType != null)
+                    {
+                        if (ViewBag.TypeId != null)
+                        {
+                            <select class="selectpicker" name="ProductType" data-style="btn btn-default-alt btn-block" id="productType" title="Type">
+
+                                @foreach (var item in (ViewBag._ProductType as List<dynamic>))
+                                {
+                                    if (item.TypeId == ViewBag.TypeId)
+                                    {
+                                        <option value="@item.TypeId" selected>@item.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.TypeId">@item.Name</option>
+                                    }
+
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            @Html.DropDownList("ProductType", null, "Type", new { id = "productType", @class = "form-control" })
+
+                        }
+                    }
+
+                </li>
+
+            </ul>
+
+            <div class="display-flex">
+                <div class="search-advanced-facets__button-grouping">
+                    <button class="btn btn-link text-muted mr-sm" onclick="location.href='@Url.Action("Index", "Product")'">
+                        Clear
+                    </button>
+                </div>
+
+                <button class="btn btn-primary" id="search">
+                    <i class="fa fa-search">   </i>
+                </button>
+                &nbsp;
+                <button id="all_filters" class="btn btn-primary" onclick="location.href='@Url.Action("Form", "Product")'">
+                    <i class="ti-plus"></i>&nbsp;Create New
+                </button>
+            </div>
+
+        </nav>
+    </div>
+</div>
+

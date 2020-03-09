@@ -1,0 +1,44 @@
+﻿@model List<AGMPOP.BL.Models.ViewModels.ProductCycleModel>
+
+<table width="100%" class="table table-bordered card-body">
+
+    @if (Model.Count() > 0)
+    {
+        foreach (var prod in Model)
+        {
+            <tr>
+                <td class="img-warp text-center">
+                    <img src="@prod.ProductImg" style="height:40px; width:40px;" />
+
+                </td>
+                <td>
+                    @prod.ProductName
+                </td>
+
+                @{
+                    if (ViewBag.IsRequest == true)
+                    {
+                        <td class="text-center d-flex">
+
+                            <input style="width:100px;" name="@prod.ProductName" id="@prod.ProductId" class="form-control mx-auto valid product" placeholder="0" value="0" min="0" oninput="this.value = Math.abs(this.value)" type="number" />
+
+                        </td>
+                    }
+                    else
+                    {
+
+                        <td class="text-center d-flex">
+                            <input style="width:100px;" name="@prod.ProductName" id="@prod.ProductId" data-trans="@prod.InventoryQuantity" class="form-control mx-auto valid product" onkeyup="checkValues(event)" placeholder="0" value="0" min="0" oninput="this.value = Math.abs(this.value)" type="number" />
+
+                        </td>
+                    }
+                }
+            </tr>
+                        }
+                    }
+                    else
+                    {
+                    <tr><td colspan="2"> No products found</td></tr>
+                    
+                    }
+</table>

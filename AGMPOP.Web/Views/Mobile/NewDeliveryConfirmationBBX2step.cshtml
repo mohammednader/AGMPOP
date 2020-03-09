@@ -1,0 +1,260 @@
+﻿
+@{
+    ViewData["Title"] = "New Delivery Confirmation";
+}
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<!-- TOP BAR -->
+<div class="TopBar0 pl-4" style="padding:10px;">
+    <div class="row">
+        <div class="col-8 col-lg-9 d-flex flex-column justify-items-center align-self-center cycleDetails">
+            <div class="pb-2"><h2 class="d-inline">Cycle Name</h2> <h5 class="d-inline">(hello)</h5></div>
+            <label> &nbsp; 01/01/2018 - 31/03/2018</label>
+            <label> &nbsp; From : mohamed kamal</label>
+        </div>
+        <div class="col-4 col-lg-3 text-right align-self-center">
+            <!-- Horizontal Steppers -->
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- Stepers Wrapper -->
+                    <ul class="stepper stepper-horizontal">
+                        <!-- First Step -->
+                        <li class="active">
+                            <a href="NewDeliveryConfirmationBBX">
+                                <span class="circle">1</span>
+                            </a>
+                        </li>
+                        <!-- Second Step -->
+                        <li class="active">
+                            <a href="NewDeliveryConfirmationBBX2step">
+                                <span class="circle">2</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- /.Stepers Wrapper -->
+                </div>
+            </div>
+            <!-- /.Horizontal Steppers -->
+        </div>
+    </div>
+</div>
+<!-- CONTENT AFTER TOP BAR -->
+<div class="ContentAfterTopBar">
+    <h6 class="text-center">Please review the data below</h6>
+    <label class="p-2">Added BBO’s & Products</label>
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5 NewDeliveryConfirmationBBX">
+
+    </div>
+    <div class="viewAll text-right mt-3 mb-3">
+
+
+    </div>
+</div>
+
+
+<!-- MODAL -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content mt-3 p-3">
+            <div class="modal-body text-center">
+                <h3 class="text-center"></h3>
+                <button type="button" class="m-1 px-3 btn btn-success" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+
+<script>
+    // ================== JQUERY ================== //
+    $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        $("#hello1").text("New Delivery Confirmation");
+        $(".cycleDetails").empty();
+        GetCycleName();
+    });
+</script>
+
+<script>
+    // ================== GLOBAL VARIABLES ================== //
+    var x = Object.fromEntries(new URLSearchParams(location.search));
+    var CycleID = x.cycleId;
+    var TransID = x.TransactionId;
+    // ================== GET NEW ITEMS TO RECIVE AND CONFIRM FUNCTION ================== //
+    async function DeliveryConfirm() {
+
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + TransID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            }
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res.data) {
+                for (i = 0; i < res.data.items.length; i++) {
+                    var addDelivery = ` <div class="row">
+                <div class="col-2 m-auto">
+                    <img src="${res.data.items[i].product.image}" style="border-radius:50%" width="80" height="80">
+                </div>
+                <div class="col-3 m-auto">
+                    <h4>${res.data.items[i].product.name}</h4>
+                </div>
+                <div class="col-3 m-auto">
+                    <h4>#${res.data.items[i].product.code}</h4>
+                </div>
+                <div class="col-2 m-auto">
+                    <h4>${res.data.items[i].product.type.name}</h4>
+                </div>
+                <div class="col-2 text-center text-md-right m-auto">
+                    <span class="d-inline ProductsNum">${res.data.items[i].total_items}</span>
+                </div>
+            </div><hr /> `
+                    $(".NewDeliveryConfirmationBBX").append(addDelivery);
+                }
+                var ConfirmBtn = `<a href="NewDeliveryConfirmationBBX?TransactionId=${TransID}&CycleId=${CycleID}"><button style="background-color:#848484;">Back</button>
+                                    </a>
+                                    <button onclick="ConfirmBtn()">Confirm</button>`
+                $(".viewAll").append(ConfirmBtn);
+            }
+            else {
+                $("#Requests").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">  No Requests found !! </div>`);
+                var ConfirmBtn = ` <a href="#"><button>Confirm</button></a>`
+                $(".viewAll").append(ConfirmBtn);
+            }
+        }
+        $(".loader").fadeOut();
+    }
+    // ================== GET CYCLE NAME FUNCTION ================== //
+    async function GetCycleName() {
+
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/cycles/" + CycleID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
+
+        var res;
+        if (apiResponse.ok)
+            res = await apiResponse.json();
+        if (res.data) {
+            var cycletype = res.data.type.id == 0 ? "NW" : "Ev";
+            var CycleName = `<h2 style="display:contents">${res.data.name}</h2><label style="display:contents; font-size : 16px" > - ${cycletype}</label>
+                    <label class="mt-2">${moment(res.data.start_date).format('DD/MM/YYYY')} - ${moment(res.data.end_date).format('DD/MM/YYYY')}</label>`
+            $(".cycleDetails").append(CycleName);
+        }
+        else {
+            $(".cycleDetails").empty();
+        }
+        GetCycleDetails()
+        DeliveryConfirm();
+    }
+    // ================== GET CYCLE DETAILS FUNCTION ================== //
+    async function GetCycleDetails() {
+
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        var TransID = location.search.substring(1).split('=')[1];
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + TransID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res.data) {
+                //append total items
+                var AvailableItems = `${res.data.total_items}`
+                $(".BigNum").append(AvailableItems);
+                //append cycle name & date
+                var CycleDetails = ` <label class="mt-2">
+            ${res.data.from.user_id == userID ? `<label><b>to : </b> ${res.data.to.Full_Name}</label>` : `<label><b>from: </b> ${res.data.from.Full_Name}</label>`}`
+                $(".cycleDetails").append(CycleDetails);
+            }
+            else {
+                $(".cycleDetails").append("ERROR");
+            }
+        }
+    }
+
+    // ================== CONFIRM FUNCTION ================== //
+    async function ConfirmBtn() {
+        $(".loader").fadeIn();
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + TransID + "/approve";
+        var Confirm = [];
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                //'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify(Confirm)
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res["data"] != null) {
+                $("#exampleModal").empty();
+                var modal = `<div class="modal-dialog" role="document">
+                        <div class="modal-content mt-3 p-3">
+                            <div class="modal-body text-center">
+                                <h3 class="text-center"></h3>
+                                <a class="m-1 px-3 btn btn-success" href="CycleName?cycleId=${CycleID}">Close</a>
+                            </div>
+                        </div>
+                    </div> `
+                $("#exampleModal").append(modal);
+                $(".loader").fadeOut();
+                $(".modal-body h3").text("Confirmed").addClass("success")
+                $("#exampleModal").modal("show");
+            } else {
+                $(".loader").fadeOut();
+                $(".modal-body").text("Failed").addClass("danger")
+                $("#exampleModal").modal("show");
+
+            }
+        }
+    }
+
+</script>

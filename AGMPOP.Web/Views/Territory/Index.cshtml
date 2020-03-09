@@ -1,0 +1,107 @@
+﻿
+@{
+    ViewBag.Title = "Territories";
+}
+
+
+    <div class="row">
+
+        <div class="col-12 text-right mb-1"> 
+
+
+                <button type="button" class="material-tooltip-main mr-0 btn btn-default  text-center px-3 waves-effect waves-light" onclick="location.href='@Url.Action("ImportPage", "Territory")'">
+                    Import
+                    <i class="fal fa-arrow-up fa-align-center" h style="vertical-align: middle !important; font-size:15px;"></i>
+                </button>
+
+
+
+
+                <button type="button" class="material-tooltip-main  btn mr-0  text-center  px-3 waves-effect waves-light" style="background-color:#080a2e; color:white;" onclick='ExportTerritories()'>
+                    @*@Html.ActionLink("ExportTerritories", "ExportTerritories",new {@class= "waves-light" })*@ Export&nbsp;
+
+                    <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:15px;"></i>
+                </button>
+
+         </div>
+
+
+        <div class="col-12">
+            <div id="JsTreeHere" class="card card-body ">
+
+            </div>
+        </div>
+
+    </div>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        PartialTerritoies();
+    });
+</script>
+
+@*PartialTerritoies*@
+<script>
+    function PartialTerritoies() {
+         $.ajax({
+            url: '@Url.Action("PartialTerritories", "Territory")',
+            type: "Get",
+            contentType: "application/json; charset=utf-8",
+             success: function (data) {
+                 $('#JsTreeHere').html(data);
+            },
+            error: function (x) {
+                alert("error" + x);
+            },
+        });
+    }
+
+</script>
+
+
+
+
+<script>
+ 
+
+    async function ExportTerritories() {
+        var now = moment().format();
+         fetch('@Url.Action("ExportTerritories")', {
+            method: 'get',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }).then(response => {
+            return response.blob();
+        }).then(blob => {
+            if (!blob) {
+                swal.fire({
+                    icon: 'error',
+                    text: 'No file to download',
+                });
+                return;
+            } else if (!blob.size){
+                swal.fire({
+                    icon: 'error',
+                    text: 'You don\'t have permission',
+                });
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `TerritoriestList_${now}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            }).catch(err => {
+                swal.fire({
+                icon: 'error',
+                text: 'An error occured',
+            });
+        });
+    }
+</script>

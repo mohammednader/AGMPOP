@@ -1,0 +1,290 @@
+﻿@model AGMPOP.Web.Models.AddUserDto
+@{
+    ViewData["Title"] = ViewBag.Title;
+}
+
+<style>
+    #Redasterisks {
+        color: red;
+    }
+</style>
+<form asp-action="CreateUser" method="post" id="formUser" autocomplete="off">
+    <div class="card card-body mt-2">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" id="hfTerritories" name="SelectedTerritories" />
+        <div class="row">
+            <div class="col-sm-4 form-group">
+                <label asp-for="Email" class="control-label"></label><span id="Redasterisks"> *</span>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            @if (Model.Id == 0)
+            {
+                <div class="col-sm-4 form-group">
+                    <label asp-for="Password" class="control-label"></label><span id="Redasterisks"> *</span>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="col-sm-4 form-group">
+                    <label asp-for="ConfirmPassword" class="control-label"></label><span id="Redasterisks"> *</span>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            }
+            <div class="col-sm-4 form-group">
+                <label asp-for="Name" class="control-label"></label><span id="Redasterisks"> *</span>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label><span id="Redasterisks"> *</span>
+                <input asp-for="PhoneNumber" onkeypress="return isNumberKey(event)" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label asp-for="Department" class="control-label"></label><span id="Redasterisks"> *</span>
+                <select asp-for="Department" class="mdb-select" Searchable="Search here...">
+                    <option value="" selected disabled>Select department</option>
+                </select>
+                <span id="errDepartment" class="text-danger"></span>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label asp-for="JobTitle" class="control-label"></label><span id="Redasterisks"> *</span>
+                <select asp-for="JobTitle" class="mdb-select" Searchable="Search here...">
+                    <option value="" selected disabled>Select job title</option>
+                </select>
+                <span class="text-danger" id="errJobTitle"></span>
+            </div>
+            <div class="col-sm-4 form-group">
+                <label asp-for="Roles" class="control-label"></label>
+                <select asp-for="Roles" class="mdb-select" multiple Searchable="Search here...">
+                    <option value="" selected disabled>Select roles</option>
+                </select>
+                <span asp-validation-for="Roles" class="text-danger"></span>
+            </div>
+            <div class="col-sm-4 form-group form-check text-left d-flex flex-column justify-content-center">
+                <input type="checkbox" asp-for="IsActive" onchange="this.value=this.checked" class="form-check-input" />
+                <label class="form-check-label" asp-for="IsActive"></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <span class="text-danger" id="errModel"></span>
+            </div>
+        </div>
+    </div>
+    <div class="card my-3">
+        <div class="card-header">
+            <h4>Territories assigned to user</h4>
+        </div>
+        <div class="card-body">
+            <div id="jstree-territories" class="rounded border-dark" style="max-height: 400px; overflow:auto; background-color:#fafafa; padding:30px;"></div>
+        </div>
+        <div class="card-footer" style="text-align:right"> 
+            <a href="@Url.Action("Index", "UserManagement")" class="btn btn-link">Back to list</a> 
+            <button class="btn btn-primary" type="submit">Save</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    var GRANTED_ROLES = @Html.Raw(Json.Serialize(Model.Roles));
+    var GRANTED_JOBTITLE = @Html.Raw(Json.Serialize(Model.JobTitle));
+    var GRANTED_DEPARTMENT = @Html.Raw(Json.Serialize(Model.Department));
+    var TERRITORIES = [];
+</script>
+
+<script>
+    async function getAllRoles() {
+        $('#Roles').empty();
+        $('#Roles').append('<option value="" selected disabled>Select roles</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllRoles", "Common")',
+            method: 'GET',
+            success: response => {
+                if (response && response.length) {
+                    response.forEach(r => {
+                        var node = $(`<option value=${r.id}>${r.name}</option>`);
+                        if (GRANTED_ROLES.indexOf(r.id) > -1) {
+                            node.prop('selected', true);
+                        }
+                        $('#Roles').append(node);
+                    });
+                }
+
+                $('#Roles').materialSelect();
+            }
+        });
+    }
+
+    async function getAllJobTitles() {
+        $('#JobTitle').empty();
+        $('#JobTitle').append('<option value="" selected disabled>Select job title</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllJobTitles", "Common")',
+            method: 'GET',
+            success: response => {
+                if (response && response.length) {
+                    response.forEach(j => {
+                        var node = $(`<option value=${j.id}>${j.name}</option>`);
+                        if (GRANTED_JOBTITLE == j.id) {
+                            node.prop('selected', true);
+                        }
+                        $('#JobTitle').append(node);
+                    });
+                }
+
+                $('#JobTitle').materialSelect();
+            }
+        });
+    }
+
+    async function getAllDepartments() {
+        $('#Department').empty();
+        $('#Department').append('<option value="" selected disabled>Select department</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllDepartments", "Common")',
+            method: 'GET',
+            success: response => {
+                if (response && response.length) {
+                    response.forEach(j => {
+                        var node = $(`<option value=${j.id}>${j.name}</option>`);
+                        if (GRANTED_DEPARTMENT == j.id) {
+                            node.prop('selected', true);
+                        }
+                        $('#Department').append(node);
+                    });
+                }
+
+                $('#Department').materialSelect();
+            }
+        });
+    }
+</script>
+
+<script>
+    function initJsTree(data) {
+        $('#jstree-territories')
+            .jstree({
+                "core": {
+                    "animation": 0,
+                    "check_callback": true,
+                    'force_text': true,
+                    "themes": { "": true },
+                    'data': data
+                },
+                "types": {
+                    "#": { "max_children": 1, "max_depth": 4, "valid_children": ["root"] },
+                    "root": { "icon": "", "valid_children": ["default"] },
+                    "default": { "icon": "fas fa-file text-primary", "valid_children": ["default", "file"] },
+                    "file": { "icon": "", "valid_children": [] }
+                },
+                "plugins": ["types", "wholerow", "checkbox"]
+            }).on('changed.jstree', function (e, data) {
+                if (data.selected.length) {
+                    $('#hfTerritories').val(data.selected.join(','));
+                } else {
+                    $('#hfTerritories').val('');
+                }
+            });
+    }
+
+    function getTerritories() {
+        var userId = @Html.Raw(Json.Serialize(Model?.Id));
+        $.ajax({
+            url: `@Url.Action("GetAllTerritories")?userId=${userId}`,
+            method: 'GET',
+            success: response => {
+                if (response && response.success && response.data) {
+                    initJsTree(response.data);
+                    TERRITORIES = response.data;
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: response.message,
+                    });
+                }
+            }
+        });
+    }
+
+    function validateSelectTags() {
+        if (!$('#Department').val()) {
+            $('#errDepartment').text('This field is required');
+        } else {
+            $('#errDepartment').text('');
+        }
+
+        if (!$('#JobTitle').val()) {
+            $('#errJobTitle').text('This field is required');
+        } else {
+            $('#errJobTitle').text('');
+        }
+    }
+</script>
+
+<script>
+    $(() => {
+        @if (Model?.Id > 0)
+        {
+            <text>$('#formUser').attr('action', '@Url.Action("UpdateUser")')</text>
+        }
+
+        getTerritories();
+        getAllRoles();
+        getAllJobTitles();
+        getAllDepartments();
+
+        $('#formUser').ajaxForm(response => {
+            $('#errModel').text('');
+            $('#errDepartment, #errJobTitle').text('');
+            if (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: response.message,
+                    }).then(_ => {
+                        location.href = '@Url.Action("Index")';
+                    });
+                }
+                else {
+                    debugger;
+                    if (response.modelError) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: response.modelError,
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: response.message,
+                        });
+                    }
+                }
+            } else {
+                if (!$('#Department').val()) {
+                    $('#errDepartment').text('This field is required');
+                }
+                if (!$('#JobTitle').val()) {
+                    $('#errJobTitle').text('This field is required');
+                }
+            }
+        });
+
+        $('#Department, #JobTitle').on('change', e => {
+            validateSelectTags();
+        });
+
+        $('#formUser').on('submit', e => {
+            validateSelectTags();
+        });
+    });
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

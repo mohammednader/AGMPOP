@@ -1,0 +1,291 @@
+﻿@model IEnumerable<AGMPOP.Web.Models.Inventory.InventoryTransaction>
+@{
+    if (Model?.Count() > 0)
+    {
+        ViewData["Title"] = "Transactions log - " + Model.First().Name  ;
+    }
+    else
+    {
+        ViewData["Title"] = "Transactions log";
+    }
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-12 text-right">
+
+
+        @if (Model != null)
+        { 
+                @if (Model.Count() > 0)
+                {
+                    <button type="button" class="material-tooltip-main  btn   text-center  px-3 waves-effect waves-light" onclick="ExportTransactionInventory()" style="background-color:#080a2e; color:white;">
+                        Export&nbsp;
+
+                        <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:15px;"></i>
+                    </button>
+                }
+           
+        }
+
+            </div>
+
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-body"> 
+            <table id="dtBasicExample" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+
+                        <th class="text-center">Image</th>
+                   
+                        <th class="text-center">Old Quantity</th>
+                        <th class="text-center">New Quantity</th>
+                        <th class="text-center"> Quantity</th>
+                        <th class="text-center">Action Type</th>
+                        <th class="text-center">Created Date</th>
+                        <th class="text-center">Created By</th>
+                        <th class="text-center">Cycle Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
+                    {
+
+                        foreach (var item in Model)
+                        {
+                    <tr>
+
+                        <td class="text-center">
+                            <div class="img-container">
+                                <img class="img-circle" src="@item.image" style="border-radius:5%;height:40px; width:40px;" />
+                            </div>
+                            <input type="text" id="tempProductId" value="@item.ProductId" hidden />
+                        </td> 
+                        <td class="text-center">
+                            @item.Quantity
+                        </td>
+                        <td class="text-center">
+                            @item.NewQuantity
+                        </td>
+                        <td class="text-center">
+                            @item.OldQuantity
+                        </td>
+                        <td class="text-center">
+                            @if (item.typeId == (int)AGMPOP.BL.Models.ViewModels.POPEnums.InventoryActionType.Increment)
+                            {
+                                <p> Increment (+) </p>
+
+
+                            }
+                            @if (item.typeId == (int)AGMPOP.BL.Models.ViewModels.POPEnums.InventoryActionType.Decrement)
+                            {
+                                <p>  Decrement(-) </p>
+
+                            }
+                        </td>
+                        <td class="text-center"> @item.date </td>
+                        <td class="text-center"> @item.createdBy </td>
+                        <td class="text-center">
+                            @item.CycleName
+                        </td>
+                    </tr>
+
+
+
+                        }
+
+                    }
+                    else
+                    {
+                        <tr>
+                            <td class="text-center" colspan="7"> Data not found</td>
+                        </tr>
+
+                    }
+
+                    @*@if (Model != null)
+        {
+
+            foreach (var item in Model)
+            {
+
+
+                @if (item.InventoryLog.Count > 0)
+                {
+                    @foreach (var log in item.InventoryLog)
+                    {
+                    <tr>
+                        <td class="text-center">
+                            <div class="img-container">
+                                <img class="img-circle" src="@item.Image" style="border-radius:5%;height:40px; width:40px;" />
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <b> @item.Name</b>
+                            <input type="text" id="tempProductId" value="@item.ProductId" hidden />
+                        </td>
+                        <td class="text-center">
+                            @log.OldQnty
+                        </td>
+                        <td class="text-center">
+                            @log.NewQnty
+                        </td>
+                        <td class="text-center">
+                            @log.Quantity
+                        </td>
+                        <td class="text-center">
+                            @if (log.ActionType == (int)AGMPOP.BL.Models.ViewModels.POPEnums.InventoryActionType.Increment)
+                            {
+                                <p> Increment (+) </p>
+
+
+                            }
+                            @if (log.ActionType == (int)AGMPOP.BL.Models.ViewModels.POPEnums.InventoryActionType.Decrement)
+                            {
+                                <p>  Decrement(-) </p>
+
+                            }
+                        </td>
+                        <td class="text-center"> @item.CreatedDate </td>
+                        <td class="text-center"> @log.UserId </td>
+
+                    </tr>
+                }
+
+                }
+            }
+        }
+        else
+        {
+            <tr>
+                <td class="text-center" colspan="7"> Data not found</td>
+            </tr>
+
+        }*@
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@*pagination*@
+<script type="text/javascript">
+    $(function () {
+        $('.material-tooltip-main').tooltip();
+    })
+    var $table = $('#cycles-table');
+    $table.bootstrapTable({
+        toolbar: ".toolbar",
+        clickToSelect: true,
+        //showRefresh: true,
+        search: true,
+        //showToggle: true,
+        //showColumns: true,
+        pagination: true,
+        searchAlign: 'left',
+        pageSize: 8,
+        clickToSelect: false,
+        pageList: [8, 10, 25, 50, 100],
+
+        formatShowingRows: function (pageFrom, pageTo, totalRows) {
+            //do nothing here, we don't want to show the text "showing x of y from..."
+        },
+        formatRecordsPerPage: function (pageNumber) {
+            return pageNumber + " rows visible";
+        },
+        icons:
+        {
+            columns: 'fa-columns'
+        }
+    });
+
+    $(document).ready(function () {
+        $('#dtBasicExample').DataTable();
+
+        //activate the tooltips after the data table is initialized
+        $('[rel="tooltip"]').tooltip();
+
+        $(window).resize(function () {
+            $table.bootstrapTable('resetView');
+        });
+
+    });
+
+</script>
+
+<script>
+    function TransactionProduct(id) {
+
+        $.ajax({
+            url: '@Url.Action("TransactionProductDetails")',
+            method: 'POST',
+            data: {id},
+            success: response => {
+                console.log(response);
+
+                if (response && response.length) {
+
+                }
+            }
+        });
+
+    }
+
+</script>
+<script>
+
+
+    async function ExportTransactionInventory() {
+        debugger;
+        var id = $("#tempProductId").val();
+        console.log(id);
+        var now = moment().format();
+        fetch(
+            '@Url.Action("ExportTransactionInventory","Inventory")' + '?id=' + id, {
+             method: 'get',
+             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }).then(response => {
+            return response.blob();
+        }).then(blob => {
+            if (!blob) {
+                swal.fire({
+                    icon: 'error',
+                    text: 'No file to download',
+                });
+                return;
+            } else if (!blob.size){
+                swal.fire({
+                    icon: 'error',
+                    text: 'You don\'t have permission',
+                });
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `TranactionInventoryLog_${now}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            }).catch(err => {
+                swal.fire({
+                icon: 'error',
+                text: 'An error occured',
+            });
+        });
+    }
+</script>
+
+
+
+
+
+

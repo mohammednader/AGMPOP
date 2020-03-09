@@ -1,0 +1,237 @@
+﻿
+@{
+    ViewData["Title"] = "";
+}
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<div class="text-right mb-1">
+
+<section class="dropdown d-inline-block">
+    <button class="btn btn-primary" type="button" id="AvailableActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+       Actions &nbsp; <i class="fas fa-plus fa-1x"></i>
+    </button>
+    <div id="AvailableActionsMenu" class="dropdown-menu text-center" aria-labelledby="AvailableActionsMenu"></div>
+</section>
+</div>
+<!--TOPBAR-->
+<div id="CycleBrief" class="TopBar0 pl-4 pr-4"></div>
+<!--CONTENT AFTER TOP BAR-->
+<div class="ContentAfterTopBar mb-4">
+    <label class="p-2">Latest Transactions</label>
+    <div class=" card card-body p-md-4 mb-3" id="transactionsList">
+        <table id="dtBasicExample" class="table table-responsive-sm" cellspacing="0" width="100%">
+            <thead class="d-none">
+                <tr>
+                    <th class="th-sm">
+                        Name
+                    </th>
+                    <th class="th-sm">
+                        Position
+                    </th>
+                    <th class="th-sm">
+                        Office
+                    </th>
+                    <th class="th-sm">
+                        Age
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="transaction_cycles">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+<script>
+    // ====================== JQUERY ==========================//
+    $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $(".SideNav a:nth(0)").addClass("activated");
+        $(".SideNav i:nth(0)").css("color", "white");
+        GetCycleBrief();
+    });
+
+    // ====================== 1- GET CYCLE DETAILS FUNCTION ==========================//
+    async function GetCycleBrief() {
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        var CycleId = location.search.substring(1).split('=')[1];
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/cycles" + "/" + CycleId;
+        var Available_transactions_menu = $("#AvailableActionsMenu");
+        var divBriefBar = $("#CycleBrief");
+
+        divBriefBar.empty();
+        Available_transactions_menu.empty();
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
+
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res.data) {
+                $('#cycleName').text(res.data.name);
+                var cycleType = res.data.type.name;
+                var cycleTypeDiv = `<div class="row">
+                    <div class="col-6 col-lg-8 d-flex justify-content-center flex-column ">
+                        <h2>${cycleType}</h2>
+                        <label>${moment(res.data.start_date).format('DD/MM/YYYY')} - ${moment(res.data.end_date).format('DD/MM/YYYY')}</label>
+                    </div>
+                    <div class="col-6 col-lg-4  text-right">
+                        <a href="AvailableStocks?cycleId=${CycleId}"><span class="pt-3 pb-3 stock-card d-flex flex-column justify-content-center align-items-center float-right">
+                            <h5>Available Stock</h5>
+                            <span class="SmallNum"><span class="BigNum">${res.data.available_items}</span>/${res.data.total_items}</span>
+                        </span></a>
+                    </div>
+                </div>`
+                divBriefBar.append(cycleTypeDiv);
+
+                if (res.data.available_transaction_types.length) {
+                    for (i = 0; i < res.data.available_transaction_types.length; i++) {
+                        var transactionsType = res.data.available_transaction_types[i].name;
+                        var transactionTypeList = `<a class="dropdown-item" href="NewDelivery?cycleId=${CycleId}&ActionId=${res.data.available_transaction_types[i].id}">${transactionsType}</a>`
+                        Available_transactions_menu.append(transactionTypeList);
+                    }
+                } else {
+                    $("#AvailableActions").hide();
+                }
+                GetCycleDetails();
+            }
+            else {
+                divCycleList.empty();
+            }
+        }
+    }
+    // ====================== 2- GET TRANSACTIONS DETAILS FUNCTION ==========================//
+
+    async function GetCycleDetails() {
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        var CycleId = location.search.substring(1).split('=')[1];
+
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + "cycle/" + CycleId;
+        console.log(APIurl)
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
+
+        var res;
+        if (apiResponse.ok) {
+
+            res = await apiResponse.json();
+            if (res.data && res.data.length) {
+                for (let item of res.data) {
+
+                    var ss;
+                    if (item.transaction_status.id == 5) {
+                        if (userType == 'BBX') {
+                            ss = `<a href="NewDeliveryConfirmationBBX?TransactionId=${item.id}&CycleId=${CycleId}"> <div><i class = "fas fa-1x fa-chevron-right" > </i></div></a>`
+                        } else {
+                            ss = `<a href="TransferDetails?TransactionId=${item.id}&CycleId=${CycleId}"> <div><i class = "fas fa-1x fa-chevron-right" > </i></div></a>`
+                        }
+
+                    } else if (item.transaction_status.id == 1) {
+
+                        if (item.to.user_id == userID) {
+                            if (userType == 'AA' || userType == 'BB') {
+                                ss = `<a href="NewDeliveryConfirmation?TransactionId=${item.id}&CycleId=${CycleId}"> <div><i class = "fas fa-1x fa-chevron-right" > </i></div></a>`
+
+                            } else {
+                                ss = `<a href="NewDeliveryConfirmationBBX?TransactionId=${item.id}&CycleId=${CycleId}"><div> <i class = "fas fa-1x fa-chevron-right" > </i></div></a>`
+                            }
+                        } else {
+                            ss = `<a href="TransferDetails?TransactionId=${item.id}&CycleId=${CycleId}"> <div><i class = "fas fa-1x fa-chevron-right" > </i></div></a>`
+                        }
+                    } else {
+                        ss = `<a href="TransferDetails?TransactionId=${item.id}&CycleId=${CycleId}"> <div><i class = "fas fa-1x fa-chevron-right" > </i></div></a>`
+                    }
+
+                    var transactionsCycles = `<tr class="text-center">
+                                                <td class="text-left">
+                                                  <span class="delivery">${item.type.name}</span><label> - ${item.transaction_status.name}</label><br />
+                                                    ${item.from.user_id == userID ?
+                            ` <span class="toCustomer"><i class="fas fa-arrow-up" style="font-size:20px; color:blue"></i> To: ${item.to.Full_Name} </span><label> - ${item.to.Type.name}</label>`
+                            : ` <span class="toCustomer"><i class="fas fa-arrow-down" style="font-size:20px;color:red"></i> From: ${item.from.Full_Name} </span><label> - ${item.from.Type.name}</label>`}
+                                                </td>
+                                                <td><h2 class="itemNum">${item.total_items}</h2>
+                                                    <label>Items</label></td>
+                                                <td><label>${moment(item.creation_date).format('DD/MM/YYYY HH:mm')}</label></td>
+
+                                                <td>  ${ss}</td>
+                                              </tr>`
+                    $("#transaction_cycles").append(transactionsCycles);
+                }
+            } else {
+                $("#transactionsList").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">
+                                       No transactions found !!
+                                    </div>`);
+            } $('#dtBasicExample').DataTable({
+                "order": true
+            });
+            $("#dtBasicExample_length").empty();
+            ShowNotification()
+        } $(".loader").fadeOut();
+
+    }
+    // ====================== NOTIFICATION FUNCTION ==========================//
+
+    async function ShowNotification() {
+        var x = Object.fromEntries(new URLSearchParams(location.search));
+        var NotificationID = x.NotificationId;
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/users/" + userID + "/notification/" + NotificationID;
+
+        try {
+            let apiResponse = await fetch(proxyurl + APIurl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + AccessToken,
+                    //'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                body: JSON
+            });
+
+            var res;
+            if (apiResponse.ok) {
+                res = await apiResponse.json();
+                if (res["data"] != null) {
+                    console.log(res["data"])
+                } else {
+                    console.log("false")
+                }
+            }
+        } catch (err) {
+
+        }
+    }
+
+</script>
+
+
+
+
+

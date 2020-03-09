@@ -1,0 +1,127 @@
+﻿
+@{
+    ViewData["Title"] = "Import Product";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-md-8">
+        <form id="importProductsForm" asp-action="UploadFiles" asp-controller="product" enctype="multipart/form-data"> 
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card card-body">
+                        <div class="card-content">
+                            <h3 class="mt-n">1- Upload Products Images</h3>
+                            <hr />
+                            <div class="p-lg">
+                                <div class="alert alert-info alert-dismissible has-error" role="alert">
+                                    - Image name has not to contain characters(<b>!@@#$%^*/~\</b>) <br />
+                                    - collect all the image in a <b>Zip file</b><br />
+                                    - max size is <b>1MB</b> per image
+                                </div>
+                                <input type="file" required name="Zip" />
+                                <br />
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-lg">
+                <div class="col-md-12">
+                    <div class="card card-body">
+                        <div class="card-content pt-lg">
+                            <h4 class="mt-n">
+                                2- Upload Products Details
+
+                            </h4>
+                            <h6>
+                                <a href="~/Uploads/Templete/Excel/Product.xlsx" download="Product.xlsx" id="ProductExcel" class="btn btn-link" title="Download file">[Download Template file]  </a>
+
+                             </h6>
+                        
+                            <hr />
+                            <div class="p-lg">
+
+                                <div class="alert alert-info alert-dismissible has-error" role="alert">
+                                    Number of rows must be less than 10000
+                                </div>
+                                <input type="file" required id="ProductsExcelFile" name="ProductsExcelFile" />
+                                <br />
+                                <button type="submit" class="btn btn-primary float-right">Add</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-body">
+            <div class="card-content pt-lg">
+                <table>
+
+                    <tr>
+                        <td class=""><i class="fa fa-arrow-left"></i></td>
+                        <td class="pb-md">
+
+                            [ @Html.ActionLink("Back To Products", "Index") ]
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+    var errorList;
+    $('#importProductsForm').ajaxForm(response => {
+        if (response) {
+            if (response.ok == true) {
+                errorList = response.err;
+                console.log(errorList);
+                Swal.fire({
+                    icon: 'success',
+                    text: response.message,
+                }).then(_ => {
+                    location.reload();
+                });
+            }
+            else {
+ 
+
+                console.log(response.err);
+                Swal.fire({
+                    icon: 'error',
+                    text: response.message,
+                });
+            }
+        }
+    });
+
+ 
+
+    //async function ExportProdcut() {
+
+    //    var now = moment().format();
+    //    const url = window.URL.createObjectURL(blob);
+    //    const a = document.createElement('a');
+    //    a.style.display = 'none';
+    //    a.href = url;
+    //    a.download = `Product_${now}.xlsx`;
+    //    document.body.appendChild(a);
+    //    a.click();
+    //    window.URL.revokeObjectURL(url);
+    //}
+</script>
+
+ 

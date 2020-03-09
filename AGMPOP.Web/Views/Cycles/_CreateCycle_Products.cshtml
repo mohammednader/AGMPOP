@@ -1,0 +1,89 @@
+﻿<style>
+    #lstProducts, #product-filter-field {
+        max-height: 55vh;
+        overflow-y: auto;
+    }
+
+    @@keyframes shake {
+        0% {
+            transform: translate(1px, 1px) rotate(0deg);
+        }
+
+        25% {
+            transform: translate(-1px, -2px) rotate(-1deg);
+        }
+
+        50% {
+            transform: translate(1px, -1px) rotate(1deg);
+        }
+
+        75% {
+            transform: translate(3px, 1px) rotate(-1deg);
+        }
+
+        100% {
+            transform: translate(1px, -2px) rotate(-1deg);
+        }
+    }
+
+    .shake-element {
+        animation: shake 0.3s;
+        animation-iteration-count: 1;
+    }
+</style>
+
+<div>
+    <div class="container-fluid" id="product-tab-container">
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-8 row border-right">
+                <div class="col-12" style="border-bottom:1px solid rgba(0, 0, 0, 0.125); padding-bottom:20px">
+                    <input type="text" id="txtSearchProduct" class="form-control" placeholder="Search for products..." />
+                </div>
+                @*<div id="product-filter-field" class="col-6 col-sm-3" style="border-right:1px solid rgba(0, 0, 0, 0.125)">
+                    @*<div>
+                        <button class="btn btn-link text-primary pt-2 px-0 font-weight-bold" id="btnViewAllProducts" onclick="clearFilterProducts()">View All</button>
+                    </div> 
+                    @*<div style="display:none" id="divProductTypeSearch" class="flex-column align-items-start my-3">
+                        <h6 class="font-weight-bold">Product Type</h6>
+                        <div id="lstProductTypes" class="d-flex flex-column align-items-start"></div>
+                    </div> 
+                    <div style="display: none" id="divProductDepartmentSearch" class="flex-column align-items-start">
+                        <h5>Department</h5>
+                        <div id="lstProductDepartments" class="d-flex flex-column align-items-start"></div>
+                    </div>
+                </div>*@
+                <div class="col-6 col-sm-9 pt-4 px-4">
+                    <p class="font-weight-bold" id="productCount"></p>
+                    <div id="lstProducts" class="list-group"></div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 px-5">
+                <h6 class="font-weight-bold">Selected <small>(<span id="selectedProductsCount">0</span>)</small></h6>
+                <div id="lstSelectedProducts" class="mt-3 list-group">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(() => {
+      //  getAllProductTypes();
+
+        if (CycleDepartment == 0) {
+            getAllDepartments();
+        }
+        getAllProducts();
+        /*$(document).on('change', '.chkProduct', e => {
+            debugger;
+            toggleSelectProduct(e.target);
+        });*/
+        $('#txtSearchProduct').on('keyup', e => {
+             searchTextProducts($('#txtSearchProduct').val());
+         });
+        $(document).on('keyup', '.txtQuantity', e => {
+            validateQuantity(e.target);
+        });
+    });
+</script>

@@ -1,0 +1,75 @@
+﻿
+@{
+    ViewData["Title"] = "Available Items";
+}
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<!--Content After Top Bar-->
+<div class="ContentAfterTopBar mb-4">
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5 AvailableStocks">
+
+    </div>
+</div>
+<script>
+    // ====================== JQUERY ==========================//
+    $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        GetTransactionDetails();
+    });
+    // ====================== GET TRANSACTION LIST ==========================//
+    async function GetTransactionDetails() {
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        var CycleID = location.search.substring(1).split('=')[1];
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/transcations/" + "items/" + CycleID + "?AllItems=true";
+        var AccessToken = sessionStorage.getItem('AccessToken');
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            }
+        });
+
+        var res;
+        if (apiResponse.ok) {
+
+            res = await apiResponse.json();
+            if (res.data && res.data.length) {
+
+                for (i = 0; i < res.data.length; i++) {
+                    var addDelivery = `<div class="row">
+                                            <div class="col-2 m-auto">
+                                                <img src="${res.data[i].product.image}" style="border-radius:50%" width="80" height="80">
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>${res.data[i].product.name}</h4>
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h4>${res.data[i].product.code}</h4>
+                                            </div>
+                                            <div class="col-2 m-auto">
+                                                <h4>${res.data[i].product.type.name}</h4>
+                                            </div>
+                                            <div class="col-2 text-md-right m-auto">
+                                                <input type="text" name="value" maxlength="4" size="1" style="height:40px; width:70px; text-align:center; font-size:18px; border-radius:5px;" value="4" readonly=""> <h4 class="d-inline"> &nbsp;/ </h4>
+                                                <h4 class="d-inline">${res.data[i].total_items}</h4>
+                                            </div>
+                                        </div><hr />`
+                    $(".AvailableStocks").append(addDelivery);
+                }
+            }
+            else {
+                $(".AvailableStocks").append("ERROR");
+            }
+        }
+        $(".loader").fadeOut();
+    }
+</script>
+
+
+

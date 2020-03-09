@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "User Profile";
+}
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<div class="TopBar0" style="padding:10px;">
+    <div class="row ">
+        <div class="col-12 d-flex flex-column justify-items-center align-self-center text-center" id="UserInfo">
+        </div>
+    </div>
+</div>
+
+<script>
+    // ================== GET USER DETAILS FUNCTION ================== //
+    $(document).ready(function () {
+        $("#AvailableActions").hide();
+        $(".SideNav a:nth(1)").addClass("activated");
+        $(".SideNav i:nth(1)").css("color", "white");
+        GetUserDetails();
+    });
+    // ================== GET USER DETAILS FUNCTION ================== //
+    async function GetUserDetails() {
+
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/users/" + userID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
+        var res;
+        if (apiResponse.ok) {
+            res = await apiResponse.json();
+            if (res.data) {
+                var userInfo = ` <div class="pb-2"><h3>${res.data.Full_Name}</h3></div>
+                    <label> &nbsp; ${res.data.email}</label>
+                    <label> &nbsp; ${res.data.Type.name}</label><br />
+                        <a href="ChangePassword"><button  class="btn btn-primary mb-3 mt-3" style="width:250px;">CHANGE PASSWORD</button></a>
+                        <div><button onclick="logOutUser()" class="btn btn-primary mb-3" style="width:250px;">LOGOUT</button></div>`
+                $("#UserInfo").append(userInfo);
+            }
+            else {
+                $("#UserInfo").append("wrong");
+            }
+        }
+        $(".loader").fadeOut();
+    }
+    // ================== LOGOUT FUNCTION ================== //
+    async function logOutUser() {
+
+        $.ajax({
+            url: '/home/logOut',
+            method: 'GET',
+            success: function (result) {
+                localStorage.clear();
+                location.href = '/home/loginPage';
+            }
+        });
+    }
+</script>

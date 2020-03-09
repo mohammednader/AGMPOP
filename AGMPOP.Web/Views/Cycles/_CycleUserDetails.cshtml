@@ -1,0 +1,50 @@
+﻿<style>
+    #lstUsers, #user-filter-field {
+        max-height: 55vh;
+        overflow-y: auto;
+    }
+</style>
+<div>
+    <div class="container-fluid" id="user-tab-container">
+        <div class="row">
+            
+                <div class="col-12">
+                    <input type="text" id="txtSearchUser" class="form-control" placeholder="Search for users..." />
+                </div>
+                <div id="user-filter-field" class="col-6 col-sm-3">
+                    <div>
+                        <button class="btn btn-link text-primary pt-4 px-0" id="btnViewAllUsers" onclick="clearFilterUsers()">View All</button>
+                    </div>
+                    <div style="display: none" id="divUserDepartmentSearch" class="flex-column align-items-start">
+                        <h5>Department</h5>
+                        <div id="lstUserDepartments" class="d-flex flex-column align-items-start"></div>
+                    </div>
+                    <div style="display: none" id="divUserJobTitleSearch" class="flex-column align-items-start">
+                        <h5>Job Title</h5>
+                        <div id="lstUserJobTitles" class="d-flex flex-column align-items-start"></div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-9 pt-4">
+                    <p class="font-weight-bold" id="userCount"></p>
+                    <div id="lstUsers" class="list-group"></div>
+                </div>
+           
+           
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(() => {
+        getAllUserJobTitles();
+
+        //if (CycleDepartment == 0) {
+        //    getAllDepartments();
+        //}
+        getAllUsers();
+        $('#txtSearchUser').on('keyup', e => {
+             searchTextUsers($('#txtSearchUser').val());
+         });
+    });
+</script>

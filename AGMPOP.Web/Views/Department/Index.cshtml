@@ -1,0 +1,319 @@
+﻿@{
+    ViewBag.Title = "Department";
+}
+<style>
+
+    .btn btn-default btn-icon table-action {
+        display: none
+    }
+</style>
+
+<div class="card  px-3 py-2 mt-2">
+    <div class="row">
+        <div class="col-sm-12 col-md-3">
+            <div class="ui-widget">
+                <input class="form-control mt-1" placeholder="Department Name" id="DeptName" style="height:39px;">
+                <span class="d-none" id="sp_msg" style="color:red">This field is required.</span>
+            </div>
+
+        </div>
+        <div class="">
+            <button type="button" class="btn btn-secondary mr-0 px-3" style="height: 37px;" id="cancelMsg">Clear</button>
+            <button class="btn btn-primary px-3" id="save" style="height: 37px;"> Add Department </button>
+        </div>
+    </div>
+
+</div>
+
+<div class="card card-body my-3">
+    <div id="divResult"></div>
+</div><!--  end card  -->
+
+
+
+
+<script type="text/javascript">
+
+    $().ready(function () {
+        GetDepartment();
+
+        //activate the tooltips after the data table is initialized
+        $('[rel="tooltip"]').tooltip();
+
+        $(window).resize(function () {
+            bootstrapTable('resetView');
+        });
+    });
+
+</script>
+
+<script>
+
+    $(document)
+        .ajaxStart(function () {
+            $('body').addClass('show-loader');
+        })
+        .ajaxStop(function () {
+            $('body').removeClass('show-loader');
+        });
+
+
+    $(document).ready(function () {
+
+        $('#mn-admin').addClass('active');
+        $('#adminlinks').addClass('in');
+        $('#mn-depts').addClass('active');
+
+        // $("#cancelMsg").click(function () { $("#sp_msg").css("display", "none"); });   
+        $("#cancelMsg").click(function () { $("#DeptName").val(''); });   
+
+        //add Department
+        $("#save").click(function () {
+
+
+            if ($("#DeptName").val() != null && $("#DeptName").val() != '') {
+                var dept = $("#DeptName").val()
+
+                $.ajax({
+                    url: "/Department/AddDept",
+                    type: "post",
+                    data: { dept },
+                    success: function (data, textStatus, jqXHR) {
+                        $("#sp_msg").addClass("hidden");
+                        if (data) {
+                            if (data.success) {
+                                //window.location.href = "/Department/Index";
+
+                                swal.fire({
+                                    text: data.message,
+                                    icon: 'success',
+
+                                }).then((res) => { if (res.value) { GetDepartment(); $("#DeptName").val(""); }})
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    text: data.message,
+                                }).then((result) => { if (result.value) { $("#DeptName").val(""); } });
+                                $("#sp_msg").addClass('d-none');
+
+                            }
+
+                        }
+                    }
+                });
+            }
+            else {
+                $("#sp_msg").removeClass("d-none");
+            }
+
+        });
+
+
+    });
+</script>
+
+<script type="text/javascript">
+
+    var show = 0;
+
+    @* Get Partial view *@
+      function GetDepartment() {
+
+          $.ajax({
+              url: '@Url.Action("_departmentList")',
+              method: 'Get',
+
+              success: response => {
+                  if (response) {
+                      $('#divResult').html('');
+                      $('#divResult').html(response);
+
+                  }
+              }, error: function () {
+                  alert("Error");
+              }
+          });
+        }
+
+
+    @* Edite Button partial view *@
+    function editDept(id) {
+        if (show == 0) {
+            $("#" + id).prop('disabled', false);
+            $("#" + id + "save").toggleClass('d-inline');
+            $("#" + id + "edit").toggleClass('d-none');
+            $("#" + id + "cancle").toggleClass('d-inline');
+            $("#msg").addClass('d-none');
+
+            changeDept(id);
+        }
+       show = 1;
+    } 
+
+    @* cancle Button partial view *@
+    function cancleDept(id) {
+        $("#" + id).val($("#temp").val());
+        console.log($("#temp").val());
+        $("#" + id + "save").toggleClass('d-inline');
+        $("#" + id + "edit").toggleClass('d-none');
+        $("#" + id + "cancle").toggleClass('d-inline');
+
+        $("#msg").addClass('d-none');
+
+        $("#" + id).prop('disabled', true);
+        show = 0;
+
+
+    }
+
+    @* save Temp *@
+    function changeDept(id) {
+        var change = $("#" + id).val();
+        $("#temp").val(change);
+
+    }
+
+    @* update Department *@
+    function saveDept(id) {
+        show = 0;
+        if (!$("#" + id).val()) {
+
+            $("#msg").css('display', 'inline-block');
+
+        }
+        else {
+            // check two values temp vs actual
+            if ($("#" + id).val() != $("#temp").val()) {
+                if ($("#" + id).val() != null) {
+                    var _parameters = { Id: id, dept: $("#" + id).val() }
+                }
+                else {
+                    var _parameters = { Id: id }
+
+                }
+                $.ajax({
+                    url: "/Department/EditDept",
+                    type: "GET",
+                    data: _parameters,
+                    success: function (data) {
+                        //  window.location.href = "/Department/Index";
+                        if (data) {
+                            if (data.success) {
+                                swal.fire({
+                                    text: 'Your data has been updated',
+                                    icon: 'success',
+                                    
+                                   
+                                })
+                                $("#msg").css('display', 'none');
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    text: data.message,
+                                 
+                                })
+                                $("#msg").addClass('d-none');
+                                $("#" + id).val($("#temp").val());
+                            }
+
+                        }
+                       
+
+                        $("#" + id + "save").toggleClass('d-inline');
+                        $("#" + id + "edit").toggleClass('d-none');
+                        $("#" + id + "cancle").toggleClass('d-inline');
+                        $("#" + id).prop('disabled', true);
+
+
+                    }
+                });
+            }
+            else {
+                swal.fire({
+                    text: 'Nothing changes !!',
+                    icon: 'info',
+                   
+                });
+                $("#" + id + "save").toggleClass('d-inline');
+                $("#" + id + "edit").toggleClass('d-none');
+                $("#" + id + "cancle").toggleClass('d-inline');
+                $("#" + id).prop('disabled', true);
+                $("#msg").addClass('d-none');
+
+
+            }
+        }
+    }
+
+    @* Activate deactivate Department *@
+
+     async function deactivateDept(id) {
+        var confirm = await Swal.fire({
+            icon: 'question',
+            text: 'Are you sure you want to deactivate this Department?',
+            showCancelButton: true,
+            confirmButtonColor: '#4285f4', 
+            cancelButtonColor: '#a1a1a1',
+            confirmButtonText: 'Ok' 
+           
+        });
+        if (confirm && confirm.value) {
+            $.ajax({
+                url: '@Url.Action("DeactivateDept")/' + id,
+                method: 'PUT',
+                success: response => {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            text: response.message,
+                        }).then((res) => { if (res.value) { location.reload() } } );
+                        
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: (response && response.message) ? response.message : 'Failed to deactivate department',
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    async function activateDept(id) {
+        var confirm = await Swal.fire({
+            icon: 'question',
+            text: 'Are you sure you want to activate this Department?',
+            showCancelButton: true,
+            confirmButtonColor: '#4285f4',
+            cancelButtonColor: '#a1a1a1',
+            confirmButtonText: 'Ok' 
+           
+        });
+        if (confirm && confirm.value) {
+            $.ajax({
+                url: '@Url.Action("ActivateDept")/' + id,
+                method: 'PUT',
+                success: response => {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            text: response.message,
+                        }).then((res) => { if (res.value) { location.reload() } });
+                        
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: (response && response.message) ? response.message : 'Failed to activate department',
+                        });
+                    }
+                }
+            });
+        }
+    }
+    
+
+</script>
+
+

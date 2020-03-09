@@ -1,0 +1,254 @@
+﻿@model List<AGMPOP.BL.Models.ViewModels.CycleVM>
+@using AGMPOP.BL.Models.ViewModels
+@{var CurrentDate = DateTime.Now;}
+
+<div class="row">
+    <div class="col-12 text-right my-2">
+
+        <button type="button" class="material-tooltip-main  btn   text-center   px-3 m-0 waves-effect waves-light" onclick="ExportCycelReport()" style="background-color:#080a2e; color:white;">
+            Export&nbsp; <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:20px;"> </i>
+        </button>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-body">
+
+            <table id="cycles-table" class="table table-responsive-sm table-responsive-md table-responsive-lg table-responsive-xl table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th data-field="name" class="text-center">Name</th>
+                        <th data-field="type" class="text-center">Type</th>
+                        <th data-field="department" class="text-center">Department</th>
+                        <th data-field="from" class="text-center" style="width:150px">From</th>
+                        <th data-field="to" class="text-center" style="width:150px">To</th>
+                        <th data-field="reconciliationdate" class="text-center">Reconciliation Date</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Active/Inactive</th>
+                        <th class="text-center">Stock Total No.</th>
+                        <th class="text-center">Transactions Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @{
+
+                        if (Model.Count > 0)
+                        {
+
+
+
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+
+                                    <td class="text-center">
+                                        <a href="/Cycles/CycleDetails/@item.CycleId" class="btn-link">@item.Name</a>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.CycleType == 1)
+                                        {
+                                            @(((POPEnums.CycleType.NationWide)).ToString())
+                                        }
+                                        else
+                                        {
+                                            @(((POPEnums.CycleType.Event)).ToString())
+                                        }
+                                    </td>
+                                    <td>
+                                        @item.DepartmentName
+                                    </td>
+                                    <td class="text-center">
+                                        @Html.DisplayFor(modelItem => item.StartDate)
+                                    </td>
+                                    <td class="text-center">
+                                        @Html.DisplayFor(modelItem => item.EndDate)
+                                    </td>
+                                    <td class="text-center">
+                                        @Html.DisplayFor(modelItem => item.ReconciliationDate)
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (item.StartDate > CurrentDate)
+                                        {
+                                            @(((POPEnums.CycleStatus.New)).ToString())
+                                        }
+                                        else if (item.StartDate <= CurrentDate && item.EndDate >= CurrentDate)
+                                        {
+                                            @(((POPEnums.CycleStatus.Running)).ToString())
+                                        }
+                                        else if (item.EndDate < CurrentDate)
+                                        {
+                                            @(((POPEnums.CycleStatus.Ended)).ToString())
+                                        }
+                                    </td>
+
+                                    <td class=" text-center">
+                                        @if (item.CycleIsActive == true)
+                                        {
+                                            <text>Active</text>
+                                        }
+                                        else
+                                        {
+                                            <text>Inactive</text>
+                                        }
+                                    </td>
+
+                                    <td class=" text-center">
+                                        <span class="badge badge-pill badge-primary px-2 py-1" style="font-size:14px"> <a class="btn-link" onclick="StockTotal(@item.CycleId)" title=''>@item.TotalItems</a> </span>
+
+                                    </td>
+                                    <td class=" text-center">
+                                        <a target="_blank" href="~/Report/TransactionIndex?cycleName=@(item.Name)" class="btn-link">Transactions Report</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="10"> There is no data to view</td>
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div><!--  end card  -->
+    </div> <!-- end col-md-12 -->
+</div> <!-- end row -->
+
+<div class="modal fade" id="ProductDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <h3 class="text-center mt-2" id="CycleName"></h3>
+            <div class="modal-body">
+                <table id="stock-table" class="table table-bordered">
+                    <thead><tr><th>Item Name</th><th>Start Quantity</th></tr></thead>
+
+                    <tbody></tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-blue-grey" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.Count > 0)
+{
+    <script>
+        $(document).ready(function () {
+
+            $('#cycles-table').DataTable({
+                ordering: false
+            });
+
+
+        });
+    </script>
+}
+
+<script>
+
+    function StockTotal(cycleid) {
+        $('#stock-table tbody').html('');
+
+        $.ajax({
+            url: '@Url.Action("StockTotal","Report")',
+            type: "Get",
+            data: { cycleid},
+            success: response => {
+                if (response) {
+                    console.log(response);
+                    if (response.length > 0) {
+                        $('#CycleName').text(response[0].cycleName)
+                        for (var i = 0; i < response.length; i++) {
+                            $('#stock-table tbody').append('<tr><td class="text-center">' + response[i].productName + '</td><td class="text-center">' + response[i].quantity + '</td></tr>');
+                        }
+                         $('#ProductDetails').modal('show')
+
+                    }
+                    else {
+
+                        $('#stock-table tbody').append('<tr><td colspan="2">No data found</td></tr>');
+                    }
+                }
+                else {
+                    $('#stock-table tbody').append('<tr><td colspan="2">No data found</td></tr>');
+                }
+
+            }
+
+
+        });
+
+    }
+
+</script>
+
+
+@*<script>
+        function ExportCycelReport() {
+            var form = $('#formSearchCycleReport').serialize();
+
+            $.ajax({
+                url: '@Url.Action("ExportCycelReport")?' + form,
+                method: 'get',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+
+                success: response => {
+                    console.log("done");
+                }
+
+
+            })
+        }
+    </script>*@
+
+<script>
+
+
+    async function ExportCycelReport() {
+        var now = moment().format();
+        var form = $('#formSearchCycleReport').serialize();
+
+         fetch('@Url.Action("ExportCycelReport")?' + form,{
+            method: 'get',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }).then(response => {
+            return response.blob();
+        }).then(blob => {
+            if (!blob) {
+                swal.fire({
+                    icon: 'error',
+                    text: 'No file to download',
+                });
+                return;
+            } else if (!blob.size){
+                swal.fire({
+                    icon: 'error',
+                    text: 'You don\'t have permission',
+                });
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+
+            a.download = `CyclesReport_${now}.xlsx`;
+
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            }).catch(err => {
+                swal.fire({
+                icon: 'error',
+                text: 'An error occured',
+            });
+        });
+    }
+</script>

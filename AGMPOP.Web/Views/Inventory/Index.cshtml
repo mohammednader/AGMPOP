@@ -1,0 +1,243 @@
+﻿@model AGMPOP.BL.Models.ViewModels.ProductDTO
+
+@{
+    ViewData["Title"] = "Inventory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="  card px-3 py-1 m-0 mt-2   accordion">
+    <div class="" style="overflow: visible">
+        <div class="d-flex justify-content-between  "
+             data-toggle="collapse"
+             href="#divCollapseSearch"
+             role="button"
+             aria-expanded="false"
+             aria-controls="divCollapseSearch"
+             style="cursor: pointer">
+            <h5 class="mt-2 font-weight-bold"><i class="far fa-search" style="font-size: 20px;"></i>  Search</h5>
+            <span><i class="fa fa-angle-double-down " style="margin-top:10px"></i></span>
+
+        </div>
+
+        <div id="divCollapseSearch" class="collapse ">
+            <hr /><br />
+            <form id="inventory">
+                <div class="row">
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="ProductName"></label>
+                        <input asp-for="ProductName" class="form-control" />
+                    </div>
+
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="Department"></label>
+                        <select id="DepartmentIds" name="DepartmentIds" class="mdb-select" multiple Searchable="Search here...">
+                            <option value="" selected disabled>Select Department</option>
+                        </select>
+                    </div>
+
+                    @*<div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="Types"></label>
+                        <select asp-for="Types" id="Types" class="mdb-select" multiple Searchable="Search here...">
+                            <option value="" selected disabled>Select Type</option>
+                        </select>
+                    </div>*@
+
+
+                    <div class="col-12 text-right">
+                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
+                            Clear&nbsp; <i class="fa fa-trash"></i>
+                        </button>
+                        <button id="btnsearch" type="button" class="btn btn-primary px-3">
+                            Search&nbsp; <i class="fa fa-search"></i>
+                        </button>
+
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div id="PartialIndex">
+
+</div>
+
+<!--ShowProductDetails Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="ProductImg" />
+
+                <p id="code"></p>
+                <p id="Name"></p>
+                @*<p id="Type"></p>*@
+                <p id="Department"></p>
+                <p id="InventoryQnty"></p>
+                <p id="CreatedBy"></p>
+                <p id="CreatedDate"></p>
+                <p id="created"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-grey" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+     @*async function getAllTypes() {
+         $('#Types').empty();
+         $('#Types').append('<option value="" selected disabled>Select Type</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllProductTypes", "Common")',
+            method: 'GET',
+            success: response => {
+                console.log(response);
+
+                if (response && response.length) {
+                    response.forEach(r => {
+                        $('#Types').append(`<option value="${r.id}">${r.name}</option>`);
+                    });
+                }
+            }
+        });
+    }*@
+
+    async function getAllDepts() {
+        $('#DepartmentIds').empty();
+        $('#DepartmentIds').append('<option class="default" value="" selected disabled>Select Department</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllDepartments", "Common")',
+            method: 'GET',
+            success: response => {
+                console.log(response);
+                if (response ) {
+                    response.forEach(d => {
+                        $('#DepartmentIds').append(`<option value="${d.id}">${d.name}</option>`);
+                    });
+                }
+            }
+        });
+    }
+
+ @*Get All Product transaction*@
+
+    function loadPatialData() {
+
+         $.ajax({
+            url: '@Url.Action("_ProductTransaction")',
+            method: "Get",
+            contentType: "application/json; charset=utf-8",
+             success: function (data) {
+
+                $('#PartialIndex').html(data);
+            },
+            error: function (x) {
+                alert("error" + x);
+            },
+        });
+    }
+
+
+  @* search submit *@
+    function loadProduct(e) {
+ 
+        //if (e) {
+        //    e.preventDefault();
+        //    e.returnValue = false;
+        //}
+         var form = $('#inventory').serialize();
+        $.ajax({
+            url: '@Url.Action("Search")?' + form,
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#PartialIndex').html(response);
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Failed to load  ',
+                    });
+                }
+            }
+        });
+
+
+    }
+
+</script>
+<script>
+    $(() => {
+       // getAllTypes();
+        getAllDepts();
+        loadProduct();
+        $('#btnsearch').on('click', loadProduct);
+    })
+</script>
+
+@*ShowProductDetails*@
+<script>
+
+    function ShowProductDetails(ProductId) {
+        var id = ProductId;
+        $.ajax({
+            url: '@Url.Action("Details", "Product")',
+            data: { id },
+            type: "Get",
+            dataType: 'json',
+            success: function (data) {
+                console.log(data);
+                 if (data != null) {
+                    $('#exampleModalLongTitle').text("Product Detalis");
+                    $('#exampleModalLongTitle').css("text-align", "center")
+
+                     $('#Name').text("Name: " + data.data.name);
+                    $('#code').text("Code: " + data.data.code);
+                    // type
+                    //if (data.data.type==1) {
+                    //    $('#Type').text("Type: BBO");
+                    //}
+                    //if (data.data.type==2) {
+                    //    $('#Type').text("Type: Product");
+                    //}
+                    $('#Department').text("Department: " + data.data.department);
+                     $('#InventoryQnty').text("Inventory quantity: " + data.data.qunt);
+                    $('#CreatedDate').text("Created Date: " + data.data.createdDate);
+                     //img style
+                    $('#ProductImg').attr("src", data.data.image);
+                    $('#ProductImg').css("float", "right");
+                    $('#ProductImg').css("width", "120px");
+                    $('#ProductImg').css("height", "120px");
+                    $('#exampleModalCenter').modal('show');
+                }
+
+            },
+            error: function (x) {
+                alert("error" + x);
+            },
+        });
+    }
+
+</script>
+<script>
+
+    function clearBTN() {
+        console.log("reset");
+        $("#inventory").resetForm();
+        $(".default").attr('selected', true);
+        loadProduct();
+    }
+</script>

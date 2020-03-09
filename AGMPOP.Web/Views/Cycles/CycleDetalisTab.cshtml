@@ -1,0 +1,298 @@
+﻿@model AGMPOP.Web.Models.Cycle._CycleDetalisTab
+
+@{
+    Layout = null;
+}
+
+<div class="row">
+
+    <div class="col-12">
+        <div>
+
+            <form id="CycleDetalisTab" method="post" asp-action="CycleDetalisTab">
+                <div class="row">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group col-4">
+                        <label asp-for="Name" name="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-4">
+                        <label asp-for="Type" class="control-label"></label>
+
+                        <select id="Type" name="Type" class="mdb-select  pl-0">
+                        </select>
+                        <span class="text-danger" id="errCycleType"></span>
+                    </div>
+
+                    <div class="form-group col-4">
+                        <label asp-for="Department" class="control-label"></label>
+                        <select id="Department" name="Department" class="mdb-select  pl-0">
+                        </select>
+                        <span class="text-danger" id="errCycleDepartment"></span>
+                    </div>
+
+                    <div class="form-group col-4">
+                        <label asp-for="StartDate" class="control-label"> </label>  
+                        <input asp-for="StartDate" id="StartDate" readonly="@Model.StartDateDisabled" autocomplete="off" class="datetimepicker2 form-control" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                        @*<div class="mt-1">
+                            <span><i class="fa fa-clock text-muted"></i></span>
+                            <select id="start_time" asp-for="start_time" class="form-control" style="width:100px; display:inline-block ">
+                                <option value="0" selected>00:00</option>
+                                @for (int i = 1; i < 24; i++)
+                                {
+                                    <option value="@i">@i:00</option>
+                                }
+                                 
+                            </select>
+
+
+                        </div>*@
+                    </div>
+                    <div class="form-group col-4">
+                        <label asp-for="EndDate" class="control-label"></label>
+                        <input asp-for="EndDate" name="endDate" id="endDate" class="datetimepicker2 form-control " autocomplete="off" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                        @*<div class="mt-1">
+                            <span><i class="fa fa-clock text-muted"></i></span>
+                            <select id="End_time" asp-for="End_time" class="form-control" style="width:100px; display:inline-block ">
+                                <option value="0" selected>00:00</option>
+                                @for (int i = 1; i < 24; i++)
+                                {
+                                    <option value="@i">@i:00</option>
+                                }
+
+                            </select>
+
+
+                        </div>*@
+                    </div>
+                    <div class="form-group col-4">
+                        <label asp-for="ReconciliationDate" class="control-label"></label>
+                        <input asp-for="ReconciliationDate" id="recoDate" class="datetimepicker2 form-control " autocomplete="off" />
+                        <span asp-validation-for="ReconciliationDate" class="text-danger"></span>
+                        @*<div class="mt-1">
+                            <span><i class="fa fa-clock text-muted"></i></span>
+                            <select id="Reconciliation_time" asp-for="Reconciliation_time" class="form-control" style="width:100px; display:inline-block ">
+                                <option value="0" selected>00:00</option>
+                                @for (int i = 1; i < 24; i++)
+                                {
+                                    <option value="@i">@i:00</option>
+                                }
+
+                            </select>
+
+
+                        </div>*@
+                    </div>
+ 
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var ReturnObject = null;
+
+    $(async () => {
+        await Promise.all([getAllDepartmentsDDL(), getAllTypes()]);
+    })
+</script>
+<script>
+    function getAllDepartmentsDDL() {
+        return new Promise((resolve, reject) => {
+            $('#Department').empty();
+            $('#Department').append('<option value="" selected disabled>Select Department</option>');
+
+            let selectedId = @Html.Raw(Json.Serialize(Model?.Department));
+
+            $.ajax({
+                url: '@Url.Action("GetAllDepartments", "common")',
+                method: 'GET',
+
+                success: response => {
+                    console.log(response);
+                    if (response) {
+                        response.forEach(d => {
+                            var node = $(`<option value="${d.id}">${d.name}</option>`);
+                            if (d.id == selectedId) {
+                                node.prop('selected', true);
+                            }
+                            $('#Department').append(node);
+                        });
+                    }
+                    resolve();
+                }
+            });
+        });
+    }
+
+    function getAllTypes() {
+        return new Promise((resolve, reject) => {
+            $('#Type').empty();
+            $('#Type').append('<option value="" selected disabled>Select Type</option>');
+
+            let selectedId = @Html.Raw(Json.Serialize(Model?.Type));
+
+            $.ajax({
+                url: '@Url.Action("LoadCycleTypes","cycles")',
+                method: 'GET',
+
+                success: response => {
+                    console.log(response);
+                    if (response) {
+                        response.forEach(d => {
+                            var node = $(`<option value="${d.typeId}">${d.name}</option>`);
+                            if (d.typeId == selectedId) {
+                                node.prop('selected', true);
+                            }
+                            $('#Type').append(node);
+                        });
+                    }
+                    resolve();
+                }
+            });
+        });
+    }
+</script>
+
+<script>
+    var StartDate = '@Model.StartDate';
+    var EndDate = '@Model.EndDate';
+    var RecoDate = '@Model.ReconciliationDate';
+
+    function validateStartDate() {
+        var startDate = $('#StartDate').val();
+        if (startDate) {
+            $('#endDate').data("DateTimePicker").minDate(startDate);
+            $('#recoDate').data("DateTimePicker").minDate(startDate);
+            if (EndDate && RecoDate) {
+                $('#endDate').val(EndDate);
+                $('#recoDate').val(RecoDate);
+            }
+        }
+    }
+
+    function validateEndDate() {
+        var endDate = $('#endDate').val();
+        if (endDate) {
+            $('#recoDate').data("DateTimePicker").maxDate(endDate);
+            if (RecoDate) {
+                $('#recoDate').val(RecoDate);
+            }
+        }
+    }
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $("#StartDate").on("dp.hide", function () {
+            validateStartDate();
+        });
+
+        $("#endDate").on("dp.hide", function () {
+            validateEndDate();
+        });
+        setTimeout(() => {
+            validateStartDate();
+            validateEndDate();
+        }, 20);
+    });
+
+</script>
+
+<script>
+    async  function CheckCycleName() {
+
+        return new Promise(function (resolve, reject) {
+            try { 
+            var id = $('#Id').val();
+            var name = $('#Name').val();
+            var Department = $('#Department').val();
+            //var res = 1;
+            $.ajax({
+                url: '@Url.Action("CheckCycleName", "cycles")',
+                method: 'GET',
+                data: { id, name, Department },
+                success: response => {
+                    if (response.success == true) {
+                         resolve(1);
+                    }
+                    else {
+                        resolve(0);
+                    }
+                }
+            });
+            } catch (e) {
+                resolve(2);
+            }
+           
+        });
+        
+    }
+</script>
+
+<script>
+    async function validateCycleDetails(e) {
+        const exist = await CheckCycleName();
+        return new Promise((resolve, reject) => {
+            if (e) {
+                e.preventDefault();
+                e.returnValue = false;
+            }
+
+            if (!$('#Type').val()) {
+                $('#errCycleType').text('This field is required');
+            }
+            else {
+                $('#errCycleType').text('');
+            }
+
+            if (!$('#Department').val()) {
+                $('#errCycleDepartment').text('This field is required');
+            }
+            else {
+                $('#errCycleDepartment').text('');
+            }
+
+            $('#CycleDetalisTab').ajaxForm(response => {
+                if (response) {
+                    ReturnObject = {
+                        id: $('#Id').val(),
+                        name: $('#Name').val(),
+                        type: $('#Type').val(),
+                        department: $('#Department').val(),
+                        startDate: $('#StartDate').val(),
+                        endDate: $('#endDate').val(),
+                        reconciliationDate: $('#recoDate').val(),
+                        start_time: $('#start_time').val(),
+                        End_time: $('#End_time').val(),
+                        Reconciliation_time: $('#Reconciliation_time').val(),
+                    }
+                }
+                else {
+                    ReturnObject = null;
+                }
+                resolve(ReturnObject);
+            });
+
+           
+            if (exist== 0) {
+                $('#CycleDetalisTab').submit();
+            }
+            else if (exist == 1) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Cycle name already exists',
+                });
+                ReturnObject = null;
+                resolve(null);
+            }
+        });
+    }
+</script>

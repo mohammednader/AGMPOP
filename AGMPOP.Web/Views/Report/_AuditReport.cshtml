@@ -1,0 +1,79 @@
+﻿@model List<AGMPOP.BL.Models.ViewModels.AuditSearchVM>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-body">
+
+            <table id="Audit-table" class="table table-bordered table-striped table-responsive-sm table-responsive-md table-responsive-lg">
+                <thead>
+                    <tr>
+                        <th data-field="id" class="text-center">User</th>
+                        <th data-field="name" class="text-center">Date</th>
+                        <th data-field="name" class="text-center">Action</th>
+                        <th data-field="name" class="text-center">Table Name</th>
+                        <th data-field="name" class="text-center">View Details</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @{
+
+                        if (Model.Count != 0)
+                        {
+
+
+
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                       @item.UserName
+                                    </td>
+                                    <td class="text-center">
+                                        @item.Date
+                                    </td>
+                                    <td class="text-center">
+                                     @item.ActionName
+                                    </td>
+                                    <td>
+                                     @item.TableName
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="material-tooltip-main my-0 p-0 fa-underline" data-toggle="tooltip" title="@item.NewData">
+                                            New data
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="10"> There is no data to view</td>
+                            </tr>
+
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div><!--  end card  -->
+    </div> <!-- end col-md-12 -->
+</div> <!-- end row -->
+
+@if (Model.Count > 0)
+{
+    <script>
+        $(document).ready(function () {
+
+            $('#Audit-table').DataTable({
+                "ordering": false,
+                // "order": [[3, "desc"]]
+            });
+
+
+        });
+    </script>
+}

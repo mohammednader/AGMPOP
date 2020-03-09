@@ -1,0 +1,58 @@
+﻿
+<div class="row">
+    <div class="col-8">
+        <div class="card card-body mt-2">
+
+            <form id="importFrom" asp-action="ImportTerr" asp-controller="Territory">
+
+                <input name="fileExcel" id="importTerr" type="file" />
+                <button type="submit" class="btn btn-primary">Import</button>
+
+            </form>
+        </div>
+
+    </div>
+   
+
+    <div class="col-4">
+        <div class="card card-body mt-2">
+            <h6>
+                <a href="~/Uploads/Templete/Excel/Territories.xlsx" download="Territories.xlsx" id="TerritoriesExcel" class="btn btn-link" title="Download file">[Download Template file]  </a>
+             </h6>
+        </div>
+    </div>
+
+</div>
+<script>
+    $('#importFrom').ajaxForm(response => {
+ 
+        if (response) {
+            if (response.success) {
+                 Swal.fire({
+                    icon: 'success',
+                    text: response.message,
+                })
+            }
+            else {
+                Swal.fire({
+                    icon: 'error',
+                    text: response.message,
+                });
+            }
+        }
+    });
+
+    //function importTerr() {
+    //    var file = $('#importTerr').val();
+    //    $.ajax({
+    //        url: "Territory/ImportDTE",
+    //        type: "post",
+    //        data: { file },
+    //        success: response => {
+    //            console.log("uploaded");
+    //        }
+    //    });
+
+    //}
+
+</script>

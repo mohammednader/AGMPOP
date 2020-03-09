@@ -1,0 +1,329 @@
+﻿@model List<AGMPOP.BL.Models.ViewModels.ProductDTO>
+
+<div class="row">
+    <div class="col-12 text-right my-1 ">
+
+
+
+        <button type="button" class="material-tooltip-main  btn   text-center  px-3 waves-effect waves-light mr-0  " style="background-color:#080a2e; color:white;" onclick='ExportInventory()'>
+            Export&nbsp;
+
+            <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:15px;"></i>
+        </button>
+
+    </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-body">
+
+
+
+            <table id="dtBasicExample" class="table table-responsive-sm table-responsive-md table-striped table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th data-field="photo" class="text-center">Photo</th>
+                        <th data-field="name" data-sortable="true" class="w-25 text-center">Name</th>
+                        <th data-field="quantity" class="text-center">quantity</th>
+                        <th data-field="DepartmentId" class="text-center">Department</th>
+                        <th class="td-actions text-center" style="width:300px;">Actions</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @{
+                        if (Model != null)
+                        {
+
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <div class="img-container">
+                                            <img class="img-circle" src="@item.Image" style="border-radius:5%;height:40px; width:40px;" />
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn-link font-weight-bold" style="text-decoration:underline" onclick="ShowProductDetails(@item.ProductId)">@item.ProductName</a>
+
+                                    </td>
+                                    @if (item.ShowUpdateBtns == false)
+                                    {
+                                        <td>
+                                            <input type="number" class="form-control" style="width:250px; margin-left:10px" value="@item.InventoryQnty" id="@item.ProductId" onclick="changeQuantity(@item.InventoryQnty)" disabled />
+                                            <input id="temp" type="hidden" value="@item.InventoryQnty" />
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center">
+                                            <p>@item.InventoryQnty</p>
+                                        </td>
+                                    }
+                                    <td class="text-center">
+
+                                        <p>@item.DepartmentName</p>
+
+                                    </td>
+
+
+                                    <td class="text-center">
+                                        <a href="@Url.Action("TransactionProductDetails", "Report", new { id = item.ProductId })" target="_blank" class="material-tooltip-main btn-warning  btn btn-floating my-0 p-0" data-toggle="tooltip" title="Transactions"> <i class="fas fa-info-circle " style="font-size:15px; margin-top:-5px;"></i></a>
+
+                                        @if (item.ShowUpdateBtns == true)
+                                        {
+
+                                            <button class="material-tooltip-main btn-primary  btn btn-floating my-0 p-0" data-toggle="tooltip" title="Edit" id="@(item.ProductId + "edit")" onclick="javascript:editQunt(@item.ProductId)">
+                                                <i class="fas fa-edit " style="font-size:15px; margin-top:-5px;"></i>
+                                            </button>
+
+
+                                            <button class="material-tooltip-main btn-danger  btn btn-floating my-0 p-0 d-none" data-toggle="tooltip" title="Cancel" id="@(item.ProductId + "cancle")" onclick="cancelQunt(@item.ProductId)">
+                                                <i class="fas fa-times-circle " style="font-size:15px; margin-top:-5px;"></i>
+                                            </button>
+
+                                            <button class="material-tooltip-main btn-success  btn btn-floating my-0 p-0 d-none" data-toggle="tooltip" title="Save" id="@(item.ProductId + "save")" onclick="saveQunt(@item.ProductId)">
+                                                <i class="fas fa-save " style="font-size:15px; margin-top:-5px;"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>
+
+                                    data Not Found
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                </tbody>
+
+            </table>
+
+
+
+        </div><!--  end card  -->
+
+
+    </div> <!-- end col-md-12 -->
+</div> <!-- end row -->
+@*pagination*@
+<script type="text/javascript">
+    $(function () {
+        $('.material-tooltip-main').tooltip();
+    })
+    var $table = $('#cycles-table');
+    $table.bootstrapTable({
+        toolbar: ".toolbar",
+        clickToSelect: true,
+        //showRefresh: true,
+        search: true,
+        //showToggle: true,
+        //showColumns: true,
+        pagination: true,
+        searchAlign: 'left',
+        pageSize: 8,
+        clickToSelect: false,
+        pageList: [8, 10, 25, 50, 100],
+
+        formatShowingRows: function (pageFrom, pageTo, totalRows) {
+            //do nothing here, we don't want to show the text "showing x of y from..."
+        },
+        formatRecordsPerPage: function (pageNumber) {
+            return pageNumber + " rows visible";
+        },
+        icons: {
+            columns: 'fa-columns'
+        }
+    });
+
+    $(document).ready(function () {
+        $('#dtBasicExample').DataTable();
+
+        //activate the tooltips after the data table is initialized
+        $('[rel="tooltip"]').tooltip();
+
+        $(window).resize(function () {
+            $table.bootstrapTable('resetView');
+        });
+    });
+
+</script>
+
+<script>
+    function TransactionProduct(id) {
+        window.location.href = "Report/TransactionProductDetails/" + id;
+    }
+
+    @* Edite Button partial view *@
+    function editQunt(id) {
+
+        $("#" + id).prop('disabled', false);
+        $("#" + id + "save").toggleClass('d-inline');
+        $("#" + id + "edit").toggleClass('d-none');
+        $("#" + id + "cancle").toggleClass('d-inline');
+        $("#msg").addClass('d-none');
+
+        changeQunt(id);
+    }
+
+    @* cancle Button partial view *@
+    function cancelQunt(id) {
+        $("#" + id).val($("#temp").val());
+        console.log($("#temp").val());
+        $("#" + id + "save").toggleClass('d-inline');
+        $("#" + id + "edit").toggleClass('d-none');
+        $("#" + id + "cancle").toggleClass('d-inline');
+
+        $("#msg").addClass('d-none');
+
+        $("#" + id).prop('disabled', true);
+
+
+    }
+
+    @* save Temp *@
+    function changeQunt(id) {
+        var change = $("#" + id).val();
+        $("#temp").val(change);
+
+    }
+
+    @* update Qauntity *@
+    function saveQunt(id) {
+
+        if (!$("#" + id).val()) {
+
+            $("#msg").css('display', 'inline-block');
+
+        }
+        else {
+            // check two values temp vs actual
+            if ($("#" + id).val() != $("#temp").val()) {
+                if ($("#" + id).val() != null) {
+                    var _parameters = { Id: id, Qunt: $("#" + id).val() }
+                }
+                else {
+                    var _parameters = { Id: id }
+
+                }
+                if ($("#temp").val() < $("#" + id).val()) {
+                    $.ajax({
+                        url: "/inventory/EditQuantity",
+                        type: "GET",
+                        data: _parameters,
+                        success: function (data) {
+                            //  window.location.href = "/Department/Index";
+                            if (data) {
+                                if (data.success) {
+                                    swal.fire({
+                                        text: 'Your data has been updated',
+                                        icon: 'success',
+                                      
+                                    })
+
+                                }
+                                else {
+                                    swal.fire({
+                                        text: data.message,
+                                        icon: 'error',
+
+                                    })
+
+                                }
+
+                            }
+
+
+                            $("#" + id + "save").toggleClass('d-inline');
+                            $("#" + id + "edit").toggleClass('d-none');
+                            $("#" + id + "cancle").toggleClass('d-inline');
+                            $("#" + id).prop('disabled', true);
+
+
+                        }
+                    });
+                }
+                else {
+                    var temp = $("#temp").val();
+                    $("#" + id).val(temp);
+
+                }
+            }
+            else {
+                swal.fire({
+                    text: 'Nothing has changed !!',
+                    icon: 'info',
+                    buttonsStyling: false
+                });
+                $("#" + id + "save").toggleClass('d-inline');
+                $("#" + id + "edit").toggleClass('d-none');
+                $("#" + id + "cancle").toggleClass('d-inline');
+                $("#" + id).prop('disabled', true);
+
+
+
+            }
+        }
+    }
+
+
+
+</script>
+
+
+<script>
+
+
+    async function ExportInventory() {
+
+        var now = moment().format();
+         fetch('@Url.Action("ExportInventory")', {
+             method: 'get',
+
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }).then(response => {
+            return response.blob();
+        }).then(blob => {
+            if (!blob) {
+                swal.fire({
+                    icon: 'error',
+                    text: 'No file to download',
+                });
+                return;
+            } else if (!blob.size){
+                swal.fire({
+                    icon: 'error',
+                    text: 'You don\'t have permission',
+                });
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `Inventory_${now}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            }).catch(err => {
+                swal.fire({
+                icon: 'error',
+                text: 'An error occured',
+            });
+        });
+    }
+</script>
+
+

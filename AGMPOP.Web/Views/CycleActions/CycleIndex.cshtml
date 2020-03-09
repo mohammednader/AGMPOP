@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewData["Title"] = "My Cycles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<div class=" mt-2 ">
+    <div id="cyclelist">
+        <a href="../Mobile/CycleName?cycleId=8">
+            <div class="card card-body mb-2 Home" style="cursor:pointer">
+                <div class="row">
+                    <div class="col-3 col-xl-1 text-md-center d-flex justify-content-md-left align-items-md-left">
+                        <span class="LeftCardLogo">N</span>
+                    </div>
+                    <div class="col-7 col-xl-10 d-flex flex-column justify-content-center">
+                        <label></label>
+                        <h4>Test Cycle  &nbsp;<i class="fas fa-circle" style="font-size:18px;"></i></h4>
+                    </div>
+                    <div class="col-2 col-xl-1 d-flex flex-column justify-content-center text-center">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+<style>
+    .Home {
+        transition: 0.2s all;
+    }
+
+        .Home:hover {
+            transform: scale(1.005);
+        }
+
+        .Home label {
+            cursor: pointer;
+        }
+</style>
+<script>
+    // ================== JQUERY ================== //
+    $(document).ready(function () {
+        $("#AvailableActions").hide();
+        $(".SideNav a:nth(0)").addClass("activated");
+        $(".SideNav i:nth(0)").css("color", "white");
+        GetCycleList();
+    });
+
+    // ================== 1- GET CYCLES LIST FUNCTIONS ================== //
+
+    async function GetCycleList() {
+        //var currLocation = await getCurrentLocation();
+        //var userlat = currLocation.latitude;
+        //var userlng = currLocation.longitude;
+        //const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/cycles?Page=" + 1 + "&Limit=" + 20;
+        debugger;
+        var divCycleList = $('#cyclelist');
+        divCycleList.empty();
+
+
+
+        $.ajax({
+            url: '@Url.Action("GetCycle")',
+            method: 'Get',
+            success: (res) => {
+                console.log(res);
+                console.log(res.data);
+
+                if (res.data) {
+                        for (i = 0; i < res.data.length; i++) {
+                            var cycletype = res.data[i].cycleType == 0 ? "N" : "E";
+                            var cycleDetailsDiv = `
+                            <a  href="@Url.Action("CycleTransaction")?cycleId=${res.data[i].cycleId}">
+                                <div class="card card-body mb-2 Home" style="cursor:pointer">
+                                <div class="row">
+                            <div class="col-3 col-xl-1 text-md-center d-flex justify-content-md-left align-items-md-left">
+                                <span class="LeftCardLogo">${cycletype}</span >
+                            </div>
+                            <div class="col-7 col-xl-10 d-flex flex-column justify-content-center">
+                                <label>${moment(res.data[i].startDate).format('DD/MM/YYYY')}  - ${moment(res.data[i].endDate).format('DD/MM/YYYY')}</label>
+                                <h4>${res.data[i].name} &nbsp;${res.data[i].name == true ? `<i class="fas fa-circle" style="font-size:15px;"></i>` : `<i class="fas fa-circle d-none"></i>`}</h4>
+                            </div>
+                            <div class="col-2 col-xl-1 d-flex flex-column justify-content-center text-center">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div></a>`
+                            divCycleList.append(cycleDetailsDiv);
+                        }
+                    }
+                    else if (res.data[i].length == 0) {
+                        divCycleList.append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">Sorry ,, No cycles Found !!</div>`);
+                }
+                console.log(cycleDetailsDiv);
+                }
+               // GetNotificationsList();
+            
+
+
+
+
+
+
+        });
+    }
+
+       
+    // ====================== 2- NOTIFICATION VIBRATE FUNCTION ==========================//
+    //async function GetNotificationsList() {
+
+    //    var currLocation = await getCurrentLocation();
+    //    var userlat = currLocation.latitude;
+    //    var userlng = currLocation.longitude;
+    //    const userType = localStorage.getItem('type');
+    //    const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + "users/" + userID + "/notification" + "?Page=1&Limit=200"
+    //    let apiResponse = await fetch(proxyurl + APIurl, {
+    //        method: 'GET',
+    //        headers: {
+    //            'Authorization': 'Bearer ' + AccessToken,
+    //            'Accept': 'application/json',
+    //            'Content-Type': 'application/json',
+    //            'Access-Control-Allow-Origin': '*',
+    //        },
+    //    });
+    //    var res;
+    //    if (apiResponse.ok) {
+
+    //        res = await apiResponse.json();
+    //        if (res.data && res.data.length) {
+    //            for (i = 0; i < res.data.length; i++) {
+    //                if (res.data[i].IsSeen == false) {
+    //                    $(".fa-bell").addClass("NotificationTrue");
+    //                }
+    //            }
+    //        }
+    //    } $(".loader").fadeOut();
+    //}
+</script>

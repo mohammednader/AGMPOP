@@ -1,0 +1,63 @@
+﻿<style>
+    #lstUsers, #user-filter-field {
+        max-height: 55vh;
+        overflow-y: auto;
+    }
+</style>
+
+<div>
+    <div class="container-fluid" id="user-tab-container">
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-8 row border-right">
+                <div class="col-12" style="border-bottom:1px solid rgba(0, 0, 0, 0.125); padding-bottom:20px">
+                    <input type="text" id="txtSearchUser" class="form-control" placeholder="Search for users..." />
+                </div>
+                <div id="user-filter-field" class="col-6 col-sm-3" style="border-right:1px solid rgba(0, 0, 0, 0.125)">
+                    <div>
+                        <button class="btn btn-link text-primary pt-2 px-0" id="btnViewAllUsers" onclick="clearFilterUsers()">View All</button>
+                    </div>
+                    <div style="display: none" id="divUserDepartmentSearch" class="flex-column align-items-start">
+                        <h5>Department</h5>
+                        <div id="lstUserDepartments" class="d-flex flex-column align-items-start"></div>
+                    </div>
+                    <div style="display: none" id="divUserJobTitleSearch" class="flex-column align-items-start">
+                        <h6 class="font-weight-bold">Job Title</h6>
+                        <div id="lstUserJobTitles" class="d-flex flex-column align-items-start"></div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-9 pt-4 px-4">
+                    <p class="font-weight-bold" id="userCount"></p>
+                    <div id="lstUsers" class="list-group"></div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 px-5">
+                <h6 class="font-weight-bold">Selected <small>(<span id="selectedUsersCount">0</span>)</small></h6>
+
+                <div id="lstSelectedUsers" class="mt-3 list-group">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(() => {
+        getAllUserJobTitles();
+
+        if (CycleDepartment == 0) {
+            getAllDepartments();
+        }
+        getAllUsers();
+        /*$(document).on('change', '.chkUser', e => {
+            debugger;
+            toggleSelectUser(e.target);
+        });*/
+        $('#txtSearchUser').on('keyup', e => {
+             searchTextUsers($('#txtSearchUser').val());
+         });
+        $(document).on('change', '.txtQuantity', e => {
+            validateQuantity(e.target);
+        });
+    });
+</script>

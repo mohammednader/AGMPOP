@@ -1,0 +1,332 @@
+﻿@model AGMPOP.BL.Models.ViewModels.UserSC
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="d-flex mb-2 mt-1 justify-content-end">
+    <a class="btn btn-primary px-3 m-0" href="@Url.Action("CreateUser")">
+        <i class="fas fa-plus"></i>
+        <span>Add User</span>
+    </a>
+</div>
+
+<div class=" card px-3 py-1 m-0    accordion">
+    <div class="" style="overflow: visible">
+        <div class="d-flex justify-content-between  "
+             data-toggle="collapse"
+             href="#divCollapseSearch"
+             role="button"
+             aria-expanded="false"
+             aria-controls="divCollapseSearch"
+             style="cursor: pointer">
+            <h5 class="mt-2 font-weight-bold"><i class="far fa-search" style="font-size: 20px;"></i>  Search</h5>
+            <span><i class="fa fa-angle-double-down " style="margin-top:10px"></i></span>
+
+        </div>
+
+        <div id="divCollapseSearch" class="collapse ">
+            <hr /><br />
+            <form id="formSearchUsers">
+                <div class="row">
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-control" />
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control" />
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="PhoneNumber"></label>
+                        <input asp-for="PhoneNumber"onkeypress="return isNumberKey(event)" class="form-control" />
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="Role"></label>
+                        <select asp-for="Role" class="mdb-select" multiple Searchable="Search here...">
+                            <option value="" selected disabled>Select roles</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="JobTitle"></label>
+                        <select asp-for="JobTitle" class="mdb-select" multiple Searchable="Search here...">
+                            <option value="" selected disabled>Select job titles</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="Department"></label>
+                        <select asp-for="Department" class="mdb-select" multiple Searchable="Search here...">
+                            <option value="" selected disabled>Select departments</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6 col-md-4">
+                        <label asp-for="Status"></label>
+                        <select asp-for="Status" class="mdb-select">
+                            <option value="0" selected>All</option>
+                            <option value="1">Active</option>
+                            <option value="2">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-12 text-right">
+                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
+                            Clear &nbsp; <i class="fa fa-trash"></i>
+                        </button>
+                        <button type="submit" class="btn btn-primary px-4 m-0">
+                            Search &nbsp; <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-end my-2">
+
+    <button id="btnImport" type="button" class="material-tooltip-main  btn btn-default  text-center mx-0 my-0  px-3 waves-effect waves-light" onclick=";">
+        Import&nbsp; <i class="fal fa-arrow-up fa-align-center " style="vertical-align: middle !important; font-size:18px;"> </i>
+    </button>
+
+    <button id="btnExport" type="button" class="material-tooltip-main  btn   text-center  my-0 px-3 mr-0 waves-effect waves-light" onclick="exportUsers()" style="background-color:#080a2e; color:white">
+        Export&nbsp; <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:18px; "> </i>
+    </button>
+
+
+</div>
+
+<div class="card card-body m-0" id="divUsers">
+
+</div>
+
+<div id="modal-container"></div>
+
+<script>
+    function loadUsers(e) {
+        if (e) {
+            e.preventDefault();
+            e.returnValue = false;
+        }
+
+        var form = $('#formSearchUsers').serialize();
+        $.ajax({
+            url: '@Url.Action("_UserList")?' + form,
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#divUsers').html(response);
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Failed to load roles',
+                    });
+                }
+            }
+        });
+    }
+
+    async function deactivateUser(id) {
+        var confirm = await Swal.fire({
+            icon: 'question',
+            text: 'Are you sure you want to deactivate this user',
+            confirmButtonText: 'Deactivate',
+            confirmButtonClass: 'btn btn-danger',
+            showCancelButton: true,
+        });
+        if (confirm && confirm.value) {
+            $.ajax({
+                url: '@Url.Action("DeactivateUser")/' + id,
+                method: 'PUT',
+                success: response => {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            text: response.message,
+                        });
+                        loadUsers();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: (response && response.message) ? response.message : 'Failed to deactivate user',
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    async function activateUser(id) {
+        var confirm = await Swal.fire({
+            icon: 'question',
+            text: 'Are you sure you want to activate this user',
+            confirmButtonText: 'Activate',
+            showCancelButton: true,
+        });
+        if (confirm && confirm.value) {
+            $.ajax({
+                url: '@Url.Action("ActivateUser")/' + id,
+                method: 'PUT',
+                success: response => {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            text: response.message,
+                        });
+                        loadUsers();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: (response && response.message) ? response.message : 'Failed to activate user',
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    async function resetPassword(id) {
+        $.ajax({
+            url: '@Url.Action("ResetPassword")/' + id,
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#modal-container').html(response);
+                    $('#modalResetPassword').modal('show');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        type: 'An error occured, please try again',
+                    });
+                }
+            }
+        })
+    }
+
+    async function exportUsers(e) {
+        if (e) {
+            e.preventDefault();
+            e.returnValue = false;
+        }
+        var filename = '';
+        var form = $('#formSearchUsers').serialize();
+        $('#btnExport').prop('disabled', true);
+        fetch('@Url.Action("ExportUsers")?' + form)
+            .then(response => {
+                try {
+                    filename = response.clone().headers.get('Content-Disposition').split(';')[1].split('=')[1].replace(/"/g, '');
+                } catch (_) {}
+                return response.blob();
+            }).then(blob => {
+                try {
+                    if (!blob) {
+                        swal.fire({
+                            icon: 'error',
+                            text: 'No file to download',
+                        });
+                        return;
+                    } else if (!blob.size) {
+                        swal.fire({
+                            icon: 'error',
+                            text: 'You don\'t have permission',
+                        });
+                        return;
+                    }
+                    else {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = filename || 'file.xlsx';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        if ($(a)) $(a).remove();
+                        $('#btnExport').prop('disabled', false);
+                    }
+                } catch (_) {
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Failed to export users',
+                    });
+                    $('#btnExport').prop('disabled', false);
+                }
+            }).catch(_ => {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Failed to export users',
+                });
+                $('#btnExport').prop('disabled', false);
+            });
+    }
+</script>
+
+<script>
+    async function getAllRoles() {
+        $('#Role').empty();
+        $('#Role').append('<option class="default" value="" selected disabled>Select roles</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllRoles", "Common")',
+            method: 'GET',
+            success: response => {
+                if (response && response.length) {
+                    response.forEach(r => {
+                        $('#Role').append(`<option value="${r.id}">${r.name}</option>`);
+                    });
+                }
+            }
+        });
+    }
+
+    async function getAllJobTitles() {
+        $('#JobTitle').empty();
+        $('#JobTitle').append('<option class="default" value="" selected disabled>Select job titles</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllJobTitles", "Common")',
+            method: 'GET',
+            success: response => {
+                if (response && response.length) {
+                    response.forEach(j => {
+                        $('#JobTitle').append(`<option value="${j.id}">${j.name}</option>`);
+                    });
+                }
+            }
+        });
+    }
+
+    async function getAllDepartments() {
+        $('#Department').empty();
+        $('#Department').append('<option class="default" value="" selected disabled>Select departments</option>');
+
+        $.ajax({
+            url: '@Url.Action("GetAllDepartments", "Common")',
+            method: 'GET',
+            success: response => {
+                if (response && response.length) {
+                    response.forEach(j => {
+                        $('#Department').append(`<option value="${j.id}">${j.name}</option>`);
+                    });
+                }
+            }
+        });
+    }
+</script>
+<script>
+
+    function clearBTN() {
+        console.log("reset");
+        $("#formSearchUsers").resetForm();
+        $(".default").attr('selected', true);
+        loadUsers();
+    }
+</script>
+<script>
+    $(() => {
+        loadUsers();
+        getAllRoles();
+        getAllJobTitles();
+        getAllDepartments();
+        $('#formSearchUsers').on('submit', loadUsers);
+    })
+</script>

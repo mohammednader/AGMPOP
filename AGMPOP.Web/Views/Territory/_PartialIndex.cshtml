@@ -1,0 +1,183 @@
+﻿
+@{
+    ViewData["Title"] = "_PartialIndex";
+    Layout = null;
+}
+
+<input type="text" id="geo-tree_q" value="" class="form-control mb-md mb-4" placeholder="Search">
+
+    <div id="geo-tree">
+
+    </div>
+
+
+@*init JStree*@
+
+<script>
+
+
+    function LoadExtOrgTree() {
+        $('#geo-tree')
+            .jstree({
+                "core": {
+                    "animation": 0,
+                    "check_callback": true,
+                    'force_text': true,
+                    "themes": { "": true },
+                    'data': @Html.Raw(ViewBag.TreeData)
+
+                },
+                "types": {
+                    "#": { "max_children": 10, "max_depth": 20, "valid_children": ["root"] },
+                    "root": { "icon": "fas fa-suitcase text-success", "valid_children": ["default"] },
+                    "default": { "icon": "fas fa-suitcase text-info", "valid_children": ["default", "file"] },
+                    "file": { "icon": "fas fa-user", "valid_children": [] }
+
+                },
+                "plugins": ["contextmenu", "dnd", "search", "state", "types", "wholerow"]
+                ,
+                "contextmenu": {
+                    "items": function (node) {
+                        var defaultItems = $.jstree.defaults.contextmenu.items();
+                      //  console.log("default items : " + JSON.stringify(defaultItems));
+                        delete defaultItems.ccp;
+
+                        return defaultItems;
+                    }
+                }
+            });
+    };
+
+
+</script>
+ 
+ 
+<script>
+
+    $(function () {
+
+   
+
+              LoadExtOrgTree();
+
+        //search
+        var to = false;
+        $('#geo-tree_q').keyup(function () {
+            if (to) { clearTimeout(to); }
+            to = setTimeout(function () {
+                var v = $('#geo-tree_q').val();
+                $('#geo-tree').jstree(true).search(v);
+            }, 250);
+        });
+
+
+        //Rename
+        $('#geo-tree')
+            // listen for event
+            .on('rename_node.jstree', function (e, data) {
+             //   console.log(data.node);
+                var dataToSend = JSON.stringify(data.node);
+                //let _url = '/Territory/Create';
+                //if (data.node.id) {
+                //    _url = '/Territory/Edit';
+                //}
+             //   console.log(dataToSend);
+                $.ajax({
+                    url: '/Territory/Create',
+                    type: 'POST',
+                    data: { str: dataToSend },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data != null) {
+                            if (data.success == true) {
+                                PartialTerritoies();
+                                Swal.fire({
+                                    text: data.message,
+                                    icon: 'success',
+                                })
+                            }
+                            else if (data.success == false) {
+                                PartialTerritoies();
+
+                                Swal.fire({
+                                    text: data.message,
+                                    icon: 'error',
+                                })
+                            }
+                        }
+                    },
+                    error: function () {
+                        alert('Error in Create or Edit');
+                    }
+                });
+            })
+            // create the instance
+            .jstree();
+
+        //************************************************
+        $('#geo-tree')
+            // listen for event
+            .on('delete_node.jstree', function (e, data) {
+                //console.log(data.node);
+                //var dataToSend = JSON.stringify(data.node);
+                //var _id = data.node.id;
+
+                    Swal.fire({
+                        text: "Are you sure you want to remove this territory?",
+                        icon: 'question', 
+                        showCancelButton: true,
+                        confirmButtonColor: '#4285f4',
+                        cancelButtonColor: '#a1a1a1',
+                        confirmButtonText: 'Ok'
+
+
+                    // when press yes remove
+                }).then((result) => {
+                    if (result.value) {
+                        $.ajax({
+                            url: '/Territory/Delete/' + data.node.id,
+                            dataType: 'json',
+                            type: "GET",
+                            success: function (data) {
+                                if (data != null) {
+                                    // when remove done
+                                    if (data.success) {
+                                        Swal.fire({
+                                           text: data.message,
+                                            icon: 'success',
+                                        }
+              
+                                        ).then(
+                                            function () {
+                                                PartialTerritoies();
+                                            }
+                                        );
+                                    }
+                                    // when cant remove [there are child]
+                                    else {
+                                        Swal.fire({
+                                            text: data.message,
+                                            icon: 'error',
+                                        }).then(
+                                            function () {
+                                                PartialTerritoies();
+                                            }
+                                        );
+                                    }
+                                }
+                            },
+                        });
+                    }
+                    // when cancel sweet alert
+                    else {
+                        PartialTerritoies();
+                    }
+
+                })
+
+            })
+            // create the instance
+          .jstree();
+    });
+
+</script>

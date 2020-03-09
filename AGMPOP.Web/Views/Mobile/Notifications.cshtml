@@ -1,0 +1,100 @@
+﻿
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<div id="NotificationList">
+
+</div>
+
+
+
+
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+
+<script>
+
+    // ================== JQUERY ================== //
+    $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        $("#hello1").text("Notifications");
+        $(".SideNav a:nth(2)").addClass("activated");
+        $(".SideNav i:nth(2)").css("color", "white");
+         GetNotificationsList();
+     });
+
+
+    function GetNotificationsList() {
+         $.ajax({
+            url: '@Url.Action("notificationsList", "Notification")',
+            type: "GET",
+             success: function (data) {
+                  var res = data;
+                 if (res && res.length) {
+                     for (i = 0; i < res.length; i++) {
+                         if (res[i].IsSeen == false) {
+                             $(".fa-bell").addClass("NotificationTrue");
+                         }
+                         var ss;
+                         if (res[i].notificationtype == 1) {
+                             ss = `<a onclick='Opend(${res[i].id})' id="${res[i].id}" href="/CycleActions/ConfirmTransaction?TransactionId=${res[i].transactionId}&CycleId=${res[i].cycleId}&NotificationId=${res[i].id}">`
+                         } else if (res[i].notificationtype == 2) {
+                             ss = ` <a onclick='Opend(${res[i].id})' id="${res[i].id}" href="/CycleActions/NotificationDetails?TransactionId=${res[i].transactionId}&CycleId=${res[i].cycleId}&NotificationId=${res[i].id}">`
+                         }
+
+                         var NotificationsResponse = `${ss}
+                            <div class="card card-body mb-2 Home"  ${!res[i].isSeen ? `style=background-color:#f5f5dc;` : ``}>
+                                <div class="row">
+
+                                    <div class="col-10 col-xl-11 text-left px-3">
+                                    <label>${moment(res[i].createdAt).format('DD/MM/YYYY')}</label>
+                                        <h4>${res[i].title}</h4>
+                                    </div>
+                                        <div class="col-2 col-xl-1 d-flex flex-column justify-content-center text-center">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </div>
+
+                   </div>
+            </div>
+        </a>`
+
+                         $("#NotificationList").append(NotificationsResponse);
+                     }
+                 }
+                 else {
+                     $("#NotificationList").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert"> No Notifications Found !! </div>`);
+                 }
+
+                 $(".loader").fadeOut();
+             },
+
+        });
+    }
+ 
+
+
+</script>
+
+<script>
+    function Opend(id) {
+        var notificationId = id;
+        $.ajax({
+            url: '@Url.Action("SeenAt", "Notification")',
+            type: "Get",
+            data: { notificationId },
+            success: response => {
+
+            },
+
+        });
+
+    }
+</script>

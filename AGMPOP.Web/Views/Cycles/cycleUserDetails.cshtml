@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewData["Title"] = "cycleUserDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>cycleUserDetails</h1>
+<div id="users"></div>
+
+<script>
+
+    $(() => {
+        $.ajax({
+            url: "cycles/_CycleUserDetails",
+            method: "get",
+            success: (res) => {
+                $("#users").html(res);
+            }
+        })
+
+    })
+
+</script>
+@section Scripts {
+
+    <script src="~/Scripts/create-cycle-general.js"></script>
+    <script src="~/Scripts/create-cycle-user-details.js"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

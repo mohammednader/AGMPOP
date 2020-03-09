@@ -1,0 +1,147 @@
+﻿@model AGMPOP.BL.Models.ViewModels.CycleVM
+
+@{
+    ViewData["Title"] = "Cycle: " + ViewBag.Title;
+
+}
+<div class="container card card-body">
+    <input hidden value="@Model.CycleId" id="cyceleId" />
+    <ul id="tabs" class="nav nav-tabs">
+        <li id="liStep_1" class="nav-item active">
+            <a class="nav-link active" href="#home" data-step="1">Cycle Details</a>
+        </li>
+        <li id="liStep_2" class="nav-item">
+            <a class="nav-link terretories" href="#territories" data-step="2">Territories</a>
+        </li>
+        <li id="liStep_3" class="nav-item">
+            <a class="nav-link" href="#products" data-step="3">Products</a>
+        </li>
+        <li id="liStep_4" class="nav-item">
+            <a class="nav-link" href="#users" data-step="4">Users</a>
+        </li>
+        <li id="liStep_5" class="nav-item">
+            <a class="nav-link" href="#Transaction" data-step="5">Transaction</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active show">
+            @await Html.PartialAsync("_BasicCycleDetalis", Model)
+        </div>
+        <div id="territories" class="tab-pane fade in"></div>
+        <div id="products" class="tab-pane fade in"></div>
+        <div id="users" class="tab-pane fade in"></div>
+        <div id="Transaction" class="tab-pane fade in"></div>
+    </div>
+</div>
+
+
+<script>
+    function LoadTerrtoriy() {
+        var cycleId = $("#cyceleId").val();
+        $.ajax({
+            url: "/Cycles/_CycleTerritory",
+            type: "Get",
+            data: { cycleId },
+            success: response => {
+                $("#territories").html(response);
+            }
+        });
+    }
+
+    function LoadProducts() {
+        var cyceleId = $("#cyceleId").val();
+        $.ajax({
+            url: "/Cycles/_ProductCycleDetalis",
+            type: "Get",
+            data: { cyceleId },
+            success: response => {
+                $("#products").html(response);
+            }
+        });
+    }
+
+    function LoadUser() {
+        $.ajax({
+            url: "/Cycles/_CycleUserDetails",
+            method: "get",
+            success: (res) => {
+                $("#users").html(res);
+            }
+        })
+
+    }
+
+    function LoadTransaction() {
+        var cycleId = $("#cyceleId").val();
+
+        $.ajax({
+            url: "/Report/Search" ,//+ cycleId,
+            method: "get",
+            data: { cycleId },
+
+            success: (res) => {
+                $("#Transaction").html(res);
+            }
+        })
+
+    }
+</script>
+ 
+
+ <script>
+     $(() => {
+         let terrIsLoaded = false;
+         let productIsLoaded = false;
+         let usersIsLoaded = false;
+         let transIsLoaded = false;
+
+
+         $('.nav-link').on('click', e => {
+             console.log($(e.target));
+             console.log(e.target);
+
+             var step = e.target.dataset.step;
+             e.preventDefault();
+             if (step == 1) {
+                 $('.nav-tabs a[href="#home"]').tab('show');
+             }
+             else if (step == 2) {
+                 if (!terrIsLoaded) {
+                     LoadTerrtoriy();
+                     terrIsLoaded = true;
+                 }
+                 $('.nav-tabs a[href="#territories"]').tab('show');
+             }
+             else if (step == 3) {
+                 if (!productIsLoaded) {
+                     LoadProducts();
+                     productIsLoaded = true;
+                 }
+                 $('.nav-tabs a[href="#products"]').tab('show');
+
+             }
+             else if (step == 4) {
+                 if (!usersIsLoaded) {
+                     LoadUser();
+                     usersIsLoaded = true;
+                 }
+                 $('.nav-tabs a[href="#users"]').tab('show');
+             }
+             else if (step == 5) {
+                 if (!transIsLoaded) {
+                     LoadTransaction();
+                     transIsLoaded = true;
+                 }
+                 $('.nav-tabs a[href="#Transaction"]').tab('show');
+             }
+         });
+     });
+</script> 
+ 
+@section Scripts {
+
+    <script src="~/Scripts/create-cycle-general.js"></script>
+    <script src="~/Scripts/create-cycle-user-details.js"></script>
+    <script src="~/Scripts/create-cycle-product-details.js"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

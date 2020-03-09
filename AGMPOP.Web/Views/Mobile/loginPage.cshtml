@@ -1,0 +1,306 @@
+﻿@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>loginPage</title>
+    <style>
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: url('../mobile/assets/img/logo/base.png') center center no-repeat;
+            background-size: cover;
+            color: white;
+        }
+
+        .loginPage {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .loginPage .LoginForm {
+                margin: 50px;
+                padding: 50px;
+                border: 0.5px solid white inset;
+                border-radius: 5px;
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+                .loginPage .LoginForm .span {
+                    font-size: 36px;
+                    text-align: center;
+                }
+
+                .loginPage .LoginForm .UserEmail {
+                    margin-top: 30px;
+                }
+
+                .loginPage .LoginForm .UserPassword {
+                    margin: 20px 0px 30px 0px;
+                }
+
+                .loginPage .LoginForm input {
+                    outline: none;
+                    background-color: rgba(255, 255, 255, 0.3);
+                    color: white;
+                    border: 0px;
+                    border-radius: 5px;
+                    height: 60px;
+                    width: 320px;
+                    padding: 0px 20px;
+                    font-size: 22px;
+                }
+
+                    .loginPage .LoginForm input::placeholder {
+                        color: white;
+                        font-size: 22px;
+                        font-weight: 100;
+                        opacity: 0.7;
+                    }
+
+                .loginPage .LoginForm .SignInBtnDiv {
+                    text-align: center;
+                }
+
+                .loginPage .LoginForm .SignInBtn {
+                    outline: none;
+                    background: #051937;
+                    color: white;
+                    font-size: 22px;
+                    border: 0px;
+                    height: 68px;
+                    width: 360px;
+                    cursor: pointer;
+                    transition: 0.2s all;
+                    border-radius: 5px;
+                }
+
+                    .loginPage .LoginForm .SignInBtn:hover {
+                        background: #000000;
+                    }
+
+            .loginPage .Forget {
+                font-size: 22px;
+            }
+
+            .loginPage a {
+                text-decoration: none;
+                color: white;
+            }
+
+        .alert-danger {
+            text-align: center;
+            margin-top: 12px;
+            color: white;
+            background-color: red;
+            border-radius: 5px;
+            padding: 10px;
+            display: none;
+        }
+        .loader{
+            position:fixed;
+            height:100%;
+            width:100%;
+            background-color:white;
+            margin-left:-8px;
+            margin-top:-10px;
+            display:flex;
+            justify-items:center;
+            justify-content:center;
+            align-items:center;
+            align-content:center;
+            color:black;
+            display:none;
+        }
+
+    </style>
+    <link href="~/mobile/assets/_dev/LoginResponsive.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <div class="loader">
+        <h1>Loading ..</h1>
+    </div>
+    <div class="loginPage">
+        <div class="PhilipMorisLogo">
+            <img src="~/mobile/assets/img/Logo/logo@3x.png" width="211" height="154" />
+        </div>
+        <div class="LoginForm">
+            <div class="span">Member Login</div>
+            <input class="UserEmail" id="loginEmail" name="loginEmail" type="text" placeholder="User Email"><br />
+            <input class="UserPassword" id="loginPassword" type="password" placeholder="User Password"><br />
+            <button class="SignInBtn" onclick="GetToken()">Sign In</button>
+            <div class="alert-danger"></div>
+
+        </div>
+        <a href="ResetPassword"><div class="Forget">Forgot Your Password !</div></a>
+    </div>
+ 
+</body>
+
+</html>
+
+<script>
+    $(document).ready(function () {
+        for (i = 0; i < 1000; i++) {
+            $(".loader h1").fadeOut(700).fadeIn(700)
+        }
+    })
+        // ================== GLOBAL VARIABLES ================== //
+         const proxyurl = "@Configuration["APIProxyUrl"]";
+        const BaseAPIurl = "@Configuration["APIBaseUrl"]";
+        const DeviceId = "@Configuration["APIDevice"]";
+        const userID = localStorage.getItem('id');
+        // ================== GET LOCATION FUNCTIONS ================== //
+        function getCurrentLocation() {
+            return new Promise((resolve, reject) => {
+                resolve({ latitude: 30, longitude: 30 });
+                //if ('geolocation' in navigator) {
+                //    navigator.geolocation.getCurrentPosition((position) => {
+                //        resolve(position.coords);
+                //    });
+                //} else {
+                //    resolve(null);
+                //}
+            });
+        }
+</script>
+
+<script>
+
+    // ================== Access Token FUNCTIONS ================== //
+     var AccessToken;
+    async function GetToken() {
+        $(".loader").css("display", "flex");
+        
+        var details = {
+            'Username': 'test@agm3.com',
+            'Password': 'password123',
+            'grant_type': 'password',
+            'Client_id': 'AGMIdentityServer',
+            'client_secret': 'secret',
+            'scope': 'offline_access'
+        };
+
+        var formBody = [];
+        for (var property in details) {
+            var encodedKey = encodeURIComponent(property);
+            var encodedValue = encodeURIComponent(details[property]);
+            formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
+        let apiResponse = await fetch(proxyurl + 'http://18.197.14.67:7050/OAuth/connect/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: formBody
+        })
+
+        var res;
+        if (apiResponse.ok) {
+
+            res = await apiResponse.json();
+            if (res != null) {
+                sessionStorage.setItem('AccessToken', res.access_token)
+            } else {
+                console.log("failed")
+
+            }
+        }
+        AccessToken = sessionStorage.getItem('AccessToken');
+        loginUser()
+    }
+
+    // ================== LOGIN FUNCTIONS ================== //
+    async function loginUser() {
+        
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/users/login";
+
+        var logindata = {
+            "email": $("#loginEmail").val(),
+            "password": $("#loginPassword").val()
+        };
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify(logindata)
+        });
+
+        var res;
+        if (apiResponse.ok) {
+
+            res = await apiResponse.json();
+            if (res["data"] != null) {
+                var obj = {
+                    userId: res["data"].user_id,
+                    email: res["data"].email
+                }
+                $.ajax({
+                    url: '/Mobile/login',
+                    method: 'POST',
+                    data: obj,
+                    success: function (result) {
+                        if (result) {
+                            if (res["data"].IsChangePassword == true) {
+                                localStorage.setItem('id', res["data"].user_id);
+                                localStorage.setItem('email', res["data"].email);
+                                localStorage.setItem('NotificationAlert', res["data"].Notifications_No);
+                                localStorage.setItem('type', res["data"].Type.name);
+                                //location.href = '/Mobile/MobileIndex';
+                                window.location.href = '@Url.Action("MobileIndex", "Mobile")';
+                            } else {
+                                localStorage.setItem('id', res["data"].user_id);
+                                localStorage.setItem('email', res["data"].email);
+                                localStorage.setItem('NotificationAlert', res["data"].Notifications_No);
+                                localStorage.setItem('type', res["data"].Type.name);
+                                location.href = '/Mobile/ChangePassword';
+
+                            }
+                        }
+                        else {
+                            localStorage.clear();
+                        }
+                    }
+                });
+            } else {
+                $(".loader").css("display", "none");
+                var inavlidMsg = "Invalid username or password";
+                $(".alert-danger").empty().css("display", "block").append(inavlidMsg);
+                localStorage.clear();
+            }
+        }
+    }
+
+
+    // ================== LOGIN FUNCTIONS ================== //
+   
+
+
+
+</script>

@@ -1,0 +1,362 @@
+﻿
+@{
+    ViewData["Title"] = "New Delivery Confirmation";
+}
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<!--TOP BAR-->
+<div class="TopBar0 pl-4 mt-2" style="padding:10px;">
+    <div class="row">
+        <div class="col-8 col-lg-9 d-flex flex-column justify-items-center align-self-center cycleDetails">
+            <div class="pb-2"><h2 class="d-inline">Cycle Name</h2> <h5 class="d-inline">(hello)</h5></div>
+            <label> &nbsp;  </label>
+            <label> &nbsp;</label>
+        </div>
+        <div class="col-4 col-lg-3 text-right align-self-center">
+            <!-- Horizontal Steppers -->
+            <div class="row">
+                <div class="col-md-12">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--CONTENT AFTER TOP BAR-->
+<div class="ContentAfterTopBar">
+    <h6 class="">Please review the data below</h6>
+  
+
+    <div id="div_firstForm" style="display:none">
+        <h4 class="text-center">Your Last Clearance</h4>
+        <div class=" card card-body mb-4  pl-md-5 pr-md-5" id="trans_actions_container">
+
+        </div>
+        <div class="text-right">
+            <input class="btn btn-primary" type="button" value="Next" id="btnNextid" onclick="Nextbtn()" />
+        </div>
+    </div>
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5 NewDeliveryConfirmationBBX" style="display:none">
+        <h4 class="text-center ">Receive new quantity</h4>
+        <hr />
+
+    </div>
+
+
+
+
+
+    <div class="viewAll text-right mt-3 mb-3">
+    </div>
+</div>
+<!-- MODAL -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content mt-3 p-3">
+            <div class="modal-body text-center">
+                <h3 class="text-center"></h3>
+                <button type="button" class="m-1 px-3 btn btn-success" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+
+<script>
+
+
+    function getUserClearanceProducts() {
+
+
+        var ValArray = [], y;
+        $.ajax({
+            url: "/CycleActions/GetUserClearanceProducts",
+            type: "Get",
+            data: { CycleID, TransID },
+            success: response => {
+               // console.log(response);
+
+                var res;
+                res = response.data;
+                if (res) {
+                    for (let transaction of res) {
+
+                        var trans_action = ` <div class="row">
+                                            <div class="col-2 m-auto">
+                                                <img src="${transaction.productImg}" style="border-radius:50%" width="80" height="80">
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h6>${transaction.productName}</h6>
+                                            </div>
+                                            <div class="col-3 m-auto">
+                                                <h6>${transaction.code}</h6>
+                                            </div>
+                                            <div class="col-2 m-auto">
+                                                <h6>${transaction.typeName}</h6>
+                                            </div>
+                                            <div class="col-2 text-md-right m-auto">
+                                                <input class="ProductCount" id=${transaction.productId} type="number" data-trans=${transaction.quantity} data-product=${transaction.productId} name="value" maxlength="4" size="1" style="height:40px; width:70px; text-align:center; font-size:16px; border-radius:5px;" onkeyup="checkValues(event)" min=0 value="0"> <h4 class="d-inline">
+/ ${transaction.quantity}
+                                            </div>
+                                        </div><hr />`
+                        $("#trans_actions_container").append(trans_action);
+                        y = `${transaction.quantity}`
+                        ValArray.push(y);
+                    }
+
+                }
+
+                else {
+                    $("#Transactions").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">No Actions Available !!</div>`);
+                }
+                $('#dtBasicExample').DataTable();
+                $(".loader").fadeOut();
+
+            },
+        });
+
+    }
+
+
+
+    // ================== CONFIRM WITH VALIDATION FUNCTIONS ================== //
+
+    function GetUserInputProductNum() {
+        var ProductUserInputArray = [];
+
+        for (let item of $(".ProductCount")) {
+
+            var Product = $(item);
+            var obj = {
+                "productId": Product.data('product'),
+                "count": Product.val()
+            };
+            if (obj.count > 0) {
+                ProductUserInputArray.push(obj)
+            }
+        }
+         return ProductUserInputArray;
+    }
+
+    function Nextbtn() {
+        $(".NewDeliveryConfirmationBBX").css("display", "block");
+        $("#div_firstForm").css("display", "none")
+       // $("#btnNextid").css("display", "none")
+         getFormData();
+        GetCycleDetails();
+    }
+
+    function getFormData() {
+
+        var obj = {
+            "cycle_id": CycleID,
+            "TransactionId": TransID,
+            "NotificationId": NotificationID,
+            "transaction_items": GetUserInputProductNum(),
+        };
+        return obj;
+    }
+
+
+
+
+    // ================== JQUERY ================== //
+    $(document).ready(function () {
+        var firstForm =  @Json.Serialize(ViewBag.FirstForm)
+            console.log(firstForm) ;
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        $("#hello1").text("New Delivery Confirmation");
+        $(".cycleDetails").empty();
+
+        GetCycleName();
+        if (firstForm) {
+
+            $("#div_firstForm").css("display", "block");
+
+            getUserClearanceProducts();
+        }
+        else {
+            $(".NewDeliveryConfirmationBBX").css("display", "block");
+            DeliveryConfirm();
+        }
+    });
+
+</script>
+
+<script>
+    // ================== GLOBAL VARIABLES ================== //
+    var x = Object.fromEntries(new URLSearchParams(location.search));
+    var CycleID = x.CycleId;
+    var TransID = x.TransactionId;
+    var NotificationID = x.NotificationId;
+
+    // ================== GET NEW ITEMS TO RECIVE AND CONFIRM FUNCTION ================== //
+
+    function DeliveryConfirm() {
+        var cycleId = CycleID;
+        var TransID = x.TransactionId;
+        var NotificationID = x.NotificationID;
+
+        $.ajax({
+            url: '@Url.Action("GetTransactionDetails", "CycleActions")',
+            type: "Get",
+            data: { cycleId, TransID },
+            success: response => {
+                var res = response.data;
+
+               // console.log(response);
+                if (res) {
+                    for (i = 0; i < res.length; i++) {
+                        var addDelivery = ` <div class="row">
+                <div class="col-3 m-auto">
+                    <img src="${res[i].productImg}" style="border-radius:50%" width="80" height="80">
+                </div>
+                <div class="col-3 m-auto">
+                    <h6>${res[i].productName}</h6>
+                </div>
+                <div class="col-3 m-auto">
+                    <h6>#${res[i].code}</h6>
+                </div>
+   
+                <div class="col-3 text-center text-md-right m-auto">
+                    <span class="d-inline ProductsNum">${res[i].quantity}</span>
+                </div>
+            </div><hr /> `
+                        $(".NewDeliveryConfirmationBBX").append(addDelivery);
+                    }
+
+                    var ConfirmBtn =`<button class="btn btn-primary" onclick="ConfirmBtn()">Confirm</button>`
+                    $(".viewAll").append(ConfirmBtn);
+                }
+
+            },
+            //ShowNotification()
+
+
+        })
+
+    }
+
+
+    // ================== GET CURRENT CYCLE NAME ================== //
+        function GetCycleName() {
+            var cycleId = CycleID;
+            var NotificationID = x.NotificationID;
+
+        $.ajax({
+            url: '@Url.Action("GetCycleName", "CycleActions")',
+            type: "Get",
+            data: { cycleId },
+            success: response => {
+              //  console.log(response);
+                var res = response;
+                if (res) {
+                    var cycletype = res.cycleType == 1 ? "NationWide" : "Event";
+                    var Name = `<h4 style="display:contents">${res.name}</h4><label style="display:contents; font-size : 16px" > - ${cycletype}</label>
+                    <label class="mt-2">${moment(res.startDate).format('DD/MM/YYYY')} - ${moment(res.endDate).format('DD/MM/YYYY')}</label>`
+                    $(".cycleDetails").append(Name);
+                }
+                else {
+                    $(".cycleDetails").append("ERROR");
+                }
+               // GetCycleDetails();
+            },
+
+        });
+
+    }
+
+    // ====================== Get current cycle details ==========================//
+
+    function GetCycleDetails() {
+        var cycleId = CycleID;
+        var TransID = x.TransactionId;
+        var NotificationID = x.NotificationID;
+
+
+         $.ajax({
+            url: '@Url.Action("GetCycleDetalis", "CycleActions")',
+            type: "Get",
+             data: { cycleId, TransID},
+            success: response => {
+             //   console.log(response);
+                 var res;
+                    res = response;
+                    if (res) {
+                        //append total items
+                        var AvailableItems = `${res.allItems}`
+                        $(".BigNum").append(AvailableItems);
+                        //append cycle name & date
+                        var CycleDetails = ` <label>
+                           ${res.user_id == userID ? `<label><b>to : </b> ${res.toUserName}</label>` : `<label><b>from: </b> ${res.fromUserName}</label>`}`
+                         $(".cycleDetails").append(CycleDetails);
+                    }
+                    else {
+                        $(".cycleDetails").append("ERROR");
+                    }
+
+                DeliveryConfirm();
+             },
+
+        });
+
+    }
+
+
+
+
+    // ================== CONFIRM FUNCTION ================== //
+
+    function ConfirmBtn() {
+
+        var obj = getFormData();
+        var finalObj = {clearnceData: obj }
+        console.log(finalObj);
+
+        $.ajax({
+            url: '@Url.Action("UpdateNotification", "CycleActions")',
+            type: "POST",
+            data: finalObj,
+            success: response => {
+
+                var res;
+                if (response.success) {
+                    res = response;
+                    if (res.message != null) {
+                        $("#exampleModal").empty();
+                        var modal = `<div class="modal-dialog" role="document">
+                        <div class="modal-content mt-3 p-3">
+                            <div class="modal-body text-center">
+                                <h3 class="text-center"></h3>
+                                <a class="m-1 px-3 btn btn-success" href="/CycleActions/CycleTransaction?cycleId=${CycleID}">Close</a>
+                            </div>
+                        </div>
+                    </div> `
+                        $("#exampleModal").append(modal);
+                        $(".loader").fadeOut();
+                        $(".modal-body h3").text("Confirmed").addClass("success")
+                        $("#exampleModal").modal("show");
+                    } else {
+                        $(".loader").fadeOut();
+                        $(".modal-body").text("Failed").addClass("danger")
+                        $("#exampleModal").modal("show");
+
+                    }
+                }
+            },
+
+
+        });
+    }
+
+
+</script>

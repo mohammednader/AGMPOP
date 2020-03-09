@@ -1,0 +1,288 @@
+﻿
+
+@{
+    ViewData["Title"] = "New Transaction";
+}
+
+<form>
+    <div class="card card-body mt-2">
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label class="control-label">Cycle Name</label>
+                <select name="CycleId" class="mdb-select" id="cycleDDL">
+                    <option value="">Select One</option>
+
+                </select>
+                <span class="text-danger" id="errDDL"></span>
+            </div>
+            <div class="form-group col-sm-4">
+                <label class="control-label"> Hr User</label>
+                <select name="UserId" class="mdb-select" id="UsersDDL">
+                    <option value="">Select One</option>
+                </select>
+                <span class="text-danger" id="errDDL"></span>
+            </div>
+        </div>
+    </div>
+    <div class="  my-3 ">
+        <div class="card Dfooter" style="display:none;">
+            <div class="card-header ">
+                <h5 class="font-weight-bolder">Add Products to the Cycle</h5>
+            </div>
+            <div class="card-body " id="divResult"></div>
+        </div>
+    </div>
+
+    <div class="  my-3 ">
+        <div class="card Dfooter DfooterProduct" style="display:none;">
+            <div class="card-header ">
+                <h5 class="font-weight-bolder">Add New Products to the Cycle</h5>
+            </div>
+            <div class="card-body " id="divResultNew">
+
+            </div>
+
+        </div>
+
+    </div>
+    <div class="text-right">
+
+        <button id="save" type="button" style="display:none;" class="btn px-4 btn-primary about text-center mr-0" onclick="javascript:AddTransaction()">
+            Add
+        </button>
+    </div>
+</form>
+
+<script>
+
+    $().ready(function () {
+
+        fillCyclesList();
+        //save.hide();
+        //getCycleUser()
+        $("#cycleDDL").change(function () {
+            $('#divResult').html(''); $('#divResultNew').html('');
+            $(".DfooterProduct").hide();
+            $(".Dfooter").hide( );
+$("#save").hide( );
+             getCycleUser();
+
+
+        });
+
+
+
+        //**  GET BBX For Assigning transaction  **//
+        $("#UsersDDL").change(function () {
+            var CycleId = $("#cycleDDL").val();
+            var NewPoduct = false;
+
+            $('#divResult').html(''); $('#divResultNew').html('');
+
+            var userId = $("#UsersDDL").val();
+            if (CycleId && userId) {
+                //Get Partial for product cycle
+                $.ajax({
+                    url: '@Url.Action("_CycleProductList")',
+                    method: 'Get',
+                    data: { CycleId },
+                    success: response => {
+                        if (response) {
+                            $(".DfooterProduct").show();
+                            $(".Dfooter").show();
+                            $("#save").show();
+                            $('#divResult').html(response);
+                            NewPoduct = true;
+
+                            $.ajax({
+                                url: '@Url.Action("_CycleProductList")',
+                                method: 'Get',
+                                data: { CycleId, NewPoduct },
+                                success: response => {
+                                    if (response) {
+
+                                        $('#divResultNew').html(response);
+                                    }
+                                    else {
+                                        $(".DfooterProduct").hide();
+
+                                    }
+                                }
+                                , error: function () {
+                                    alert("Error");
+                                }
+
+                            });
+                        }
+                        else {
+                            $("#save").hide();
+
+                        }
+                    }, error: function () {
+                        alert("Error");
+                    }
+                });
+                //Get partial for New Product
+
+
+            }
+
+
+        });
+    });
+
+
+     function fillCyclesList() {
+            var cycleDDL = $("#cycleDDL");
+            cycleDDL.empty();
+
+
+                $.ajax({
+                    url: `@Url.Action("CurrentUserCycles", "Common")`,
+                    method: 'Get',
+                    success: function (res) {
+
+                        if (res  ) {
+
+                            ListFill(cycleDDL, res );
+                        }
+                    },
+                    error: function (e) { console.log("error" + e) }
+                })
+
+
+        }
+        function getCycleUser() {
+
+            var CycleId = $("#cycleDDL").val();
+            console.log(CycleId);
+            var $list = $("#UsersDDL");
+            $list.find("option").remove();
+             if (CycleId) {
+                $.ajax({
+                    url: `@Url.Action("UserCycle")?CycleId=${CycleId}`,
+                    method: 'Get',
+                    success: function (res) {
+                        if (res && res.success && res.data) {
+
+                            ListFill($list, res.data);
+                        }
+                    },
+                    error: function (e) { console.log("error" + e) }
+                })
+            }
+            else
+            {
+                ListFill($list, null, UserId);
+            }
+        }
+
+
+
+        // fill DDL for users Cycle
+        function ListFill($list, data) {
+
+            console.log(data);
+            $list.empty();
+            var $option = $("<option>").text("Select One").val("");
+            $list.append($option);
+            if (data) {
+                for (let item of data) {
+                    let $option = $("<option>").text(item.name).val(item.id);
+                    $list.append($option);
+                }   ;
+
+            $list.materialSelect();
+            } }
+
+    @* Post Request For New transaction *@
+    function AddTransaction() {
+
+        var cycleId = $("#cycleDDL").val();
+        var userId = $("#UsersDDL").val();
+        console.log(cycleId, userId);
+
+        var Arr = [];
+        var checkValues = 0;
+        var myTrackingContent = "<table class='table table-bordered' width='100%'>"
+        //Adding Dynamic products from Action controller To DOM
+        $(".product").each(function (i, item) {
+            var id = item.id;
+            var name = item.name;
+            var val = $("#" + item.id).val();
+            if (val > 0) {
+                checkValues++;
+                Arr.push(id + ":" + val);
+                myTrackingContent += "<tr><td class='text-left'><span>" + name + "</span></td> <td><span>" + val + "</span></td></tr>";
+            }
+        });
+
+
+        myTrackingContent += "</table>";
+        if (checkValues > 0) {
+
+            swal.fire({
+                text: "Review & Confirm",
+
+                html: myTrackingContent,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ok',
+
+            }).then((result) => {
+             if (result.value) {
+                    if (cycleId && userId && Arr) {
+                        $.ajax({
+                            url: '/Transaction/NewTransaction',
+                            type: "POST",
+                            data: { cycleId, userId, Arr },
+                            success: function (data) {
+                                if (data && data.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        text: data.message,
+                                        showConfirmButton: true,
+
+                                    }).then(setTimeout(() => { location.reload();},2000));
+                                }
+                                else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        text: data.message,
+                                        showConfirmButton: true,
+
+                                    })
+
+                                }
+                            },
+                            error: function (err) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    text: err,
+                                    showConfirmButton: true,
+
+
+                                });
+                            }
+                        });
+                    }
+                }
+
+             else if (result.dismiss === swal.DismissReason.cancel) {
+
+                }
+
+            });
+        }
+
+        else if (checkValues == 0) {
+
+                    swal.fire({
+                        text: 'Please add at least one item',
+
+                        icon: 'info',
+                    })
+                }
+            }
+
+</script>

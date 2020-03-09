@@ -1,0 +1,409 @@
+﻿@model AGMPOP.Web.Models.Cycle._CycleDetalisTab
+
+@{
+    ViewData["Title"] = ViewBag.Title;
+}
+<style>
+    .select-wrapper span.caret {
+        right: 30px;
+    }
+</style>
+<div class=" card card-body mt-2">
+    <ul id="tabs" class="nav nav-tabs">
+        <li id="liStep_1" class="nav-item active">
+            <a class="nav-link active" href="#home" data-step="1" data-toggle="tab">Cycle Details</a>
+        </li>
+        <li id="liStep_2" class="nav-item">
+            <a class="nav-link" href="#territories" data-step="2" data-toggle="tab">Territories</a>
+        </li>
+        <li id="liStep_3" class="nav-item">
+            <a class="nav-link" href="#products" data-step="3" data-toggle="tab">Products</a>
+        </li>
+        <li id="liStep_4" class="nav-item">
+            <a class="nav-link" href="#users" data-step="4" data-toggle="tab">Users</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div id="home" class="tab-pane fade in active show">
+            @await Html.PartialAsync("CycleDetalisTab", Model)
+        </div>
+        <div id="territories" class="tab-pane fade in"></div>
+        <div id="products" class="tab-pane fade in"></div>
+        <div id="users" class="tab-pane fade in"></div>
+    </div>
+    <div class=" col-12 text-right">
+        <button type="button" class="btn btn-dark px-3 mr-0" id="btnBack" disabled>Back</button>
+        <button type="button" class="btn btn-primary px-3 mr-0" id="btnNext">Next</button>
+    </div>
+</div>
+
+<div class="modal fade" id="ChooseHrModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Select HR User</h4>
+            </div>
+            <div class="modal-body text-center">
+                <div id="ModelContent">
+                    <div class="form-group">
+                        <label>select HR user</label>
+                        <select id="firstHr" name="firstHr" class="mdb-select" Searchable="Search here...">
+                            <option value="" selected disabled>Select First Hr</option>
+                        </select>
+                        <span class="text-danger" id="firstHrMsg"> </span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn_cancelHR" class="btn btn-secondary">Cancel</button>
+                <button type="button" id="btn_chooseHR" class="btn btn-success">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var CycleObj = {};
+    var CycleId = @Model.Id;
+</script>
+
+<script>
+
+    function GetfirstHr() {
+        $('#firstHr').empty();
+        $('#firstHr').append('<option value="" selected disabled>Select First Hr</option>');
+          $.ajax({
+              url: '@Url.Action("LoadCycleStatus", "cycles")',
+              method: 'GET',
+              async: false,
+
+              success: response => {
+                  if (response) {
+                      response.forEach(d => {
+                          $('#firstHr').append(`<option value="${d.statusId}">${d.name}</option>`);
+                      });
+                  }
+              }
+          });
+    }
+</script>
+<script>
+
+
+    function loadTerrtiroiesTab() {
+        var url = '@Url.Action("_CycleTerritoies")';
+        if (CycleId) {
+            url += `?cycleId=${CycleId}`;
+        }
+        $.ajax({
+            url,
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#territories').html(response);
+                    $('.nav-tabs a[href="#territories"]').tab('show');
+                }
+            }
+        })
+    }
+
+    function loadProductsTab() {
+        $.ajax({
+            url: '@Url.Action("CreateCycle_Products")',
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#products').html(response);
+                    $('.nav-tabs a[href="#products"]').tab('show');
+                }
+            }
+        })
+    }
+
+    function loadUsersTab() {
+        $.ajax({
+            url: '@Url.Action("CreateCycle_Users")',
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#users').html(response);
+                    $('.nav-tabs a[href="#users"]').tab('show');
+                }
+            }
+        })
+    }
+
+    function ChooseFirstHr() {
+        var obj = SelectedUserIds;
+        data = JSON.stringify(obj);
+         $.ajax({
+            url: "/Cycles/GetHrUsers",
+            type:"POST",
+             data: data,
+             contentType: "application/json",
+            success: response => {
+                console.log(response);
+
+                $('#ModelContent').html(response);
+                $('#ChooseHrModal').modal('show');
+
+             },
+             error: function (x, y, z) {
+                 console.log(x);
+                 console.log(y);
+                 console.log(z);
+             }
+
+        });
+
+
+    }
+
+
+
+    function submitCreateCycle() {
+        $.ajax({
+            url: '@Url.Action("CreateCycle")',
+            method: 'POST',
+            data: CycleObj,
+            success: response => {
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: response.message,
+                    }).then(_ => {
+                        location.href = '@Url.Action("List", "Cycles")';
+                    });
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: response.message,
+                    })
+                }
+            }
+        })
+    }
+
+    function submitUpdateCycle() {
+        if (CycleObj.details.id) {
+            CycleObj.id = CycleObj.details.id;
+        }
+        $.ajax({
+            url: '@Url.Action("UpdateCycle")',
+            method: 'POST',
+            data: CycleObj,
+            success: response => {
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        text: response.message,
+                    }).then(_ => {
+                        location.href = '@Url.Action("List", "Cycles")';
+                    });
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: response.message,
+                    })
+                }
+            }
+        })
+    }
+
+    async function setDisabledTabs() {
+        var step = await getCurrentStep();
+        switch (step) {
+            case 1:
+                $('.nav-link[data-step=1]').css('pointer-events', '');
+                $('.nav-link[data-step=2],.nav-link[data-step=3],.nav-link[data-step=4]').css('pointer-events', 'none');
+                break;
+            case 2:
+                $('.nav-link[data-step=1],.nav-link[data-step=2]').css('pointer-events', '');
+                $('.nav-link[data-step=3],.nav-link[data-step=4]').css('pointer-events', 'none');
+                break;
+            case 3:
+                $('.nav-link[data-step=1],.nav-link[data-step=2],.nav-link[data-step=3]').css('pointer-events', '');
+                $('.nav-link[data-step=4]').css('pointer-events', 'none');
+                break;
+            case 4:
+                $('.nav-link[data-step=1],.nav-link[data-step=2],.nav-link[data-step=3],.nav-link[data-step=4]').css('pointer-events', '');
+                break;
+        }
+    }
+
+    async function setButtonText() {
+        var step = await getCurrentStep();
+        if (step == 4) {
+            $('#btnNext').text('Save');
+        }
+        else {
+            $('#btnNext').text('Next');
+        }
+    }
+
+    function getCurrentStep() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                var tab = $('.nav-link.active');
+                resolve(tab.data('step'));
+            }, 100);
+        })
+    }
+</script>
+
+<script>
+    $(() => {
+        setDisabledTabs();
+        setButtonText();
+        $('#btnNext').on('click', async e => {
+            var step = await getCurrentStep();
+            if (step == 1) {
+                let detailsObj = await validateCycleDetails();
+                if (detailsObj) {
+                    CycleObj['details'] = detailsObj;
+                    loadTerrtiroiesTab();
+                    $('#btnBack').prop('disabled', false);
+                }
+                else {
+                    CycleObj = {};
+                    return;
+                }
+            } else if (step == 2) {
+                let territoriesObj = validateCycleTerritories();
+                if (territoriesObj) {
+                    CycleObj['territories'] = territoriesObj;
+                    CycleDepartment = CycleObj['details']['department'];
+                    loadProductsTab();
+                    resetSelectedProducts();
+                } else {
+                    return;
+                }
+            } else if (step == 3) {
+                let productsObj = validateCycleProducts();
+                if (productsObj) {
+                    CycleObj['products'] = productsObj;
+                    CycleDepartment = CycleObj['details']['department'];
+                    loadUsersTab();
+                    resetSelectedUsers();
+                } else {
+                    return;
+                }
+            }
+            else if (step == 4) {
+                let usersObj = validateCycleUsers();
+                if (usersObj) {
+                    // check
+                    console.log(usersObj);
+                    let HRUsers = usersObj.filter(u => u.jobTitleName && u.jobTitleName.toLowerCase() == 'hr');
+                    if (HRUsers.length > 1 && !CycleId) {
+                        var hrId = await GetHrUsers(HRUsers);
+                        console.log(hrId);
+                        if (hrId <= 0) {
+                            Swal.fire({
+                                icon: 'warning',
+                                text: 'You must select hr user',
+                            });
+                            return;
+                        }
+                        CycleObj.hRUser = hrId;
+                    }
+                    else if (HRUsers.length == 1) {
+                        CycleObj.hRUser = HRUsers[0].id;
+                    }
+                    let BBxUsers = usersObj.filter(u => u.jobTitleName && u.jobTitleName.toLowerCase() == 'bbx');
+                    if (BBxUsers.length == 1) {
+                        CycleObj.bBXUser = BBxUsers[0].id;
+                    }
+
+                    CycleObj['users'] = usersObj.map(p => p.id);
+                    if (CycleId) {
+                        submitUpdateCycle();
+                    } else {
+                        submitCreateCycle();
+                    }
+                }
+            } else {
+                return;
+            }
+            setDisabledTabs();
+            setButtonText();
+        });
+    });
+
+    $('#btnBack').on('click', async e => {
+        var step = await getCurrentStep();
+        if (step == 1) {
+            $('#btnBack').prop('disabled', true);
+            return;
+        }
+        else if (step == 2) {
+            CycleObj = {};
+            $('#btnBack').prop('disabled', true);
+            $('.nav-tabs a[href="#home"]').tab('show');
+        }
+        else if (step == 3) {
+            delete CycleObj['territories'];
+            resetSelectedProducts();
+            $('.nav-tabs a[href="#territories"]').tab('show');
+        }
+        else if (step == 4) {
+            delete CycleObj['products'];
+            resetSelectedUsers();
+            $('.nav-tabs a[href="#products"]').tab('show');
+        } else {
+            return;
+        }
+        setDisabledTabs();
+        setButtonText();
+    });
+
+    $('.nav-item, .nav-link').on('click', e => {
+        setDisabledTabs();
+        setButtonText();
+    });
+    async function GetHrUsers(hrUsers) {
+        return new Promise(function (resolve, reject) {
+            try {
+                var done = false;
+                $('#firstHr').empty();
+                $('#firstHr').append('<option value="" selected disabled>Select First Hr</option>');
+                $('#firstHrMsg').text('');
+                for (var item of hrUsers) {
+                    $('#firstHr').append('<option value=' + item.id + ' >' + item.name + ' </option>');
+                }
+                $('#firstHr').materialSelect()
+                $('#ChooseHrModal').modal('show');
+                $('#btn_chooseHR').on('click', function (e) {
+                    var hr = $('#firstHr').val();
+                    if (hr) {
+                        done = true;
+                        $('#ChooseHrModal').modal('hide');
+                        resolve(hr);
+                    }
+                    else {
+                        $('#firstHrMsg').text('Choose one hr');
+                    }
+
+                });
+                $('#ChooseHrModal').on('hidden.bs.modal', function () {
+                    if (!done) {
+                        resolve(0);
+                    }
+                });
+            }
+            catch (e) {
+                resolve(0);
+            }
+        });
+    }
+
+</script>
+
+
+@section Scripts {
+    <script src="~/Scripts/create-cycle-general.js"></script>
+    <script src="~/Scripts/create-cycle-product.js"></script>
+    <script src="~/Scripts/create-cycle-user.js"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

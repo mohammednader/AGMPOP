@@ -1,0 +1,21 @@
+﻿
+<div id="territories" ></div>
+
+<script>
+    function loadTerrtiroiesTab() {
+        $.ajax({
+            url:'@Url.Action("_CycleTerritory")',
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#territories').html(response);
+                   // $('.nav-tabs a[href="#territories"]').tab('show');
+                }
+            }
+        })
+    }
+    $(() => {
+        loadTerrtiroiesTab();
+
+    });
+</script>

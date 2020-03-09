@@ -1,0 +1,71 @@
+﻿
+@{
+    ViewData["Title"] = "Roles";
+}
+
+     <div class="text-right m-0 p-0 my-2">
+        <a href="@Url.Action("Index", "UserManagement")" class="btn btn-info  m-0"><i class="fas fa-users" ></i> <span>&nbsp; Go to users</span></a>
+        <a href="@Url.Action("CreateRole")" class="btn btn-primary m-0">
+            <i class="fas fa-plus"></i>&nbsp;
+            <span>Add Role</span>
+        </a>
+    </div>
+ 
+<div class="card card-body " id="divRoles">
+    
+</div>
+
+<script>
+    function loadRoles() {
+        $.ajax({
+            url: '@Url.Action("_RoleList")',
+            method: 'GET',
+            success: response => {
+                if (response) {
+                    $('#divRoles').html(response);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Failed to load roles',
+                    });
+                }
+            }
+        })
+    }
+
+    async function deleteRole(id) {
+        var confirm = await Swal.fire({
+            icon: 'question',
+            text: 'Are you sure you want to delete this role',
+            confirmButtonText: 'Delete',
+            confirmButtonClass: 'btn btn-danger',
+            showCancelButton: true,
+        });
+        if (confirm && confirm.value) {
+            $.ajax({
+                url: '@Url.Action("DeleteRole")/' + id,
+                method: 'DELETE',
+                success: response => {
+                    if (response && response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            text: response.message,
+                        });
+                        loadRoles();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: (response && response.message) ? response.message : 'Failed to delete role',
+                        });
+                    }
+                }
+            });
+        }
+    }
+</script>
+
+<script>
+    $(() => {
+        loadRoles();
+    });
+</script>

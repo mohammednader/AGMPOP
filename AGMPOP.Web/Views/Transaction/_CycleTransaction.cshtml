@@ -1,0 +1,96 @@
+﻿@model IList<AGMPOP.BL.Models.ViewModels.TransactionCycle>
+@using AGMPOP.BL.Models.ViewModels
+
+<table id="dtBasicExample" class="table table-striped table-bordered">
+
+
+    @if (Model.Count() > 0)
+    {
+
+
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Type</th>
+                <th>Created Date</th>
+                <th>Status</th>
+                <th>Total Items</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FromUserName</td>
+                    <td>@item.ToUserName</td>
+                    <td>@(((POPEnums.TransactionTypes)item.Type).ToString())</td>
+                    <td>@item.Date</td>
+                    <td>@(((POPEnums.TransactionStatus)item.Status).ToString())</td>
+                    <td class="text-center">
+                        <span class="badge badge-pill badge-primary"> <a class="btn-link" onclick="showDetials(@item.TransId)" title=''>@item.TotalItem.Sum(a => a.TransAmount)</a> </span>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm btn-wide" id="@(item.TransId + "cancel")" onclick="javaScript:CancelTransaction(@item.TransId)"> Cancel </button>
+                    </td>
+                </tr>
+
+            }
+
+
+        </tbody>
+    }
+    else
+    {
+        <tr>
+            <td colspan="7" class="text-center">
+                <h3>No Transactions to cancel</h3>
+            </td>
+        </tr>
+    }
+
+
+</table>
+
+<!-- Modal -->
+<div id='DetialModal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="p-n m-n pull-left">Transaction Detials</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div id='DetialContainer'>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#dtBasicExample').DataTable({
+           // order: false,
+         "order": [[3, "desc"]]
+
+
+        });
+
+        //activate the tooltips after the data table is initialized
+        $('[rel="tooltip"]').tooltip();
+
+        $(window).resize(function () {
+            $('#dtBasicExample').bootstrapTable('resetView');
+        });
+    });
+
+
+
+</script>

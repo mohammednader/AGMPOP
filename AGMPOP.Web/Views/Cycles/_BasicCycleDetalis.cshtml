@@ -1,0 +1,48 @@
+﻿@model AGMPOP.BL.Models.ViewModels.CycleVM
+
+<div class="row">
+    <div class="col-12">
+        <div class="form-group">
+            <h3>@Model.Name</h3>
+            <input type="hidden" id="cycleName" value="@Model.Name" />
+            @if (Model.CycleType == 1)
+            {
+                <h5 class="m-n">Nation Wide</h5>
+            }
+            else
+            {
+                <h5 class="m-n">Event</h5>
+            }
+        </div>
+        <div class="form-group">
+            <label class="col-4 control-label">
+                Department (<b>@Model.Department</b>)
+            </label>
+        </div>
+        <hr />
+        <div class="form-group">
+            <label class="col-3 control-label">
+                Start Date
+            </label>
+            <label class="col-4 control-label">
+                <b>@Model.StartDate?.ToString("dd/MM/yyyy HH:mm") </b>
+            </label>
+        </div>
+        <div class="form-group">
+            <label class="col-3 control-label">
+                End Date
+            </label>
+            <label class="col-4 control-label">
+                <b>@Model.EndDate?.ToString("dd/MM/yyyy HH:mm")</b>
+            </label>
+        </div>
+        <div class="form-group">
+            <label class="col-3 control-label">
+                Reconciliatio Date
+            </label>
+            <label class="col-4 control-label">
+                <b>@Model.ReconciliationDate?.ToString("dd/MM/yyyy HH:mm")</b>
+            </label>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\bin\Debug\netcoreapp2.2\AGMPOP.BL.deps.json
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\bin\Debug\netcoreapp2.2\AGMPOP.BL.runtimeconfig.json
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\bin\Debug\netcoreapp2.2\AGMPOP.BL.runtimeconfig.dev.json
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\bin\Debug\netcoreapp2.2\AGMPOP.BL.dll
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\bin\Debug\netcoreapp2.2\AGMPOP.BL.pdb
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.csproj.CoreCompileInputs.cache
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.AssemblyInfoInputs.cache
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.AssemblyInfo.cs
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.dll
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.pdb
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.csprojAssemblyReference.cache

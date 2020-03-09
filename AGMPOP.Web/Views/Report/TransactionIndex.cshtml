@@ -1,0 +1,268 @@
+﻿@model AGMPOP.BL.Models.ViewModels.TransactionCycle
+@{
+    ViewData["Title"] = "Transaction Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class=" card px-3 py-1 m-0  mt-2   accordion">
+    <div class="" style="overflow: visible">
+        <div class="d-flex justify-content-between  "
+             data-toggle="collapse"
+             href="#divCollapseSearch"
+             role="button"
+             aria-expanded="false"
+             aria-controls="divCollapseSearch"
+             style="cursor: pointer">
+            <h5 class="mt-2 font-weight-bold"><i class="far fa-search" style="font-size: 20px;"></i>  Search</h5>
+            <span><i class="fa fa-angle-double-down " style="margin-top:10px"></i></span>
+
+        </div>
+
+        <div id="divCollapseSearch" class="collapse ">
+            <hr /><br />
+            <form id="transactionReport">
+                <div class="row">
+                    <div class="form-group col-sm-6 col-md-2">
+                        <label asp-for="CycleName"></label>
+                        <input asp-for="CycleName" class="form-control" />
+                    </div>
+                    @if (ViewBag.userId > 0)
+                    {
+                    <input asp-for="userId" class="form-control" value="@ViewBag.userId" hidden />
+                    }
+                    <div class="form-group col-sm-6 col-md-3">
+                        <label>Types</label>
+                        <select id="types" name="types" class="mdb-select" multiple Searchable="Search here...">
+                            <option value="" selected disabled>Select Types</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6 col-md-3">
+                        <label asp-for="Status"></label>
+                        <select asp-for="status" class="mdb-select" multiple Searchable="Search here...">
+                            <option value="" selected disabled>Select status</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6 col-md-2">
+                        <label>User</label>
+                        <input id="FromUserName" name="FromUserName" class="form-control" />
+                    </div>
+                    <div class="form-group col-sm-6 col-md-2">
+                        <label asp-for="Product"></label>
+                        <input asp-for="Product" class="form-control" />
+                    </div>
+                    <div class="col-12 text-right">
+                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
+                            Clear&nbsp; <i class="fa fa-trash"></i>
+                        </button>
+                        <button id="btnsearch" type="button" class="btn btn-primary mt-3 px-4 ">
+                            Search&nbsp; <i class="fa fa-search"></i>
+                        </button>
+
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<div class="d-flex justify-content-end" >
+    <button type="button" id="btn_ExportTransactions" class="material-tooltip-main  btn   text-center  px-3 my-2 mr-0 waves-effect waves-light" onclick='ExportTransaction()' style="background-color:#080a2e; color:white;">
+        Export&nbsp;
+
+        <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:15px;"></i>
+    </button>
+</div>
+<div id="divResult"   class="card card-body"> 
+
+</div>
+
+<script>
+    //load partial
+    function LoadPartial() {
+        $.ajax({
+            url: '@Url.Action("_transactionReport")',
+            method: "Get",
+            success: (res) => {
+                if (res) {
+                    $("#divResult").html(res)
+                }
+            },
+            error: (e,x) => { console.log(e) }
+
+        })
+    }
+    //load types
+    function LoadTypes() {
+        $("#types").empty();
+        $("#types").append('<option class="default" value="" selected disabled>Select Types</option>')
+        $.ajax({
+            url: '@Url.Action("GetAllTypes")',
+            method: "Get",
+            success: (res) => {
+              
+                if (res) {
+                    res.forEach(r => {
+                        $("#types").append(`<option value="${r.id}" >${r.type}</option>`)
+                    });
+                }
+                else {
+
+                }
+
+            },
+            error: (err) => { console.log(err); }
+        })
+    }
+    //load status
+     function LoadStatus() {
+         $("#status").empty();
+         $("#status").append('<option class="default" value="" selected disabled>Select Status</option>')
+        $.ajax({
+            url: '@Url.Action("GetAllStatus")',
+            method: "Get",
+            async: false,
+            success: (res) => {
+                if (res) {
+                    res.forEach(r => {
+                        $("#status").append(`<option value="${r.id}" >${r.status}</option>`)
+                    }
+                    );
+                }
+                else {
+
+                }
+
+            },
+            error: (err) => { console.log(err); }
+        })
+    }
+
+
+    //Search criteria
+    function SearchWithParameter() {
+        var form = $("#transactionReport").serialize();
+        $.ajax({
+            url: '@Url.Action("Search")?' + form,
+            method: "Get",
+            success: (res) => {
+                $("#divResult").html(res)
+            },
+            error: () => { }
+
+
+        });
+    }
+
+
+    $(() =>{
+        SearchWithParameter();
+      //  LoadPartial();
+        LoadTypes();
+        LoadStatus();
+        geturlName();
+      
+        $("#btnsearch").on("click", SearchWithParameter);
+    });
+
+</script>
+<script>
+    async function ExportTransaction() {
+        var form = $("#transactionReport").serialize();
+        var now = moment().format();
+         fetch('@Url.Action("ExportTransaction")?'+form, {
+             method: 'get',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }).then(response => {
+            return response.blob();
+        }).then(blob => {
+            if (!blob) {
+                swal.fire({
+                    icon: 'error',
+                    text: 'No file to download',
+                });
+                return;
+            } else if (!blob.size){
+                swal.fire({
+                    icon: 'error',
+                    text: 'You don\'t have permission',
+                });
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `transaction_${now}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            }).catch(err => {
+                swal.fire({
+                icon: 'error',
+                text: 'An error occured',
+            });
+        });
+    }
+</script>
+
+<script>
+
+    //get query string value
+    $.urlParam = function (name) {
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results == null) {
+            return null;
+        }
+        else {
+            return decodeURI(results[1]) || 0;
+        }
+    }
+   
+    $.urlParamProduct = function (productName) {
+        var results = new RegExp('[\?&]' + productName + '=([^&#]*)').exec(window.location.href);
+        if (results == null) {
+            return null;
+        }
+        else {
+            return decodeURI(results[1]) || 0;
+        }
+    }
+
+    $.urlParamUser = function (userName) {
+        var results = new RegExp('[\?&]' + userName + '=([^&#]*)').exec(window.location.href);
+        if (results == null) {
+            return null;
+        }
+        else {
+            return decodeURI(results[1]) || 0;
+        }
+    }
+    
+
+    function geturlName() {
+        var url = $.urlParam("cycleName");
+        var url2 = $.urlParamProduct("productName");
+        var url3 = $.urlParamUser("userName");
+
+        if (url3 != null && url3 != '') {
+            $("#FromUserName").val(url3);
+        }
+        if (url2 != null && url2 != '') {
+            $("#Product").val(url2);
+        }
+        if (url != null && url != '') {
+            $("#CycleName").val(url);
+        }
+        SearchWithParameter();
+    }
+
+</script>
+<script>
+
+    function clearBTN() {
+        console.log("reset");
+        $("#transactionReport").resetForm();
+        $(".default").attr('selected', true);
+         SearchWithParameter();
+    }
+</script>

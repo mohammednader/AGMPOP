@@ -1,0 +1,120 @@
+﻿
+@{
+    ViewData["Title"] = "My Requests";
+}
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+<div class="card card-body mt-2 pb-1">
+
+    <form data-ajax="true" data-ajax-mode="Replace" data-ajax-update="#PartialRequests" asp-action="RequestSearch" asp-controller="Requests" method="post" enctype="multipart/form-data">
+
+        <div class="row">
+
+            <div class="col-lg-3 mb-2">
+                <input placeholder="From Date" name="CreateDate" class="datepicker form-control" id="from_Date" />
+
+
+            </div>
+            <div class="col-lg-2 mb-2">
+                <input placeholder="To Date" class="datepicker form-control" name="to_Date" id="to_Date" />
+
+
+
+            </div>
+            <div class="col-lg-2">
+                <select class="mdb-select" title="Req Status" name="Status" id="Req_status">
+                    <option value="" selected disabled>Select Status</option>
+                    <option value="false">Pending</option>
+                    <option value="true">Received</option>
+                </select>
+            </div>
+            <div class="col-lg-5 text-right">
+                <button type="button" class="material-tooltip-main  btn btn-danger  text-center ml-0 mt-0 px-3 waves-effect waves-light" onclick="location.href='@Url.Action("Index", "Requests")'">
+                    Clear &nbsp; <i class="fal  fa-trash fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
+                </button>
+
+                <button type="submit" class=" material-tooltip-main  btn btn-primary  text-center ml-0 mt-0 px-3 waves-effect waves-light">
+                    Search &nbsp; <i class="fal fa-search fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
+                </button>
+
+                <button type="button" class="material-tooltip-main  btn btn-primary  text-center mr-0 ml-0 mt-0 px-3 waves-effect waves-light " onclick="location.href='@Url.Action("NewRequest", "Requests" )'">
+                    Add Request &nbsp; <i class="fal  fa-plus fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
+                </button>
+
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="PartialRequests" class="mt-2">
+
+</div>
+ 
+
+<script>
+
+    $(document).ready(function () {
+        // Material Select Initialization
+          loadPatialData();
+       
+    });
+</script>
+
+@*loadPatialData*@
+<script>
+    function loadPatialData() {
+        $('#PartialRequests').html('');
+         $.ajax({
+            url: '@Url.Action("PartialRequests", "Requests")',
+             type: "Get",
+             async: false,
+            contentType: "application/json; charset=utf-8",
+             success: function (data) {
+                 debugger;
+                 $('#PartialRequests').html(data);
+                $('#dt_RequestInboxPartial').DataTable();
+            },
+            error: function (x) {
+                alert("error" + x);
+            },
+        });
+     }
+
+</script>
+
+<script>
+
+    function GetDetails(id) {
+         $('#stock-table tbody').html('');
+         $.ajax({
+             url: '@Url.Action("GetRequestDetails")' +  '?RequestId=' + id,
+             type: "GET",
+             success: function (response) {
+                 var data = response.productModel;
+                 $('#CycleName').text(data[0].cycleName)
+
+                if (data) {
+
+                    if (data.length > 0) {
+                        $('#CycleName').text(data[0].cycleName)
+                        for (var i = 0; i < data.length; i++) {
+                            $('#stock-table tbody').append('<tr><td class="text-center">' + data[i].productName + '</td><td class="text-center">' + data[i].requestAmount + '</td></tr>');
+                        }
+                    }
+                    else {
+
+                        $('#stock-table tbody').append('<tr><td colspan="2">No data found</td></tr>');
+                    }
+                }
+                else {
+                    $('#stock-table tbody').append('<tr><td colspan="2">No data found</td></tr>');
+                }
+            }
+        });
+    }
+</script>

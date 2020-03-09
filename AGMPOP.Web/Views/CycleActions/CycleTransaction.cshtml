@@ -1,0 +1,250 @@
+﻿
+@{
+    ViewData["Title"] = "My Transactions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<div class="text-right mb-1 mt-2">
+
+    <section class="dropdown d-inline-block" id="ActionShow">
+        <button class="btn btn-primary" type="button" id="AvailableActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Actions &nbsp; <i class="fas fa-plus fa-1x"></i>
+        </button>
+        <div id="AvailableActionsMenu" class="dropdown-menu text-center" aria-labelledby="AvailableActionsMenu"></div>
+    </section>
+</div>
+<!--TOPBAR-->
+<div id="CycleBrief" class="TopBar0 pl-4 pr-4"></div>
+<!--CONTENT AFTER TOP BAR-->
+<div class="ContentAfterTopBar mb-4">
+    <label class="p-2">Latest Transactions</label>
+    <div class=" card card-body p-md-4 mb-3" id="transactionsList">
+        <table id="dtBasicExample" class="table table-responsive-sm" cellspacing="0" width="100%">
+            <thead class="d-none">
+                <tr>
+                    <th class="th-sm">
+                        Name
+                    </th>
+                    <th class="th-sm">
+                        Position
+                    </th>
+                    <th class="th-sm">
+                        Office
+                    </th>
+                    <th class="th-sm">
+                        Age
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="transaction_cycles"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id='DetialModal' class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="DetialContainer"></div>
+    </div>
+</div>
+
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+<script>
+    var CycleId = 0;
+    var CurrentDate = moment().format('YYYY-MM-DD HH:m:s');
+
+    // ====================== JQUERY ==========================//
+    $(document).ready(function () {
+
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $(".SideNav a:nth(0)").addClass("activated");
+        $(".SideNav i:nth(0)").css("color", "white");
+        CycleId = geturl_cycleId();
+        GetCycleDetails(CycleId);
+
+        GetCycleBrief(CycleId);
+
+    });
+
+    // ====================== 1- GET CYCLE DETAILS FUNCTION ==========================//
+
+     function GetCycleBrief(CycleId) {
+        var cycleId = CycleId;
+        console.log(cycleId);
+        //var currLocation = await getCurrentLocation();
+        //var userlat = currLocation.latitude;
+        //var userlng = currLocation.longitude;
+        //var CycleId = location.search.substring(1).split('=')[1];
+        //const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/cycles" + "/" + CycleId;
+
+        var divBriefBar = $("#CycleBrief");
+
+         divBriefBar.empty();
+         var Available_transactions_menu = $("#AvailableActionsMenu");
+         Available_transactions_menu.empty();
+
+
+
+        $.ajax({
+            url: '@Url.Action("GetUserCycleById")',
+            method: 'Get',
+            data: { cycleId},
+            success: (res) => {
+                console.log(res);
+                if (res.data) {
+                        var transactionTypeList;
+                        var transList;
+                    if (res.data.userTitle.toLowerCase() == 'bbx')
+                    {
+                        $("#ActionShow").removeClass("d-inline-block");
+                        $("#ActionShow").addClass("d-none");
+                    }
+                    else
+                    {
+                        if (res.data.reconciliationDate > CurrentDate) {
+                                transactionTypeList = `<a class="dropdown-item" href="NewTransaction?cycleId=${res.data.cycleId}&ActionId=2"> Return</a>`
+                        }
+
+                        if (res.hrCount.value.data > 1) {
+                            transList = `<a class="dropdown-item" href="NewTransaction?cycleId=${res.data.cycleId}&ActionId=3"> Transfer</a>`
+                        }
+                     }
+
+                    var cycletype = res.data.cycleType == 0 ? "Nation Wide" : "Event";
+                    var cycleTypeDiv = `<div class="row">
+                                                <div class="col-6 col-lg-8 d-flex justify-content-center flex-column ">
+                                                    <h2> ${res.data.name}- <span>${cycletype}</span></h2>
+                                                    <label>${moment(res.data.startDate).format('DD/MM/YYYY')} - ${moment(res.data.endDate).format('DD/MM/YYYY')}</label>
+                                                </div>
+                                                <div class="col-6 col-lg-4  text-right">
+                                                     <span class="pt-3 pb-3 stock-card d-flex flex-column justify-content-center align-items-center float-right">
+                                                        <h5>Available in hand</h5>
+                                                        <span class="SmallNum"><span class="BigNum">${res.remaining.remainingItems}</span>/${res.remaining.totalItems}</span>
+                                                    </span> 
+                                                 </div>
+                                            </div>`;
+
+                    divBriefBar.append(cycleTypeDiv);
+                    Available_transactions_menu.append(transactionTypeList);
+                    if (transList) {
+                        Available_transactions_menu.append(transList);
+                    }
+                    if (res.remaining.remainingItems == 0) {
+                        $("#AvailableActions").attr("disabled", true);
+                    }
+
+                }
+                else {
+                    divBriefBar.empty();
+                }
+            }
+
+        });
+    }
+
+
+
+    // ====================== 2- GET TRANSACTIONS DETAILS FUNCTION ==========================//
+    function GetCycleDetails(cycleId)
+    {
+        $.ajax({
+            url: '@Url.Action("GetTransactionCycleById")',
+            method: "Get",
+            data: { cycleId },
+            success: (res) => {
+                console.log(res);
+                if (res) {
+
+                    for (let item of res.data) {
+                        var btnViewProducts;
+
+
+                        btnViewProducts = `<button title="View transaction products" class="btn btn-info px-2" onClick="showDetials(${item.transactionId})"> <div><i class = "fas fa-info" > </i></div></button>`
+
+
+                        var transactionsCycles = `<tr class="text-center">
+                                                <td class="text-left">
+                                                  <span class="delivery">${item.typeName}</span><label> - ${item.statusName}</label><br />
+                                                    ${item.type == 1 ?
+                            ` <span class="toCustomer"><i class="fas fa-arrow-up" style="font-size:20px; color:blue"></i> From: ${item.fromUserName} </span>`
+                            : ` <span class="toCustomer"><i class="fas fa-arrow-down" style="font-size:20px;color:red"></i> From: ${item.toUserName} </span>`}
+                                                </td>
+                                                <td><h2 class="itemNum">${item.totalItem}</h2>
+                                                    <label>Items</label></td>
+                                                <td><label>${moment(item.date).format('DD/MM/YYYY HH:mm')}</label></td>
+
+                                                <td>  ${btnViewProducts}</td>
+                                              </tr>`
+                        $("#transaction_cycles").append(transactionsCycles);
+
+                    }
+                    $('#dtBasicExample').DataTable({
+                        "order": true
+                    });
+                }
+                else {
+                    $("#transactionsList").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">
+                                       No transactions found !!
+                                    </div>`);
+                }
+
+                $("#dtBasicExample_length").empty();
+                // ShowNotification()
+            }
+            , error: (err) => { /*console.log(err)*/ }
+
+
+        });
+
+
+
+    }
+
+
+
+
+    //Get CycleId From Url
+    $.urlParam = function (cycleId) {
+        var results = new RegExp('[\?&]' + cycleId + '=([^&#]*)').exec(window.location.href);
+        if (results == null) {
+            return null;
+        }
+        else {
+            return decodeURI(results[1]) || 0;
+        }
+    }
+     function geturl_cycleId() {
+        var url = $.urlParam("cycleId");
+
+        if (url != null && url != '') {
+            return url;
+
+        }
+    }
+
+
+</script>
+<script>
+        //show tranaction details in transaction
+    function showDetials(Tid) {
+
+        $.ajax({
+
+            url: '@Url.Action("_TransactionDetails","Transaction")',
+            method: 'Get',
+            data: { Tid },
+            success: function (data, jqXHR) {
+                $('#DetialContainer').html(data);
+                $('#DetialModal').modal('show');
+
+
+            }
+        });
+    }
+
+</script>

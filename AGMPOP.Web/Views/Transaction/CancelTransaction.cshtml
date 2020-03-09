@@ -1,0 +1,134 @@
+﻿@model NewTransactionVM
+@{
+    ViewData["Title"] = "cancel transaction";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<form>
+    <div class="card card-body my-2">
+        <div class="row">
+            <div class="form-group col-sm-4">
+                <label  class="control-label">Cycle Name </label>
+                <select asp-for="CycleId" class="mdb-select" id="cycleDDL">
+                    <option value="">Select One</option>
+                    @foreach (var item in Model.CycleList)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+                <span class="text-danger" id="errDDL"></span>
+            </div>
+            
+        </div>
+    </div>
+    <div class="my-3 mt-5 Dfooter" style="display:none">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="font-weight-bolder"  >Cancel transaction</h5>
+            </div>
+            <div class="card-body" id="divResult"></div>
+        </div>
+    </div>
+
+</form>
+
+<script>
+    $("#cycleDDL").change(function () {
+        var CycleId = $("#cycleDDL").val();
+        $('#divResult').html('');
+        $(".Dfooter").hide();
+        console.log(CycleId);
+
+            if (CycleId) {
+                //Get Partial for product cycle
+                $.ajax({
+                    url: '@Url.Action("_CycleTransaction")',
+                    method: 'Get',
+                    data: { CycleId },
+                    success: response => {
+                        if (response) {
+                            $('#divResult').html(response);
+                            $(".Dfooter").show();
+                        }
+                    }, error: function () {
+                        alert("Error");
+                    }
+                });
+              
+               
+            }
+
+        });
+  
+
+
+
+
+      //show Product details in transaction
+    function showDetials(Tid) {
+
+        $.ajax({
+
+            url: '@Url.Action("_TransactionDetails")',
+            method: 'Get',
+            data: { Tid },
+            success: function (data, jqXHR) {
+                $('#DetialContainer').html(data);
+                $('#DetialModal').modal('show');
+
+
+            }
+        });
+    }
+
+
+
+   // Cancel_Transaction post
+
+    function CancelTransaction(id) {
+        var item = $("#" + id + "cancel")[0];
+        console.log(item);
+        swal.fire({
+            text: 'Are you sure delete this transaction?',
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-danger',
+            confirmButtonText: 'Yes, delete it!',
+
+        }).then((result) => {
+
+            if (result.value) {
+                var _parameters = { TransactionId: id };
+                $.ajax({
+                    url: '@Url.Action("CancelTransaction")',
+                    type: "POST",
+                    data: _parameters,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data && data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                text: data.message,
+                                showConfirmButton: true,
+
+
+                            }).then((e) => {
+                                item.closest("tr").remove();
+                            });
+                        }
+
+                    }
+                });
+            }
+            else (result.dismiss === swal.DismissReason.cancel)
+            {
+
+            }
+        }
+
+        );
+
+    }
+
+</script>

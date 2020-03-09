@@ -1,0 +1,290 @@
+﻿@model IEnumerable<AGMPOP.BL.Models.Domain.JobTitle>
+@{
+    ViewBag.Title = "Jobs Management";
+}
+<style>
+
+    .btn btn-default btn-icon table-action {
+        display: none
+    }
+
+    ul {
+        list-style: none;
+    }
+</style>
+
+<div class="card  px-3 py-2">
+    <div class="row">
+        <div class="col-sm-12 col-md-3 d-inline-block"> 
+            <div class="ui-widget">
+                <input class="form-control mt-1" placeholder="Job Title" id="jobName" style="height:39px;">
+                <span class="d-none" id="sp_msg" style="color:red">This field is required.</span>
+            </div> 
+        </div>
+        <div class="text-right">
+            <button type="button" class="btn btn-secondary px-3 mr-0" style="height: 35px;" id="cancelMsg">Cancel</button>
+
+
+            <button class="btn btn-primary px-3" id="save" style="height: 35px;"> Add job</button>
+        </div>
+
+        
+    </div>
+
+</div>
+
+
+
+
+<div class="card card-body my-3">
+         <div id="divResult"></div>
+ </div><!--  end card  -->
+
+<script type="text/javascript">
+    var show = 0;
+    $(document).ready(function () {
+        
+         GetJobs();
+        $('#mn-admin').addClass('active');
+        $('#adminlinks').addClass('in');
+         $('#mn-jobs').addClass('active');
+
+        $("#cancelMsg").click(function () { $("#jobName").val(""); });   
+
+        //   ** Add job  **//
+        $("#save").click(function () {
+
+            if ($("#jobName").val() != null && $("#jobName").val() != '') {
+                var JobTitle = $("#jobName").val()
+
+                $.ajax({
+                    url: "/JobManagement/AddJob",
+                    type: "post",
+                    data: { JobTitle },
+                    success: function (data, textStatus, jqXHR) {
+                        $("#sp_msg").addClass('d-none');
+                        if (data) {
+                            if (data.success) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    text: data.message,
+                                    showConfirmButton:'btn btn-primary',
+                                  
+
+                                }).then((result) => { GetJobs(); $("#jobName").val(""); });
+
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    text: data.message,
+                                }).then((result) => { $("#jobName").val(""); });
+                              
+                              
+                            }
+
+                        }
+                    }
+
+
+                });
+            }
+            else {
+                $("#sp_msg").removeClass("d-none");
+            }
+
+        });
+    });
+
+    // ** Get partial view **//
+      function GetJobs() {
+
+             $.ajax({
+            url: '@Url.Action("_JobTitleList")',
+            method: 'Get',
+
+            success: response => {
+                if (response) {
+                    $('#divResult').html('');
+                    $('#divResult').html(response);
+                    //bootstrapTable();
+
+                }
+                 }, error: function () {
+                alert("Error");
+                 }
+        })
+
+
+        }
+
+    //   **edit button partial view**   //
+    function editJob(id) {
+        if (show == 0) {
+            $("#" + id).prop('disabled', false);
+            $("#" + id + "save").toggleClass('d-inline');
+            $("#" + id + "edit").toggleClass('d-none');
+            $("#" + id + "cancle").toggleClass('d-inline');
+            $("#msg").addClass('d-none');
+            changeJob(id);
+        }
+        show = 1;
+    }
+
+    //  ** cancel button partial view **//
+    function cancleJob(id) {
+        $("#" + id).val($("#temp").val());
+        $("#" + id + "save").toggleClass('d-inline');
+        $("#" + id + "edit").toggleClass('d-none');
+        $("#" + id + "cancle").toggleClass('d-inline');
+
+        $("#msg").addClass('d-none');
+        $("#" + id).prop('disabled', true);
+        show = 0;
+
+    }
+
+    // **  save temp data ** //
+    function changeJob(id) {
+
+        var change = $("#" + id).val();
+        $("#temp").val(change);
+    }
+
+    //   **update Job** //
+    function saveJob(id) {
+        show = 0;
+        if (!$("#" + id).val()) {
+
+            $("#msg").addClass("d-none");
+
+        }
+        else {
+
+            // check two values temp vs actual
+
+            if ($("#" + id).val() != $("#temp").val()) {
+
+                if ($("#" + id).val() != null) {
+                    var _parameters = { Id: id, JobTitle: $("#" + id).val() }
+                }
+                else {
+                    var _parameters = { Id: id }
+
+                }
+
+
+                $.ajax({
+                    url: "/JobManagement/EditJob",
+                    type: "GET",
+                    data: _parameters,
+                    success: function (data, textStatus, jqXHR) {
+                        if (data) {
+                            if (data.success) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    text: data.message,
+                                })
+                                $("#msg").addClass('d-none');
+                            }
+                            else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    text: data.message,
+                                })
+                                $("#msg").addClass('d-none');
+                                $("#" + id).val($("#temp").val()); 
+                            }
+                        }
+                        $("#" + id + "save").toggleClass('d-inline');
+                        $("#" + id + "edit").toggleClass('d-none');
+                        $("#" + id + "cancle").toggleClass('d-inline');
+                        $("#" + id).prop('disabled', true);
+
+                    }
+                });
+
+            }
+            else {
+                Swal.fire({
+                    text: 'Nothing changes !',
+                    icon: 'info',
+                });
+                $("#" + id + "save").toggleClass('d-inline');
+                $("#" + id + "edit").toggleClass('d-none');
+                $("#" + id + "cancle").toggleClass('d-inline');
+                $("#" + id).prop('disabled', true);
+
+
+            }
+        }
+    }
+
+    // ** delete job **//
+    function showSwal(id) {
+
+        console.log("deleted");
+        console.log(id);
+
+        Swal.fire({
+            text: 'Are you sure delete this job title?',
+          
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-danger',
+            //cancelButtonClass: 'btn btn-secondary',
+            confirmButtonText: 'Yes, Delete it!',
+        }).then((result) => {
+
+            if (result.value) {
+                var _parameters = { JobId: id };
+                $.ajax({
+                    url: "/JobManagement/DeleteJob",
+                    type: "GET",
+                    data: _parameters,
+                    success: function (data, textStatus, jqXHR) {
+                        //$('#divUsers').html(data);
+                        // window.location.href = "/JobManagement/Index";
+                        GetJobs();
+                       
+
+                    }
+                }).then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            text: data.message,
+                        })
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: data.message,
+                           
+                        })
+                    }
+                    });
+
+               
+            } else if (
+
+                // Read more about handling dismissals
+                result.dismiss === swal.DismissReason.cancel
+            ) {
+                //swal({
+                //    title: 'Canceled!',
+                //    text: 'Your file has been not deleted.',
+                //    type: 'success',
+                //    confirmButtonClass: "btn btn-primary",
+                //    buttonsStyling: false
+                //})
+            }
+
+        });
+
+    }
+
+
+</script>

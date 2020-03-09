@@ -1,0 +1,192 @@
+﻿
+@{
+    ViewData["Title"] = "Transfer Details";
+}
+
+<link href="~/mobile/assets/css/site.css" rel="stylesheet" />
+<div class="TopBar0 pl-4 mt-2">
+
+    <div class="row ">
+        <div class="col-6 col-lg-8 d-flex justify-content-center flex-column  cycleDetails">
+        </div>
+
+
+        <div class="col-6 col-lg-4  text-right ">
+            <span class="pt-3 pb-3 stock-card d-flex flex-column justify-content-center align-items-center float-right">
+                <h5>Total Items</h5>
+                <span class="BigNum"></span>
+            </span>
+        </div>
+    </div>
+
+
+</div>
+
+<div class="ContentAfterTopBar">
+    <label class="p-2">Transactions Details</label>
+
+
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5 TransferDetails">
+
+    </div>
+
+</div>
+
+
+<style>
+    .table tbody tr td {
+        vertical-align: middle;
+    }
+</style>
+
+<script>
+    // ================== JQUERY ================== //
+    $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        GetCycleName();
+    });
+
+    // ================== GLOBAL VARIABLES ================== //
+    var x = Object.fromEntries(new URLSearchParams(location.search));
+    var CycleID = x.CycleId;
+    var NotificationID = x.NotificationId;
+    var TransID = x.TransactionId;
+    // ================== GET TRANSACTION DETAILS ================== //
+ 
+
+        function GetCycleName() {
+        var cycleId = CycleID;
+        $.ajax({
+            url: '@Url.Action("GetCycleName", "CycleActions")',
+            type: "Get",
+            data: { cycleId },
+            success: response => {
+              //  console.log(response);
+                var res = response;
+                if (res) {
+                    var cycletype = res.cycleType == 1 ? "NationWide" : "Event";
+                    var Name = `<h4 style="display:contents">${res.name}</h4><label style="display:contents; font-size : 16px" > - ${cycletype}</label>
+                    <label class="mt-2">${moment(res.startDate).format('DD/MM/YYYY')} - ${moment(res.endDate).format('DD/MM/YYYY')}</label>`
+                    $(".cycleDetails").append(Name);
+                }
+                else {
+                    $(".cycleDetails").append("ERROR");
+                }
+                DeliveryConfirm();
+                GetCycleDetails();
+            },
+
+        });
+
+    }
+
+ 
+
+    // ================== GET PRODUCTS DETAILS ================== //
+
+
+      function DeliveryConfirm() {
+        var cycleId = CycleID;
+        var TransID = x.TransactionId;
+
+        $.ajax({
+            url: '@Url.Action("GetTransactionDetails", "CycleActions")',
+            type: "Get",
+            data: { cycleId, TransID },
+            success: response => {
+                var res = response.data;
+
+                 if (res) {
+                    // ======== append cycle date =======
+                    for (i = 0; i < res.length; i++) {
+                        var Products_List = ` <div class="row">
+                            <div class="col-3 m-auto">
+                                <img src="${res[i].productImg}" style="border-radius:50%" width="80" height="80">
+                            </div>
+                            <div class="col-3 m-auto">
+                                <h6>${res[i].productName}</h6>
+                            </div>
+                            <div class="col-3 m-auto">
+                                <h6>${res[i].code}</h6>
+                            </div>
+ 
+                            <div class="col-3 text-center text-md-right m-auto">
+                                <span class="ProductsNum">${res[i].quantity}</span>
+                            </div>
+                        </div><hr /> `
+                        $(".TransferDetails").append(Products_List);
+                    }
+                }
+ 
+            },
+            //ShowNotification()
+        })
+
+    }
+
+    function GetCycleDetails() {
+        var cycleId = CycleID;
+        var TransID = x.TransactionId;
+
+         $.ajax({
+            url: '@Url.Action("GetCycleDetalis", "CycleActions")',
+            type: "Get",
+             data: { cycleId, TransID},
+            success: response => {
+                  var res;
+                    res = response;
+                    if (res) {
+                        //append total items
+                        var AvailableItems = `${res.allItems}`
+                        $(".BigNum").append(AvailableItems);
+                        //append cycle name & date
+                        var CycleDetails = ` <label>
+                           ${res.user_id == userID ? `<label><b>to : </b> ${res.toUserName}</label>` : `<label><b>from: </b> ${res.fromUserName}</label>`}`
+                         $(".cycleDetails").append(CycleDetails);
+                    }
+                    else {
+                        $(".cycleDetails").append("ERROR");
+                    }
+
+             },
+
+        });
+
+    }
+ 
+
+    // ================== NOTIFICATION FUNCTION ================== //
+
+    async function ShowNotification() {
+        var currLocation = await getCurrentLocation();
+        var userlat = currLocation.latitude;
+        var userlng = currLocation.longitude;
+        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/users/" + userID + "/notification/" + NotificationID;
+
+        let apiResponse = await fetch(proxyurl + APIurl, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + AccessToken,
+                //'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON
+        });
+
+        var res;
+        if (apiResponse.ok) {
+
+            res = await apiResponse.json();
+            if (res["data"] != null) {
+                console.log(res["data"])
+            } else {
+                console.log("false")
+            }
+        }
+    }
+</script>
+
+
