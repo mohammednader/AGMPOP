@@ -16,29 +16,30 @@ namespace AGMPOP.BL.Repositories
 
         }
 
-        public IEnumerable<Request> FilterRequest(Request request, DateTime to_Date)
+        public IEnumerable<Request> FilterRequest(DateTime? fromDate, DateTime? toDate, bool? status, int? Createdby = null)
         {
 
             var query = Context.Request
                                         .Include(f => f.Cycle)
                                         .Include(f => f.RequestDetail)
                                         .Include(f => f.CreatedBy.JobTitle).AsQueryable();
-            if (request.Status != null)
+            if (status.HasValue)
             {
-                query = query.Where(p => p.Status == request.Status);
+                query = query.Where(p => p.Status == status);
             }
 
-            if (request.CreateDate != null)
+            if (fromDate != null)
             {
-                query = query.Where(p => p.CreateDate >= request.CreateDate);
-
+                query = query.Where(p => p.CreateDate.HasValue && p.CreateDate.Value.Date >= fromDate);
             }
-
-            if (to_Date != DateTime.MinValue)
+            if (toDate != null)
             {
-                query = query.Where(p => p.CreateDate <= to_Date);
+                query = query.Where(p => p.CreateDate.HasValue &&  p.CreateDate.Value.Date  <= toDate);
             }
-
+            if (Createdby.HasValue)
+            {
+                query = query.Where(p => p.CreatedById == Createdby);
+            }
             return query.ToList();
         }
 
@@ -58,11 +59,11 @@ namespace AGMPOP.BL.Repositories
             return query.ToList();
         }
 
-        public List<RequestDetail> GetRequestDetails(Expression<Func<RequestDetail, bool>> predicate= null)
+        public List<RequestDetail> GetRequestDetails(Expression<Func<RequestDetail, bool>> predicate = null)
         {
             var query = Context.RequestDetail
                                              .Include(f => f.Product)
-                                             .Include(f => f.Request).ThenInclude(f=>f.Cycle)                                                                  
+                                             .Include(f => f.Request).ThenInclude(f => f.Cycle)
                                             .AsQueryable();
             if (predicate != null)
             {
@@ -87,8 +88,8 @@ namespace AGMPOP.BL.Repositories
             return query.ToList();
         }
 
-        
-       
+
+
 
         public void UpdateRequestDetalis(RequestDetail requestDetail)
         {

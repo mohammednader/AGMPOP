@@ -133,11 +133,13 @@ namespace AGMPOP.BL.Repositories
                     ToUserName = c.ToUser.FullName,
                     TotalItem = c.TransactionDetail.Count(),
                     TypeName = Enum.GetName(typeof(POPEnums.TransactionTypes), c.TransType.GetValueOrDefault()),
-                    statusName = Enum.GetName(typeof(POPEnums.TransactionStatus), c.Status.GetValueOrDefault()),
+                    statusName = Enum.GetName(typeof(POPEnums.TransactionStatus), c.Status.GetValueOrDefault()).Replace("_", " "),
                     TransactionId = int.Parse(c.TransactionId.ToString()),
                     CycleName = c.Cycle.Name,
                     JobTitleId = c.FromUser.JobTitleId == 1 ? "BBX" : "Hr",
-                }).ToList();
+                })
+                .OrderByDescending(t=>t.Date)
+                .ToList();
 
                 return result;
 

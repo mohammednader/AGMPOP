@@ -1,23 +1,21 @@
 ﻿@model AGMPOP.BL.Models.ViewModels.ProductDTO
 
 @{
-    ViewData["Title"] = "BBOs & Products";
+    ViewData["Title"] = "Products";
 }
 
-
 <div class="text-right mt-1">
-    <button type="button" class="material-tooltip-main px-3 btn btn-blue-grey  mr-0 mt-0" style="height:37px;" onclick="location.href='@Url.Action("index","inventory")'">
-        Inveintory &nbsp; <i class="fa fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
+    <button type="button" class="btn btn-blue-grey btn-md" onclick="location.href='@Url.Action("index","inventory")'">
+        Inveintory&nbsp;&nbsp;<i class="fas fa-box"> </i>
     </button>
-    <button type="button" class="material-tooltip-main  btn btn-primary  text-center mr-0 mt-0 px-3 waves-effect waves-light " style="height:37px;" onclick="Create()">
-        Add Product &nbsp; <i class="fal  fa-plus fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
+    <button type="button" class="btn btn-primary btn-md " onclick="Create()">
+        Add Product&nbsp;&nbsp;<i class="fas fa-plus"></i>
     </button>
-
 </div>
 
 
 <!--Search bar -->
-<div class=" card px-3 py-1 m-0   accordion">
+<div class="card px-3 py-1 m-0 accordion">
 
     <div class="" style="overflow: visible">
         <div class="d-flex justify-content-between  "
@@ -27,42 +25,41 @@
              aria-expanded="false"
              aria-controls="divCollapseSearch"
              style="cursor: pointer">
-            <h5 class="mt-2 font-weight-bold"><i class="far fa-search " style="font-size: 20px;"></i>  Search</h5>
+            <h5 class="mt-2 font-weight-bold"><i class="far fa-search " style="font-size: 20px;"></i>&nbsp;&nbsp;Search</h5>
             <span><i class="fa fa-angle-double-down " style="margin-top:10px"></i></span>
 
         </div>
 
         <div id="divCollapseSearch" class="collapse mb-2 ">
             <hr /><br />
-            <form id="productform">
+            <form id="productform" class="pl-4 pr-4">
                 <div class="row">
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label>Product Name</label>
                         <input asp-for="ProductName" class="form-control" />
                     </div>
 
-
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Department"></label>
                         <select id="DepartmentIds" name="DepartmentIds" class="mdb-select" multiple Searchable="Search here...">
                             <option value="" selected disabled>Select Department</option>
                         </select>
                     </div>
-                    @*<div class="form-group col-sm-6 col-md-4">
+                    @*<div class="form-group col-sm-6 col-md-3">
                             <label asp-for="Types"></label>
                             <select asp-for="Types" class="mdb-select" multiple Searchable="Search here...">
                                 <option value="" selected disabled>Select Type</option>
                             </select>
                         </div>*@
 
-                    <div class="col-12 text-right">
-                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
-                            Clear &nbsp; <i class="fa fa-trash"></i>
+                    <div class="col-sm-6 col-md-6 text-left">
+                        <div style="height:23px"></div>
+                        <button id="btnsearch" type="button" class="btn btn-primary btn-md">
+                            Search&nbsp;&nbsp;<i class="fa fa-search"></i>
                         </button>
-                        <button id="btnsearch" type="button" class="btn btn-primary">
-                            Search&nbsp; <i class="fa fa-search"></i>
+                        <button type="button" class="btn btn-secondary btn-md" onclick="clearBTN()">
+                            Clear&nbsp;&nbsp;<i class="fa fa-times"></i>
                         </button>
-
                     </div>
                 </div>
             </form>
@@ -70,17 +67,8 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
 <!--PartialIndex Modal -->
-<div id="PartialIndex" class="mt-2">
-
-
+<div id="PartialIndex" class="card card-body mt-3"  >
 </div>
 
 <!--ShowProductDetails Modal -->
@@ -131,7 +119,6 @@
     </div>
 </div>
 
-
 <!--Create Modal -->
 <div class="modal fade" id="CreateProductModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -149,8 +136,6 @@
         </div>
     </div>
 </div>
-
-
 
 @*ShowProductDetails*@
 <script>
@@ -198,7 +183,6 @@
 
 </script>
 
-
 @*loadPatialData*@
 <script>
     @*function loadPatialData() {
@@ -217,7 +201,6 @@
     }*@
 
 </script>
-
 
 @*edit*@
 <script>
@@ -242,8 +225,6 @@
     }
 
 </script>
-
-
 
 @* create*@
 <script>

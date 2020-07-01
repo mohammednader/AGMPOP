@@ -20,7 +20,9 @@ namespace AGMPOP.BL.Repositories
         {
             var model = Context.InventoryLog.Where(f=>f.ProductId == productId)
                                 .Include(f => f.Product)
-                                .Include(f => f.Transaction).ThenInclude(f => f.Cycle).ToList();
+                                .Include(f => f.Transaction).ThenInclude(f => f.Cycle)
+                                .OrderByDescending(d=>d.CreatedDate)                                
+                                .ToList();
             return model;
  
         }

@@ -13,9 +13,9 @@
                     <tr>
                         <th data-field="name" data-sortable="true">Cycle Name</th>
                         <th data-field="" data-sortable="true">Cycle Type</th>
-                        <th data-field="" data-sortable="true">Req By</th>
-                        <th data-field="" data-sortable="true">Req Date</th>
-                        <th data-field="">Req Status</th>
+                        <th data-field="" data-sortable="true">Requested By</th>
+                        <th data-field="" data-sortable="true">Request Date</th>
+                        <th data-field="">    Status</th>
                         <th data-field="">Total Items</th>
                         <th>Action</th>
                     </tr>
@@ -43,7 +43,7 @@
                                 <td>
                                     @item.CreartedByName
                                 </td>
-                                <td>@item.ReqDate</td>
+                                <td>@item.ReqDate.ToString("dd/MM/yyyy HH:mm")</td>
                                 @if (@item.ReqStatus == false)
                                 {
                                     <td>Pending</td>
@@ -62,13 +62,13 @@
                                 @if (@item.ReqStatus == false)
                                 {
                                     <td>
-                                        <button type="button" class="btn btn-primary" onclick="AcceptRequest(@item.ReqID)">Acknowledged</button>
+                                        <button type="button" class="btn btn-success" title="Confirm this request" onclick="AcceptRequest(@item.ReqID)">Confirm</button>
                                     </td>
                                 }
                                 else
                                 {
                                     <td>
-                                        <button type="button" class="btn btn-primary " disabled><i class="fa fa-check"></i></button>
+                                        <button type="button" class="btn btn-secondary " disabled><i class="fa fa-check"></i></button>
                                     </td>
                                 }
 

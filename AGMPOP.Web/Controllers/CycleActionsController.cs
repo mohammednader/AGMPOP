@@ -41,7 +41,6 @@ namespace AGMPOP.Web.Controllers
                                                                       cu.Cycle.IsActive == true &&
                                                                       cu.Cycle.StartDate <= now &&
                                                                       cu.Cycle.EndDate >= now &&
-                                                                      cu.Cycle.ReconciliationDate >= now &&
                                                                       cu.Cycle.Department.IsActive == true &&
                                                                       cu.UserId == LoggedUserId)
                                                     .ToList();
@@ -75,7 +74,10 @@ namespace AGMPOP.Web.Controllers
         [PermissionNotRequired]
         public JsonResult GetTransactionCycleById(int cycleId)
         {
-            var data = unitOfWork.TransactionBL.GetAllTransactionAPI(u => (u.FromUserId == LoggedUserId || u.ToUserId == LoggedUserId) && u.CycleId == cycleId).ToList();
+            var data = unitOfWork.TransactionBL
+                                        .GetAllTransactionAPI(u => (u.FromUserId == LoggedUserId ||   u.ToUserId == LoggedUserId) 
+                                        && u.CycleId == cycleId)
+                                       .ToList();
             return Json(new { message = "success", data = data });
 
         }
@@ -249,8 +251,8 @@ namespace AGMPOP.Web.Controllers
                 Notification.Add(new Notifications
                 {
                     CreatedAt = DateTime.Now,
-                    Title = NotificationType.NotConfirmed.ToString(),
-                    Notificationtype = (int)POPEnums.NotificationType.NotConfirmed,
+                    Title = NotificationType.Unconfirmed.ToString(),
+                    Notificationtype = (int)POPEnums.NotificationType.Unconfirmed,
                     IsSeen = false,
                     ToUserId = TOUId
                 });
@@ -472,8 +474,8 @@ namespace AGMPOP.Web.Controllers
                         {
                             TransactionId = clearnceData.TransactionId,
                             ToUserId = TransModel.ToUserId,
-                            Notificationtype = (int)NotificationType.NotConfirmed,
-                            Title = NotificationType.NotConfirmed.ToString(),
+                            Notificationtype = (int)NotificationType.Unconfirmed,
+                            Title = NotificationType.Unconfirmed.ToString(),
                             CreatedAt = DateTime.Now,
 
                         };

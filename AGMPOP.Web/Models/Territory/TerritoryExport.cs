@@ -12,6 +12,6 @@ namespace AGMPOP.Web.Models.Territory
 
 
 
-        public string SubTerritory { get; set; }
+        public string ParentTerritory { get; set; }
     }
 }

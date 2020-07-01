@@ -76,7 +76,11 @@ namespace AGMPOP.BL.Repositories
                     EndDate = c.Cycle.EndDate.ToUniversalTime().AddTicks(1),
                     CycleType = c.Cycle.Type,
                     UserTitle = c.User.JobTitle.Name,
-                }).ToList();
+                })
+                .OrderByDescending(c=>c.StartDate).ThenBy(c=>c.EndDate)
+                .ToList();
+
+
                 return result;
             }
             catch (Exception e)

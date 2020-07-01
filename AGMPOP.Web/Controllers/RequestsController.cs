@@ -43,17 +43,17 @@ namespace AGMPOP.Web.Controllers
                 List<Request> Result = null;
                 if (LoggedIsSystemAdmin)
                 {
-                    Result = UnitOfWork.RequestsBL.GetAllRequests(r=>r.Cycle.Department.IsActive==true)
+                    Result = UnitOfWork.RequestsBL.GetAllRequests(r => r.Cycle.Department.IsActive == true)
                         .OrderByDescending(f => f.CreateDate)
                                         .ToList();
                 }
                 else // normal user 
                 {
-                    
+
                     Result = UnitOfWork.RequestsBL
-                                        .GetAllRequests(f => f.CreatedById == LoggedUserId 
+                                        .GetAllRequests(f => f.CreatedById == LoggedUserId
                                                             && f.Cycle.DepartmentId == LoggedUserDepartmentId)
-                                        .OrderByDescending(f=>f.CreateDate)
+                                        .OrderByDescending(f => f.CreateDate)
                                         .ToList();
 
                 }
@@ -119,7 +119,7 @@ namespace AGMPOP.Web.Controllers
                         RequestAmount = f.RequestAmount.GetValueOrDefault(),
                         ProductId = f.ProductId.GetValueOrDefault(),
                         CycleName = f.Request.Cycle.Name,
-                         CycleId = f.Request.Cycle.CycleId,
+                        CycleId = f.Request.Cycle.CycleId,
 
                         InventoryQuantity = f.Product.InventoryQnty.GetValueOrDefault(),
 
@@ -257,12 +257,22 @@ namespace AGMPOP.Web.Controllers
         #region RequestSearch --Partial View
 
         [PermissionNotRequired]
-        public PartialViewResult RequestSearch(Request request, DateTime to_Date)
+        public PartialViewResult RequestSearch(string fromDate, string toDate, bool? status)
         {
             try
             {
-                var model = UnitOfWork.RequestsBL.FilterRequest(request, to_Date)
-                                        .Where(f => f.CreatedById == LoggedUserId).OrderByDescending(f => f.CreateDate)
+                DateTime? _fromDate = null;
+                if (!string.IsNullOrWhiteSpace(fromDate))
+                {
+                    _fromDate = DateTime.ParseExact(fromDate, "dd/MM/yyyy", null);
+                }
+                DateTime? _toDate = null;
+                if (!string.IsNullOrWhiteSpace(fromDate))
+                {
+                    _toDate = DateTime.ParseExact(toDate, "dd/MM/yyyy", null);
+                }
+                var model = UnitOfWork.RequestsBL.FilterRequest(_fromDate, _toDate, status, LoggedUserId)
+                    .OrderByDescending(f => f.CreateDate)
                                         .ToList();
 
                 return PartialView("_PartialRequests", model);
@@ -295,7 +305,7 @@ namespace AGMPOP.Web.Controllers
                 List<Request> Result = null;
                 if (LoggedIsSystemAdmin)
                 {
-                    Result = UnitOfWork.RequestsBL.GetAllRequests(r => r.Cycle.Department.IsActive ==true).ToList();
+                    Result = UnitOfWork.RequestsBL.GetAllRequests(r => r.Cycle.Department.IsActive == true).ToList();
                 }
                 else // normal user 
                 {
@@ -316,7 +326,7 @@ namespace AGMPOP.Web.Controllers
                                    .Sum(c => c.RequestAmount).GetValueOrDefault(),
                          CreartedByName = f.CreatedBy.JobTitle.Name
 
-                     }).OrderByDescending(r=>r.ReqDate).ToList();
+                     }).OrderByDescending(r => r.ReqDate).ToList();
                 if (model != null)
                 {
                     return PartialView("_RequestsInboxList", model);
@@ -342,22 +352,31 @@ namespace AGMPOP.Web.Controllers
 
         #region SearchRequestsInbox --Partial View
         [PermissionNotRequired]
-        public PartialViewResult SearchRequestsInbox(Request request, DateTime to_Date)
+        public PartialViewResult SearchRequestsInbox(string fromDate, string toDate, bool? status)
         {
             try
             {
-                var model = UnitOfWork.RequestsBL.FilterRequest(request, to_Date).Select(f => new RequestsInboxVM
+                DateTime? _fromDate = null;
+                if (!string.IsNullOrWhiteSpace(fromDate))
+                {
+                    _fromDate = DateTime.ParseExact(fromDate, "dd/MM/yyyy", null);
+                }
+                DateTime? _toDate = null;
+                if (!string.IsNullOrWhiteSpace(fromDate))
+                {
+                    _toDate = DateTime.ParseExact(toDate, "dd/MM/yyyy", null);
+                }
+                var model = UnitOfWork.RequestsBL.FilterRequest(_fromDate, _toDate, status).Select(f => new RequestsInboxVM
                 {
                     ReqID = f.RequestId,
                     CycleID = f.Cycle.CycleId,
                     CycleName = f.Cycle.Name,
                     CycleType = f.Cycle.Type,
-
                     ReqStatus = f.Status,
                     ReqByID = f.CreatedById.GetValueOrDefault(),
                     ReqDate = f.CreateDate.GetValueOrDefault(),
                     ReqAmount = f.RequestDetail.Where(c => c.RequestId == f.RequestId)
-                                         .Sum(c => c.RequestAmount).GetValueOrDefault(),
+                                     .Sum(c => c.RequestAmount).GetValueOrDefault(),
                     CreartedByName = f.CreatedBy.JobTitle.Name
 
                 }
@@ -463,8 +482,8 @@ namespace AGMPOP.Web.Controllers
                 notification.Add(new Notifications
                 {
                     CreatedAt = DateTime.Now,
-                    Title = NotificationType.NotConfirmed.ToString(),
-                    Notificationtype = (int)NotificationType.NotConfirmed,
+                    Title = NotificationType.Unconfirmed.ToString(),
+                    Notificationtype = (int)NotificationType.Unconfirmed,
                     IsSeen = false,
                     ToUserId = bbxuserId
                 });
@@ -477,7 +496,7 @@ namespace AGMPOP.Web.Controllers
                     ToUserId = hrUserSelected,
                     CreateDate = DateTime.Now,
                     TransType = (int)TransactionTypes.Delivery,
-                    Status = (int)TransactionStatus.NewRequst,
+                    Status = (int)TransactionStatus.New_Request,
                     ConfirmDate = DateTime.Now,
                     RequestId = f.RequestId,
                     TransactionDetail = TranDetList,
@@ -507,7 +526,7 @@ namespace AGMPOP.Web.Controllers
 
                 // update and do transaction
             }
-            return Json(new { Success = false, message = "Can't do this request check quantity" });
+            return Json(new { Success = false, message = "Insufficient quantity" });
         }
         #endregion
 

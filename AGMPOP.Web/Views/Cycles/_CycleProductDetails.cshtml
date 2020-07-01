@@ -1,0 +1,53 @@
+﻿@{ 
+    Layout = null;
+}
+
+<style>
+    #lstProducts, #product-filter-field {
+        max-height: 55vh;
+        //overflow-y: auto;
+    }
+</style>
+<div>
+    <div class="container-fluid" id="product-tab-container">
+        <div class="row">
+
+            <div class="col-12">
+                <input type="text" id="txtSearchProduct" class="form-control" placeholder="Search for products..." />
+            </div>
+            @*<div id="product-filter-field" class="col-6 col-sm-3">
+                <div>
+                    <button class="btn btn-link text-primary pt-4 px-0" id="btnViewAllProducts" onclick="clearFilterProducts()">View All</button>
+                </div>
+                <div style="display: none" id="divProductDepartmentSearch" class="flex-column align-items-start">
+                    <h5>Department</h5>
+                    <div id="lstProductDepartments" class="d-flex flex-column align-items-start"></div>
+                </div>
+                <div style="display: none" id="divProductTypeSearch" class="flex-column align-items-start">
+                    <h5>Job Title</h5>
+                    <div id="lstProductTypes" class="d-flex flex-column align-items-start"></div>
+                </div>
+            </div>*@
+            <div class="col-6 col-sm-12 pt-4">
+                <p class="font-weight-bold" id="productCount"></p>
+                <div id="lstProducts" class="list-group"></div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $(() => {
+        getAllProductTypes();
+
+       
+        getAllProducts();
+        $('#txtSearchProduct').on('keyup', e => {
+            searchTextProducts($('#txtSearchProduct').val());
+        });
+    });
+</script>

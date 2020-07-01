@@ -1,18 +1,35 @@
 ﻿@model List<AGMPOP.BL.Models.ViewModels.AuditSearchVM>
 
+<div class="card card-body">
+    <div class="row">
+        <div class="col-12 text-right">
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card card-body">
 
-            <table id="Audit-table" class="table table-bordered table-striped table-responsive-sm table-responsive-md table-responsive-lg">
+            @if (Model != null)
+            {
+                @if (Model.Count() > 0)
+                {
+            <button type="button" class="btn btn-success btn-md" onclick="ExportAudit()">
+                Export&nbsp;&nbsp;
+                <i class="fas fa-file-excel"></i>
+            </button>
+            <hr />
+                }
+
+            }
+
+        </div>
+        <div class="col-md-12">
+
+
+            <table id="Audit-table" class="table table-bordered table-striped table-responsive-sm">
                 <thead>
                     <tr>
-                        <th data-field="id" class="text-center">User</th>
-                        <th data-field="name" class="text-center">Date</th>
-                        <th data-field="name" class="text-center">Action</th>
-                        <th data-field="name" class="text-center">Table Name</th>
-                        <th data-field="name" class="text-center">View Details</th>
+                        <th data-field="id">User</th>
+                        <th data-field="name">Date</th>
+                        <th data-field="name">Action</th>
+                        <th data-field="name">Table Name</th>
+                        <th data-field="name" data-sortable="false" class="text-center"></th>
 
                     </tr>
                 </thead>
@@ -28,22 +45,28 @@
                             @foreach (var item in Model)
                             {
                                 <tr>
-                                    <td class="text-center">
-                                       @item.UserName
-                                    </td>
-                                    <td class="text-center">
-                                        @item.Date
-                                    </td>
-                                    <td class="text-center">
-                                     @item.ActionName
+                                    <td>
+                                        <b>@item.UserName</b>
                                     </td>
                                     <td>
-                                     @item.TableName
+                                        @item.Date
                                     </td>
-                                    <td class="text-center">
-                                        <a class="material-tooltip-main my-0 p-0 fa-underline" data-toggle="tooltip" title="@item.NewData">
-                                            New data
-                                        </a>
+                                    <td>
+                                        @item.ActionName
+                                    </td>
+                                    <td>
+                                        @item.TableName
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.OldData))
+                                        {
+                                            <button onclick="ViewData(@item.OldData)" class="btn btn-sm btn-secondary"> Old Data</button>
+
+                                        }
+                                        @if (!string.IsNullOrEmpty(item.NewData))
+                                        {
+                                            <button onclick="ViewData(@item.NewData)" class=" btn btn-sm btn-primary">New Data </button>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -51,7 +74,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="10"> There is no data to view</td>
+                                <td colspan="10" class="lead text-center"> There is no data to view</td>
                             </tr>
 
                         }
@@ -59,21 +82,22 @@
 
                 </tbody>
             </table>
-        </div><!--  end card  -->
-    </div> <!-- end col-md-12 -->
-</div> <!-- end row -->
 
-@if (Model.Count > 0)
-{
-    <script>
-        $(document).ready(function () {
+        </div> <!-- end col-md-12 -->
+    </div> <!-- end row -->
+</div>
+    @if (Model.Count > 0)
+    {
+        <script>
+            $(document).ready(function () {
 
-            $('#Audit-table').DataTable({
-                "ordering": false,
-                // "order": [[3, "desc"]]
+                $('#Audit-table').DataTable({
+                    "pageLength": 30,
+                    "autoWidth": false
+                });
+
+
             });
+        </script>
+    }
 
-
-        });
-    </script>
-}

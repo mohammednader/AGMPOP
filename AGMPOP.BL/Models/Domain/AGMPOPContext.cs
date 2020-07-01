@@ -6,7 +6,7 @@ namespace AGMPOP.BL.Models.Domain
 {
     public partial class AGMPOPContext : DbContext
     {
-        
+      
         public AGMPOPContext(DbContextOptions<AGMPOPContext> options)
             : base(options)
         {
@@ -40,7 +40,7 @@ namespace AGMPOP.BL.Models.Domain
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=.;Database=AGMPOP;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=INNV002\\SQLSERVER;Database=AGMPOP;Trusted_Connection=True;");
             }
         }
 

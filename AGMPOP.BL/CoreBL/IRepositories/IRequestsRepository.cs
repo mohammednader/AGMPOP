@@ -21,7 +21,7 @@ namespace AGMPOP.BL.CoreBL.IRepositories
         
         void UpdateRequestDetalis(RequestDetail requestDetail);
 
-        IEnumerable<Request> FilterRequest(Request request, DateTime to_Date);
+        IEnumerable<Request> FilterRequest(DateTime? fromDate, DateTime? toDate, bool? status, int? Createdby = null);
       
         
 

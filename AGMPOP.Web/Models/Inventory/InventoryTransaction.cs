@@ -19,6 +19,7 @@ namespace AGMPOP.Web.Models.Inventory
 
         public string date { get; set; }
         public string createdBy { get; set; }
+        public int createdById { get; set; }
         public string productName { get; set; }
         public string image { get; set; }
         public int typeId { get; internal set; }
@@ -34,7 +35,8 @@ namespace AGMPOP.Web.Models.Inventory
             OldQuantity = log.OldQnty.GetValueOrDefault();
             NewQuantity = log.NewQnty.GetValueOrDefault();
             typeId = log.ActionType.GetValueOrDefault();
-            date = log.CreatedDate.GetValueOrDefault().ToString();
+            date = log.CreatedDate?.ToString("dd/MM/yyyy HH:mm" );
+ 
         }
     }
 

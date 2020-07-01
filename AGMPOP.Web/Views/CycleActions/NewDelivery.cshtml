@@ -1,6 +1,6 @@
 ﻿
 @{
-    
+
     ViewData["Title"] = "New Action";
 }
 
@@ -14,10 +14,10 @@
                 <option value="" disabled selected>Choose user</option>
             </select>
         </div>
-           
+
         <div class="col-md-9 col-6 text-md-right align-self-center">
             <span class="stock-card d-flex flex-column justify-content-center align-items-center float-right" id="AvailableStock">
-               
+
             </span>
         </div>
     </div>
@@ -26,13 +26,13 @@
 @* ============================= Content After Bar ============================= *@
 
 
-<div class="ContentAfterTopBar0 mb-4">
-    <label class="p-2">BBO’s & Products</label>
-    <div class=" card card-body mb-4  pl-md-5 pr-md-5" id="trans_actions_container">
+<div class="ContentAfterTopBar0">
+    <div class=" card card-body mb-2  pl-md-5 pr-md-5" id="trans_actions_container">
+        <h4 class="text-center mb-4">Products</h4>
 
     </div>
-    <div class="viewAll text-right mt-3 mb-3">
-        <button class="btn-action btn-primary" onclick="ConfirmAction()">Confirm</button>
+    <div class="viewAll text-right mt-2 mb-3">
+        <input type="button" value="Confirm" class="btn btn-primary" onclick="ConfirmAction()" />
     </div>
 </div>
 @* ============================= Modal ============================= *@
@@ -50,11 +50,22 @@
     .table tbody tr td {
         vertical-align: middle;
     }
+
+    .product-img {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        height: 50px;
+        width: 50px;
+        margin: 0 auto;
+    }
 </style>
 
 <script>
     var ToId;
-    
+
     $('#SelectAgent').on('change', function () {
         ToId = $('#SelectAgent').val()
     });
@@ -107,7 +118,7 @@
 
 
 
-    ///////////////////////////////////////////////// GET Transaction Products ///////////////// 
+    ///////////////////////////////////////////////// GET Transaction Products /////////////////
 
     function GetTransactions() {
 
@@ -119,32 +130,57 @@
             data: { cycleid },
             success: response => {
                 console.log(response);
+                 var header = ` <div class="row">
+                                            <div class="col-3 m-auto text-center">
+                                               <b>  Image </b>
+                                            </div>
+                                            <div class="col-3 m-auto text-center">
+                                               <b>  Name </b>
+                                            </div>
+                                            <div class="col-3 m-auto text-center">
+                                               <b> Code  </b>
+                                            </div>
+                                            <div class="col-3 m-auto text-center">
+                                              <b> Quantity  </b>
+                                            </div>
+                                        </div><hr />`
 
+                $("#trans_actions_container").append(header);
                 var res;
                 res = response.data;
                 if (res) {
                     for (let prod of res) {
-
+                        if (prod.quantity > 0) {
                         var trans_action = ` <div class="row">
-                                            <div class="col-3 m-auto">
-                                                <img src="${prod.productImg}" style="border-radius:50%" width="80" height="80">
+                                            <div class="col-3 m-auto text-center">
+                                                <img src="${prod.productImg}"  class="img-circle product-img">
                                             </div>
-                                            <div class="col-3 m-auto">
-                                                <h4>${prod.productName}</h4>
+                                            <div class="col-3 m-auto text-center">
+                                                <span>${prod.productName}</span>
                                             </div>
-                                            <div class="col-3 m-auto">
-                                                <h4>${prod.code}</h4>
+                                            <div class="col-3 m-auto text-center">
+                                                <span>${prod.code}</span>
                                             </div>
-                                          
-                                            <div class="col-3 text-md-right m-auto">
-                                                <input class="ProductCount" id=${prod.productId} type="number" data-trans=${prod.quantity} data-product=${prod.productId} name="value" maxlength="4" size="1" style="height:40px; width:70px; text-align:center; font-size:18px; border-radius:5px;" onkeyup="checkValues(event)" min=0 value="0"> <h4 class="d-inline"> &nbsp;/ </h4>
-                                                <h4 class="d-inline-block" style="width:60px">${prod.quantity}</h4>
-                                            </div>
+
+                                          <div class="col-3  m-auto text-center">
+                                            <div class="row">
+                                                <div class="col-6  text-right">
+                                                    <input class="ProductCount" id=${prod.productId} type="number" data-trans=${prod.quantity} data-product=${prod.productId} name="value" maxlength="4" size="1" style="height:40px; width:70px; text-align:center; font-size:16px; border-radius:5px;" onKeyup="checkValues(event)" min=0 value="0"> 
+
+                                                </div>
+                                                <div class="col-6 text-left">
+                                                    <h4 class="d-inline"> / ${prod.quantity}</h4>
+                                                </div>
+                                        </div>
+    
+                                    </div>
                                         </div><hr />`
-                      
+
                         $("#trans_actions_container").append(trans_action);
+
                         y = `${prod.quantity}`
                         ValArray.push(y);
+                    }
                     }
 
                 }
@@ -160,12 +196,12 @@
 
     }
 
-   
+
     // ================== CONFIRM WITH VALIDATION FUNCTIONS ================== //
 
     function GetUserInputProductNum() {
         var ProductUserInputArray = [];
-     
+
         for (let item of $(".ProductCount")) {
 
             var Product = $(item);
@@ -200,7 +236,7 @@
 
             Swal.fire({
                 text: "Are you sure to add this transaction ?",
-                icon: 'warning',
+                icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Ok',
 
@@ -258,12 +294,47 @@
             })
         }
     }
-    
-     
+
+
 
 
     //////////////////// Check values ///////////////
-   
+    var check = 0;
+
+    function checkValues(e)
+    {
+        if (e) {
+            var MaxValue = $("#" + e.target.id).data('trans');
+
+            if (e.target.value > MaxValue) {
+                $("#" + e.target.id).addClass('btn-danger')
+                $("#" + e.target.id).val($("#" + e.target.id).data('trans'));
+                setTimeout(function () { $("#" + e.target.id).removeClass('btn-danger') }, 1000);
+
+                return false;
+            }
+            if (e.target.value == 0)
+            {
+                var sum = 0;
+                var inputValue = $(".ProductCount");
+                for (var i = 0; i < inputValue.length; i++)
+                {
+                    sum  = sum + inputValue[i].value;
+                }
+                check = sum;
+                return false;
+            }
+            else {
+                $("#" + e.target.id).removeClass('btn-danger');
+                check = 1;
+                return true;
+            }
+
+        }
+
+        return true;
+    }
+
 
 </script>
 

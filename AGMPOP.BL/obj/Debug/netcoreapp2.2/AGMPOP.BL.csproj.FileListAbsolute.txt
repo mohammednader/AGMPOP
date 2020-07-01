@@ -9,3 +9,4 @@ E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.AssemblyIn
 E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.dll
 E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.pdb
 E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.csprojAssemblyReference.cache
+E:\TFS\POPAGM\AGMPOP_Core\AGMPOP.BL\obj\Debug\netcoreapp2.2\AGMPOP.BL.genruntimeconfig.cache

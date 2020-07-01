@@ -229,7 +229,7 @@ namespace AGMPOP.Web.Controllers
 
         #region ProductSearch --Partial View
 
-        public List<ProductDTO> SearchFun(ProductDTO obj)
+        public List<ProductDTO> SearchProducts(ProductDTO obj)
         {
             if (obj != null)
             {
@@ -276,7 +276,7 @@ namespace AGMPOP.Web.Controllers
         {
             try
             {
-                var Model = SearchFun(obj);
+                var Model = SearchProducts(obj);
                 return PartialView("_PartialIndex", Model);
             }
             catch (Exception)
@@ -293,30 +293,29 @@ namespace AGMPOP.Web.Controllers
         public PartialViewResult EditProduct(int Id)
         {
 
-            var product = UnitOfWork.ProductBL.GetByID(Id);
+            var product = UnitOfWork.ProductBL.GetProductWithDepartmentByid(Id);
             var model = new ProductVM
             {
                 ProductId = product.ProductId,
                 Name = product.Name,
-                //TypeId = product.TypeId.GetValueOrDefault(),
-                Code = product.Code,
+                 Code = product.Code,
                 CreatedBy = product.CreatedBy,
                 CreatedDate = product.CreatedDate,
                 Image = product.Image,
                 InventoryQnty = product.InventoryQnty,
-                DepartmentID = product.DepartmentId ?? 0,
-                //DepartmentName = product.Department.Name
-
+                DepartmentName = product.DepartmentName,
+                DepartmentID = product.DepartmentID,
+ 
             };
 
-            if (UnitOfWork.ProductBL.CheckExist(p => p.Code == model.Code && p.DepartmentId == model.DepartmentID))
-            {
-                ViewBag.DepartmentReadOnly = true;
-            }
-            else
-            {
-                ViewBag.DepartmentReadOnly = false;
-            }
+            //if (UnitOfWork.ProductBL.CheckExist(p => p.Code == model.Code && p.DepartmentId == model.DepartmentID))
+            //{
+            //    ViewBag.DepartmentReadOnly = true;
+            //}
+            //else
+            //{
+            //    ViewBag.DepartmentReadOnly = false;
+            //}
             return PartialView("_EditProduct", model);
         }
 
@@ -330,11 +329,11 @@ namespace AGMPOP.Web.Controllers
             }
             try
             {
-                if (UnitOfWork.ProductBL.CheckExist(p => (p.ProductId != product.ProductId) &&
+                 if (UnitOfWork.ProductBL.CheckExist(p => (p.ProductId != product.ProductId) &&(
                                             (p.Code == product.Code && p.DepartmentId == product.DepartmentID) ||
-                                            (p.Name == product.Name && p.DepartmentId == product.DepartmentID)))
+                                            (p.Name == product.Name && p.DepartmentId == product.DepartmentID))))
                 {
-                    return Json(new { Success = false, Message = "Code is exist" });
+                    return Json(new { Success = false, Message = "Code and name should be new" });
                 }
 
                 var model = UnitOfWork.ProductBL.GetByID(product.ProductId);
@@ -428,24 +427,6 @@ namespace AGMPOP.Web.Controllers
         }
         #endregion
 
-        //[PermissionNotRequired]
-        //public JsonResult GetAllDept()
-        //{
-        //    //Get ALL Dept in dropdown
-
-        //    var Depts = UnitOfWork.DepartmentBL.GetAll().Select(c => new { id = c.Id, name = c.Name }).ToArray();
-
-        //    return Json(Depts);
-        //}
-
-        //[PermissionNotRequired]
-        //public JsonResult GetAllTypes()
-        //{
-        //    //Get ALL Types in dropdown
-
-        //    var Types = UnitOfWork.ProductBL.ProductTypeList();
-        //    return Json(Types);
-        //}
 
         #region ExportProduct
 
@@ -453,22 +434,17 @@ namespace AGMPOP.Web.Controllers
         public FileResult ExportProduct(ProductDTO obj)
         {
             List<Product> Result = null;
-            if (LoggedIsSystemAdmin)
-            {
-                var stream = new MemoryStream();
+            using (var stream = new MemoryStream())
                 try
                 {
-                    var ProductList = SearchFun(obj);
-
-
+                    var ProductList = SearchProducts(obj);
                     var sheet = new List<ProductExport>();
 
-                    foreach (var item in ProductList)
-                    {
-                        sheet.Add(new ProductExport() { Name = item.ProductName, Code = item.Code, DepartmentName = item.DepartmentName });
+                    var LstToExport = ProductList
+                                            .Select(p => new ProductExport(p))
+                                            .ToArray();
 
-                    }
-                    var ProdDT = Helper.GenerateDataTable(sheet.ToArray());
+                    var ProdDT = Helper.GenerateDataTable(LstToExport);
 
                     using (var wb = new XLWorkbook())
                     {
@@ -481,47 +457,9 @@ namespace AGMPOP.Web.Controllers
                 }
                 catch (Exception e)
                 {
-                    return File(stream.ToArray(), e.ToString());
-
-                }
-            }
-
-
-
-
-            else // normal user 
-            {
-                var stream = new MemoryStream();
-                try
-                {
-                    var ProductList = SearchFun(obj);
-
-                    var sheet = new List<ProductExport>();
-
-                    foreach (var item in ProductList)
-                    {
-                        sheet.Add(new ProductExport() { Name = item.ProductName, Code = item.Code, DepartmentName = item.DepartmentName });
-
-                    }
-                    var ProdDT = Helper.GenerateDataTable(sheet.ToArray());
-
-                    using (var wb = new XLWorkbook())
-                    {
-                        wb.Worksheets.Add(ProdDT, "Product");
-
-                        wb.SaveAs(stream);
-                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "product.xlsx");
-
-                    }
-                }
-                catch (Exception e)
-                {
-                    return File(stream.ToArray(), e.ToString());
-
+                    return null;
                 }
 
-
-            }
         }
         #endregion
 
@@ -530,8 +468,16 @@ namespace AGMPOP.Web.Controllers
         {
             return View();
         }
+        
+        internal struct PhotoStruct
+        {
+            public byte[] Binary { get; set; }
+            public string GuidName { get; set; }
+            public PhotoStruct(ref byte[] binary, string guidName) => (Binary, GuidName) = (binary, guidName);
+        }
 
-        public JsonResult UploadFiles(IFormFile Zip, IFormFile ProductsExcelFile)
+        [PermissionNotRequired]
+        public async Task<JsonResult> UploadFiles(IFormFile Zip, IFormFile ProductsExcelFile)
         {
             var webRoot = _env.WebRootPath;
             string TempPath = Path.Combine(webRoot, "Uploads/Product/");
@@ -539,20 +485,16 @@ namespace AGMPOP.Web.Controllers
             #region upload zip file
 
             string ZipFileName = TempPath + Zip.FileName;
+            var photos = new Dictionary<string, PhotoStruct>();
             if (Path.GetExtension(ZipFileName).Equals(".zip"))
             {
-                using (var filestream = new FileStream(ZipFileName, FileMode.Create))
-                {
-                    Zip.CopyTo(filestream);
-                }
                 try
                 {
-                    using (var s = new ZipInputStream(System.IO.File.OpenRead(ZipFileName)))
+                    using (var s = new ZipInputStream(Zip.OpenReadStream()))
                     {
                         ZipEntry theEntry;
                         while ((theEntry = s.GetNextEntry()) != null)
                         {
-                            string directoryName = Path.GetDirectoryName(theEntry.Name);
                             string fileName = Path.GetFileName(theEntry.Name);
 
                             // create directory
@@ -562,24 +504,17 @@ namespace AGMPOP.Web.Controllers
                                 {
                                     continue;
                                 }
-
-
-                                using (FileStream streamWriter = System.IO.File.Create(TempPath + theEntry.Name))
+                                var size = theEntry.Size;
+                                var binary = new byte[size];
+                                int readBytes = 0;
+                                while (readBytes < size)
                                 {
-                                    var data = new byte[2048];
-
-                                    while (true)
-                                    {
-                                        int size = s.Read(data, 0, data.Length);
-
-                                        if (size > 0)
-                                            streamWriter.Write(data, 0, size);
-
-                                        else
-                                            break;
-
-                                    }
+                                    var read = s.Read(binary, readBytes, Convert.ToInt32(size));
+                                    readBytes += read;
                                 }
+                                var ext = Path.GetExtension(fileName);
+                                var guidName = Guid.NewGuid().ToString() + ext;
+                                photos.Add(fileName, new PhotoStruct(ref binary, guidName));
                             }
                         }
                     }
@@ -601,7 +536,7 @@ namespace AGMPOP.Web.Controllers
             // upload Sheet
             #region upload sheet
 
-            if (ProductsExcelFile.Length > 0)
+            if (ProductsExcelFile.Length > 0 && photos.Count > 0)
             {
                 // extract only the filename
                 var fileName = Path.GetFileName(ProductsExcelFile.FileName);
@@ -632,15 +567,15 @@ namespace AGMPOP.Web.Controllers
                             var rowsCount = rowRange.Count();
                             // to get first row
                             var firstrowRange = sheet.Rows(1, 2).ToList();
-                            var FirstRowcols = firstrowRange.ElementAt(0).Cells().ToList();
+                            var FirstRowcols = firstrowRange[0].Cells().ToList();
 
 
                             if (
-                                FirstRowcols.ElementAt(0).Value.ToString() == "Product Name" &&
-                                FirstRowcols.ElementAt(1).Value.ToString() == "Code" &&
-                                FirstRowcols.ElementAt(2).Value.ToString() == "Image Name" &&
-                                FirstRowcols.ElementAt(3).Value.ToString() == "Department" &&
-                                FirstRowcols.ElementAt(4).Value.ToString() == "Amount")
+                                FirstRowcols[0].Value.ToString() == "Product Name" &&
+                                FirstRowcols[1].Value.ToString() == "Code" &&
+                                FirstRowcols[2].Value.ToString() == "Image Name" &&
+                                FirstRowcols[3].Value.ToString() == "Department" &&
+                                FirstRowcols[4].Value.ToString() == "Amount")
                             {
 
                                 if (rowsCount < 1000)
@@ -663,23 +598,21 @@ namespace AGMPOP.Web.Controllers
 
                                         var cols = rowRange.ElementAt(i).Cells().ToList();
                                         if (
-                                            !string.IsNullOrEmpty(cols.ElementAt(0).Value.ToString())
-                                            && !string.IsNullOrEmpty(cols.ElementAt(1).Value.ToString())
-                                            && !string.IsNullOrEmpty(cols.ElementAt(2).Value.ToString())
-                                            && !string.IsNullOrEmpty(cols.ElementAt(3).Value.ToString())
-                                            && !string.IsNullOrEmpty(cols.ElementAt(4).Value.ToString())
-                                            && !string.IsNullOrEmpty(cols.ElementAt(5).Value.ToString())
+                                            !string.IsNullOrEmpty(cols[0].Value.ToString())
+                                            && !string.IsNullOrEmpty(cols[1].Value.ToString())
+                                            && !string.IsNullOrEmpty(cols[2].Value.ToString())
+                                            && !string.IsNullOrEmpty(cols[3].Value.ToString())
+                                            && !string.IsNullOrEmpty(cols[4].Value.ToString())
 
                                             )
                                         {
-                                            product.Name = (string)cols.ElementAt(0).Value;
-                                            product.InventoryQnty = Convert.ToDecimal(cols.ElementAt(5).Value);
+                                            product.InventoryQnty = Convert.ToDecimal(cols[4].Value);
                                             product.IsActive = true;
                                             product.CreatedDate = DateTime.Now;
                                             product.CreatedBy = LoggedUserId;
 
                                             // Department
-                                            var department = AllProduct.Where(p => p.Department.Name.ToLower() == (string)cols.ElementAt(4).Value.ToString().ToLower())
+                                            var department = AllProduct.Where(p => p.Department.Name.ToLower() == (string)cols[3].Value.ToString().ToLower())
                                                 .FirstOrDefault();
                                             if (department != null)
                                             {
@@ -690,67 +623,64 @@ namespace AGMPOP.Web.Controllers
                                                 reason += "Department not exist, ";
                                             }
 
+
                                             // end
-                                            // check unique name 
-                                            if (AllProduct.Where(p => p.DepartmentId == department.DepartmentId && p.Name == (string)cols.ElementAt(0).Value).FirstOrDefault() == null)
+                                            if (department != null)
                                             {
-                                                product.Name = (string)cols.ElementAt(0).Value;
-                                            }
-                                            else
-                                            {
-                                                reason += "Name already exist,";
-                                            }
-                                            //Code
-                                            if (AllProduct.Where(p => p.DepartmentId == department.DepartmentId  && p.Code == (string)cols.ElementAt(1).Value).FirstOrDefault() == null)
-                                            {
-                                                product.Code = (string)cols.ElementAt(1).Value;
-                                            }
-                                            else
-                                            {
-                                                reason += "Code already exist,";
+
+                                                // check unique name 
+                                                if (AllProduct.Where(p => p.DepartmentId == department.DepartmentId && p.Name == cols.ElementAt(0).Value.ToString()).FirstOrDefault() == null)
+                                                {
+                                                    product.Name = cols[0].Value.ToString();
+                                                }
+                                                else
+                                                {
+                                                    reason += "Name already exist, ";
+                                                }
+                                                //Code
+                                                if (AllProduct.Where(p => p.DepartmentId == department.DepartmentId && p.Code == cols[1].Value.ToString()).FirstOrDefault() == null)
+                                                {
+                                                    product.Code = cols[1].Value.ToString();
+                                                }
+                                                else
+                                                {
+                                                    reason += "Code already exist, ";
+                                                }
                                             }
 
 
                                             //End
 
-                                            //Type
-                                            //if (POPEnums.ProductType.BBO.ToString().ToLower() == cols.ElementAt(2).Value.ToString().ToLower())
-                                            //{
-                                            //    product.TypeId = (int)POPEnums.ProductType.BBO;
-                                            //}
-                                            //else if (POPEnums.ProductType.Product.ToString().ToLower() == (string)cols.ElementAt(2).Value.ToString().ToLower())
-                                            //{
-                                            //    product.TypeId = (int)POPEnums.ProductType.Product;
-
-                                            //}
-                                            //else
-                                            //{
-                                            //    reason += "Type not exist,";
-                                            //}
-                                            //End
 
                                             // image
-                                            if (System.IO.File.Exists(TempPath + cols.ElementAt(3).Value) == true)
+                                            string imageName = cols[2].Value.ToString();
+                                            if (photos.ContainsKey(imageName))
                                             {
-
-                                                // var uniqueId = Guid.NewGuid().ToString();
-
-                                                product.Image = @"\Uploads\Product\" + (string)cols.ElementAt(3).Value;
+                                                var photoStruct = photos[imageName];
+                                                var imagePath = Path.Combine("Uploads", "Product", photoStruct.GuidName);
+                                                var fullpath = Path.Combine(webRoot, imagePath);
+                                                try
+                                                {
+                                                    if (!System.IO.File.Exists(fullpath))
+                                                    {
+                                                        await System.IO.File.WriteAllBytesAsync(fullpath, photoStruct.Binary);
+                                                    }
+                                                    product.Image = @"\" + imagePath;
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    reason += "Failed to save image, ";
+                                                }
                                             }
                                             else
                                             {
-                                                reason += " Image not exist in product folder, ";
+                                                reason += "Image doesn't exist in zip file, ";
                                             }
-
                                             // end
-
-
-                                           
-
                                         }
-                                        else if (string.IsNullOrEmpty(cols.ElementAt(0).ToString()) || string.IsNullOrEmpty(cols.ElementAt(1).ToString()) || string.IsNullOrEmpty(cols.ElementAt(2).ToString()) || string.IsNullOrEmpty(cols.ElementAt(3).ToString()))
+                                        else if (string.IsNullOrEmpty(cols[0].ToString()) || string.IsNullOrEmpty(cols[1].ToString()) || string.IsNullOrEmpty(cols[2].ToString()) || string.IsNullOrEmpty(cols[3].ToString()))
                                         {
-                                            reason += " Empty Field,";
+                                            reason += "Empty Field, ";
                                         }
 
                                         if (string.IsNullOrEmpty(reason))
@@ -762,31 +692,22 @@ namespace AGMPOP.Web.Controllers
                                         }
                                         else
                                         {
-                                            err.Name = cols.ElementAt(0).Value.ToString();
-                                            err.Code = cols.ElementAt(1).Value.ToString();
-                                            //  err.Type = cols.ElementAt(2).Value.ToString();
-                                            err.Image = cols.ElementAt(3).Value.ToString();
+                                            err.Name = cols[0].Value.ToString();
+                                            err.Code = cols[1].Value.ToString();
+                                            err.Image = cols[3].Value.ToString();
                                             err.Reason = reason;
                                             lstErr.Add(err);
                                         }
                                     }
 
-                                    // export faild product
-                                    //if (lstErr.Count > 0)
-                                    //{
-                                    //    ExportFaildProduct(lstErr);
-                                    //}
-
                                     UnitOfWork.ProductBL.AddRange(productList);
                                     if (UnitOfWork.Complete(LoggedUserId) > 0)
                                     {
-
-
-                                        return Json(new { Ok = true, Message = "Uploaded successfully", err = lstErr });
+                                        return Json(new { Ok = true, Message = ApplicationMessages.SaveSuccess, err = lstErr });
                                     }
                                     else
                                     {
-                                        return Json(new { Ok = false, Message = "Incomplete Data", err = lstErr });
+                                        return Json(new { Ok = false, Message = "Failed to import products", err = lstErr });
                                     }
                                 }
 
@@ -801,7 +722,7 @@ namespace AGMPOP.Web.Controllers
 
                     catch (Exception ex)
                     {
-                        return Json(new { Ok = false, Message = "Error" + ex });
+                        return Json(new { Ok = false, Message = ApplicationMessages.ErrorOccure });
                     }
                 }
 
@@ -828,7 +749,6 @@ namespace AGMPOP.Web.Controllers
                         Name = p.Name,
                         Image = p.Image,
                         Reason = p.Reason,
-                        //Type = p.Type,
                     }).ToList();
 
                     var sheet = new List<ProductError>();

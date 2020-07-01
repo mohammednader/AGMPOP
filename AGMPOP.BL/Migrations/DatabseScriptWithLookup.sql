@@ -770,4 +770,5 @@ ALTER TABLE [dbo].[DataAudit]  WITH CHECK ADD  CONSTRAINT [FK_DataAudit_UserId] 
 REFERENCES [dbo].[AppUser] ([ID])
 GO
 
-
+/**** Rename Inactive in Territories to Active * mohammed salah  11 / 3/ 2020 */
+EXEC sp_RENAME 'Territories.Inactive' , 'IsActive', 'COLUMN'

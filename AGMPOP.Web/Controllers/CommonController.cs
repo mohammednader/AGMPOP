@@ -35,6 +35,7 @@ namespace AGMPOP.Web.Controllers
         public JsonResult GetAllJobTitles()
         {
             var jobtitles = UnitOfWork.JobTitleBL.GetAll();
+           // var jobtitles = UnitOfWork.JobTitleBL.GetAll().Where(j => j.Name.ToLower() != "admin");
             var response = jobtitles.Select(j => new { Id = j.JobTitleId, j.Name });
             return Json(response);
         }
@@ -79,7 +80,7 @@ namespace AGMPOP.Web.Controllers
                                                                 cu.Cycle.IsActive == true &&
                                                                 cu.Cycle.StartDate <= now &&
                                                                 cu.Cycle.EndDate >= now &&
-                                                                cu.Cycle.ReconciliationDate >= now &&
+                                                               // cu.Cycle.ReconciliationDate >= now &&
                                                                 cu.Cycle.Department.IsActive == true &&
                                                                 (LoggedIsSystemAdmin || (cu.UserId == LoggedUserId))
                                                             )

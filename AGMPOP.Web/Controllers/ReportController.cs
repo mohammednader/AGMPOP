@@ -17,6 +17,8 @@ using Newtonsoft.Json;
 using AGMPOP.Web.Auth;
 using AGMPOP.Web.Models.Inventory;
 using static AGMPOP.BL.Models.ViewModels.POPEnums;
+using Newtonsoft.Json.Linq;
+using AGMPOP.Web.Models.Audit;
 
 namespace AGMPOP.Web.Controllers
 {
@@ -34,20 +36,6 @@ namespace AGMPOP.Web.Controllers
         {
             ViewBag.userId = userId.Value;
             return View();
-        }
-        public PartialViewResult _TransactionReport()
-        {
-            try
-            {
-
-                var CycleTransaction = UnitOfWork.TransactionBL.GetAllTransaction().OrderByDescending(d => d.Date).ToList();
-                return PartialView(CycleTransaction);
-            }
-
-            catch (Exception e)
-            {
-                return PartialView(e);
-            }
         }
 
         [PermissionNotRequired]
@@ -68,9 +56,46 @@ namespace AGMPOP.Web.Controllers
             var result = new List<object>();
             foreach (var item in Enum.GetValues(typeof(POPEnums.TransactionStatus)).Cast<POPEnums.TransactionStatus>())
             {
-                result.Add(new { status = item.ToString(), id = (int)item });
+                result.Add(new { status = item.ToString().Replace("_", " "), id = (int)item });
             }
             return Json(result);
+        }
+
+
+        public List<TransactionCycle> SeachInTransaction(TransactionCycle form)
+        {
+            List<Transaction> data = null;
+            if (LoggedIsSystemAdmin)
+            {
+                data = UnitOfWork.TransactionBL.GetTransactionCycleDetails(form).ToList();
+            }
+            else // normal user 
+            {
+                data = UnitOfWork.TransactionBL.GetTransactionCycleDetails(form).
+                                               Where(d => d.Cycle.DepartmentId == LoggedUserDepartmentId)
+                                               .ToList();
+            }
+            var UserIds = data?.Select(t => t.CreatedById).ToList();
+
+            var AllUsers = UnitOfWork.AppUserBL.GetAllWithSystemAdmin(u => UserIds.Contains(u.Id)).ToList();
+            var SelectedData = data?
+                                 .Select(c => new TransactionCycle
+                                 {
+                                     CycleName = c.Cycle?.Name,
+                                     FromUserName = c.FromUser?.FullName,
+                                     Date = c.CreateDate?.ToString(),
+                                     Status = c.Status.GetValueOrDefault(),
+                                     Type = c.TransType.GetValueOrDefault(),
+                                     ToUserName = c.ToUser?.FullName,
+                                     TotalItem = c.TransactionDetail?.ToList(),
+                                     TransId = c.TransactionId,
+                                     //  CreatedBy = c.CreatedById.ToString()
+                                     CreatedBy = AllUsers
+                                                       .Where(u => u.Id == c.CreatedById)
+                                                       .Select(u => u.FullName)
+                                                       .FirstOrDefault()
+                                 }).OrderByDescending(t => t.Date).ToList();
+            return SelectedData;
         }
 
         [PermissionNotRequired]
@@ -90,30 +115,12 @@ namespace AGMPOP.Web.Controllers
                     {
                         ViewBag.showdata = 0;
                     }
-                    var data = UnitOfWork.TransactionBL.GetTransactionCycleDetails(form);
-                    var UserIds = data?.Select(t => t.CreatedById).ToList();
 
-                    var AllUsers = UnitOfWork.AppUserBL.Find(u => UserIds.Contains(u.Id)).ToList();
+                    // call search function
 
-                    var SelectedData = data?
-                                          .Select(c => new TransactionCycle
-                                          {
-                                              CycleName = c.Cycle?.Name,
-                                              FromUserName = c.FromUser?.FullName,
-                                              Date = c.CreateDate?.ToString(),
-                                              Status = c.Status.GetValueOrDefault(),
-                                              Type = c.TransType.GetValueOrDefault(),
-                                              ToUserName = c.ToUser?.FullName,
-                                              TotalItem = c.TransactionDetail?.ToList(),
-                                              TransId = c.TransactionId,
-                                              //  CreatedBy = c.CreatedById.ToString()
-                                              CreatedBy = AllUsers
-                                                                .Where(u => u.Id == c.CreatedById)
-                                                                .Select(u => u.FullName)
-                                                                .FirstOrDefault()
-                                          }).OrderByDescending(t => t.Date).ToList();
+                    var data = SeachInTransaction(form);
 
-                    return PartialView("_TransactionReport", SelectedData);
+                    return PartialView("_TransactionReport", data);
                 }
                 return PartialView("_TransactionReport", null);
             }
@@ -129,25 +136,21 @@ namespace AGMPOP.Web.Controllers
             var stream = new MemoryStream();
             try
             {
-                var data = UnitOfWork.TransactionBL.GetTransactionCycleDetails(form);
-
-                var SelectedData = data?
-                                      .Select(c => new TransactionCycle
-                                      {
-                                          CycleName = c.Cycle.Name,
-                                          FromUserName = c.FromUser.FullName,
-                                          Date = c.CreateDate.ToString(),
-                                          Status = c.Status.GetValueOrDefault(),
-                                          Type = c.TransType.GetValueOrDefault(),
-                                          ToUserName = c.ToUser.FullName,
-                                          TotalItem = c.TransactionDetail.ToList(),
-                                          TransId = c.TransactionId
-                                      }).ToList();
+                // call search function
+                var data = SeachInTransaction(form);
                 var sheet = new List<TransactionExport>();
 
-                foreach (var item in SelectedData)
+                foreach (var item in data)
                 {
-                    sheet.Add(new TransactionExport() { CycleName = item.CycleName, FromUserName = item.FromUserName, ToUser = item.ToUserName, Date = item.Date, Status = Enum.GetName(typeof(POPEnums.TransactionStatus), item.Status).ToString(), Type = Enum.GetName(typeof(POPEnums.TransactionTypes), item.Type), TotalItem = item.TotalItem.Count() });
+                    sheet.Add(new TransactionExport() {
+                        CycleName = item.CycleName??string.Empty, 
+                        FromUserName = item.FromUserName??string.Empty,
+                        ToUser = item.ToUserName??string.Empty,
+                        Date = item.Date, 
+                        Status = Enum.GetName(typeof(POPEnums.TransactionStatus),item.Status).ToString().Replace("_", " "),
+                        Type = Enum.GetName(typeof(POPEnums.TransactionTypes), item.Type),
+                        TotalItem = item.TotalItem.Count() 
+                    });
 
                 }
                 var ProdDT = Helper.GenerateDataTable(sheet.ToArray());
@@ -224,74 +227,29 @@ namespace AGMPOP.Web.Controllers
         }
         #endregion
 
-        #region _CycleSearch
-        [PermissionNotRequired]
-        public List<CycleVM> ReportSearchExport(CycleVM search)
-        {
-            var selectedIds = new List<int>();
-            if (!string.IsNullOrEmpty(search.SelectedTerritories))
-            {
-                selectedIds = search.SelectedTerritories
-                                   .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                   .Select(int.Parse)
-                                   .ToList();
-            }
-            var cycles = UnitOfWork.CyclesBL.CycleSearch(search, selectedIds);
-            var model = cycles.Select(f => new CycleVM
-            {
-                CycleId = f.CycleId,
-                Name = f.Name,
-                CycleType = f.Type,
-                StartDate = f.StartDate,
-                ReconciliationDate = f.EndDate,
-                EndDate = f.EndDate,
-                CycleStatus = f.Status,
-                CycleIsActive = f.IsActive,
-                DepartmentName = f.Department?.Name,
-                TotalItems = f.CycleProduct.Sum(d => d.Qunt).GetValueOrDefault()
-
-            }).ToList();
-            return model;
-        }
-        #endregion  
+       
 
         #region ExportCycleReport
         public FileResult ExportCycelReport(CycleVM form)
         {
-            var stream = new MemoryStream();
-
-            var List = ReportSearchExport(form);
-            var sheet = new List<CycleExport>();
-
-            foreach (var item in List)
-            {
-
-                sheet.Add(new CycleExport()
+            using (var stream = new MemoryStream())
+                try
                 {
-                    Name = item.Name,
-                    CycleType = Enum.GetName(typeof(POPEnums.CycleType), item.CycleType).ToString(),
-                    StartDate = item.StartDate,
-                    ReconciliationDate = item.ReconciliationDate,
-                    EndDate = item.EndDate,
-                    Status = Enum.GetName(typeof(POPEnums.CycleStatus), item.CycleStatus).ToString(),
-                    IsActive = (item.CycleIsActive == true) ? "Active" : "Inactive",
+                    var ListCycle = FilterCycle(form);
+                    var SheetCycle = ListCycle.Select(c => new CycleExport(c)).ToArray();
 
+                    var CycelReport = Helper.GenerateDataTable(SheetCycle);
 
-                    StockAmount = item.TotalItems
-                });
+                    using (var wb = new XLWorkbook())
+                    {
+                        wb.Worksheets.Add(CycelReport, "CyclesReport");
 
-            }
-            var CycelReport = Helper.GenerateDataTable(sheet.ToArray());
+                        wb.SaveAs(stream);
+                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "CyclesReport.xlsx");
 
-            using (var wb = new XLWorkbook())
-            {
-                wb.Worksheets.Add(CycelReport, "CyclesReport");
-
-                wb.SaveAs(stream);
-                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "CyclesReport.xlsx");
-
-            }
-
+                    }
+                }
+                catch (Exception e) { return null; }
         }
         #endregion
 
@@ -300,37 +258,53 @@ namespace AGMPOP.Web.Controllers
         [PermissionNotRequired]
         public PartialViewResult filterCyclesReport(CycleVM search)
         {
-
-            var selectedIds = new List<int>();
-            if (!string.IsNullOrEmpty(search.SelectedTerritories))
-            {
-                selectedIds = search.SelectedTerritories
-                                   .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                   .Select(int.Parse)
-                                   .ToList();
-            }
-            if (!LoggedIsSystemAdmin)
-            {
-                search.DepartmentIds.Add(LoggedUserDepartmentId);
-            }
-
-
-            var cycles = UnitOfWork.CyclesBL.CycleSearch(search, selectedIds);
-
-            var model = cycles.Select(f => new CycleVM(f))
-                              .ToList();
-
+            var model = FilterCycle(search);
             return PartialView("_CycleReport", model);
+        }
+        [PermissionNotRequired]
+        public IList<CycleVM> FilterCycle(CycleVM search) 
+        {
+            try
+            {
+                var selectedIds = new List<int>();
+                if (!string.IsNullOrEmpty(search.SelectedTerritories))
+                {
+                    selectedIds = search.SelectedTerritories
+                                       .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(int.Parse)
+                                       .ToList();
+                }
+                if (!LoggedIsSystemAdmin)
+                {
+                    search.DepartmentIds.Add(LoggedUserDepartmentId);
+                }
+
+
+                var cycles = UnitOfWork.CyclesBL.CycleSearch(search, selectedIds);
+                var model = cycles.Select(f => new CycleVM(f))
+                                 .ToList();
+                return model;
+            }
+            catch (Exception e)
+            {
+                return null;
+
+            }
 
         }
 
         #endregion
+
+        #region StockReportIndex
 
         public IActionResult StockReportIndex()
         {
             ViewBag.show = 1;
             return View();
         }
+        #endregion
+
+        #region SearchStock
 
         [PermissionNotRequired]
         public PartialViewResult SearchStock(ProductDTO obj, bool ShowUpdateBtns = false)
@@ -386,6 +360,50 @@ namespace AGMPOP.Web.Controllers
 
 
         }
+        #endregion
+        #region ExportInventoryReport
+        [PermissionNotRequired]
+        public FileResult ExportInventoryReport(ProductDTO obj)
+        {
+            using (var stream = new MemoryStream())
+                try
+                {
+                    var ProductList = UnitOfWork.ProductBL.FilterProducts(obj).Select(p => new ProductDTO
+                    {
+                        DepartmentName = p.Department.Name,
+                        ProductName = p.Name,
+                        InventoryQnty = p.InventoryQnty,
+                        ProductId = p.ProductId,
+                    }).ToArray();
+
+
+                    var LstToExport = ProductList
+                                        .Select(p => new InventoryExport(p))
+                                        .ToArray();
+
+
+                    var ProdDT = Helper.GenerateDataTable(LstToExport);
+
+                    using (var wb = new XLWorkbook())
+                    {
+                        wb.Worksheets.Add(ProdDT, "Inventory");
+
+                        wb.SaveAs(stream);
+                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Inventory.xlsx");
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    return File(stream.ToArray(), e.ToString());
+
+                }
+
+
+        }
+
+        #endregion
+        #region TransactionProductDetails
 
         public ViewResult TransactionProductDetails(int id)
         {
@@ -394,7 +412,8 @@ namespace AGMPOP.Web.Controllers
 
             var UserIds = productTrans?.Select(t => t.UserId).ToList();
 
-            var AllUsers = UnitOfWork.AppUserBL.Find(u => UserIds.Contains(u.Id)).ToList();
+            var AllUsers = UnitOfWork.AppUserBL.GetAllWithSystemAdmin(u => UserIds.Contains(u.Id));
+
             var model = productTrans.Select(f => new InventoryTransaction(f)
             {
                 createdBy = AllUsers
@@ -403,6 +422,7 @@ namespace AGMPOP.Web.Controllers
             });
             return View("../Inventory/TransactionProductDetails", model);
         }
+        #endregion
 
         #region Audit
         [PermissionNotRequired]
@@ -412,14 +432,14 @@ namespace AGMPOP.Web.Controllers
         }
 
         [PermissionNotRequired]
-
         public PartialViewResult _AuditReport(AuditSearchVM search)
         {
             List<AuditSearchVM> Data = new List<AuditSearchVM>();
-            var Result = UnitOfWork.IAuditBL.AuditSearch(search)
+            var Result = UnitOfWork.AuditBL.AuditSearch(search)
                                            .Select(au => new AuditSearchVM
                                            {
                                                UserName = au.User?.FullName,
+                                               AuditId = au.Id,
                                                Date = au.Date,
                                                ActionName = Enum.GetName(typeof(AuditActionType), au.ActionTypeId).ToString(),
                                                TableName = au.TableName,
@@ -430,6 +450,33 @@ namespace AGMPOP.Web.Controllers
             return PartialView(Result);
         }
         #endregion
+
+        #region AuditExport
+        [PermissionNotRequired]
+        public FileResult ExportAuditReport(AuditSearchVM search)
+        {
+            using (var stream = new MemoryStream())
+                try
+                {
+                    var Result = UnitOfWork.AuditBL.AuditSearch(search);
+                    var SheetAudit = Result.Select(c => new AuditExport(c)).ToArray();
+
+                    var CycelReport = Helper.GenerateDataTable(SheetAudit);
+
+                    using (var wb = new XLWorkbook())
+                    {
+                        wb.Worksheets.Add(CycelReport, "AuditReport");
+
+                        wb.SaveAs(stream);
+                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "AuditReport.xlsx");
+
+                    }
+                }
+                catch (Exception e) { return null; }
+        }
+        #endregion
+
+
 
     }
 }

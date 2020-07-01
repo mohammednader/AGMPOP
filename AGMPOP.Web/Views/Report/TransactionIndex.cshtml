@@ -51,12 +51,13 @@
                         <input asp-for="Product" class="form-control" />
                     </div>
                     <div class="col-12 text-right">
-                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
-                            Clear&nbsp; <i class="fa fa-trash"></i>
-                        </button>
                         <button id="btnsearch" type="button" class="btn btn-primary mt-3 px-4 ">
-                            Search&nbsp; <i class="fa fa-search"></i>
+                            Search&nbsp;&nbsp;<i class="fas fa-search"></i>
                         </button>
+                        <button type="button" class="btn btn-secondary px-4 mt-3" onclick="clearBTN()">
+                            Clear&nbsp;&nbsp;<i class="fas fa-times"></i>
+                        </button>
+
 
                     </div>
                 </div>
@@ -65,32 +66,26 @@
         </div>
     </div>
 </div>
-<div class="d-flex justify-content-end" >
-    <button type="button" id="btn_ExportTransactions" class="material-tooltip-main  btn   text-center  px-3 my-2 mr-0 waves-effect waves-light" onclick='ExportTransaction()' style="background-color:#080a2e; color:white;">
-        Export&nbsp;
 
-        <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:15px;"></i>
-    </button>
-</div>
-<div id="divResult"   class="card card-body"> 
+<div class="card card-body mt-3">
+   <div class="row">
+       <div class="col-12">
+           <div class="text-right">
+               <button type="button" id="btn_ExportTransactions" class="btn btn-success btn-md" onclick='ExportTransaction()'>
+                   Export&nbsp;&nbsp;
+                   <i class="fas fa-file-excel"></i>
+               </button>
+           </div>
+           <hr />
+       </div>
+   </div>
+    <div id="divResult">
 
+    </div>
 </div>
+
 
 <script>
-    //load partial
-    function LoadPartial() {
-        $.ajax({
-            url: '@Url.Action("_transactionReport")',
-            method: "Get",
-            success: (res) => {
-                if (res) {
-                    $("#divResult").html(res)
-                }
-            },
-            error: (e,x) => { console.log(e) }
-
-        })
-    }
     //load types
     function LoadTypes() {
         $("#types").empty();
@@ -139,32 +134,38 @@
 
 
     //Search criteria
-    function SearchWithParameter() {
+    function SearchWithParameter(e) {
+          if (e) {
+            e.preventDefault();
+            e.returnValue = false;
+        }
         var form = $("#transactionReport").serialize();
         $.ajax({
             url: '@Url.Action("Search")?' + form,
-            method: "Get",
+            type: "Get",
             success: (res) => {
-                $("#divResult").html(res)
+                if (res) {
+                      $("#divResult").html(res);
+             
+                }
+              
             },
-            error: () => { }
-
-
         });
     }
 
 
-    $(() =>{
+    $(() => {
+        geturlName();
         SearchWithParameter();
-      //  LoadPartial();
         LoadTypes();
         LoadStatus();
-        geturlName();
-      
+       
         $("#btnsearch").on("click", SearchWithParameter);
     });
 
 </script>
+
+@* Export sheet *@
 <script>
     async function ExportTransaction() {
         var form = $("#transactionReport").serialize();
@@ -204,7 +205,7 @@
         });
     }
 </script>
-
+@* Get parmater from URL *@
 <script>
 
     //get query string value
@@ -257,10 +258,10 @@
     }
 
 </script>
+@* Clear button with default value *@
 <script>
 
     function clearBTN() {
-        console.log("reset");
         $("#transactionReport").resetForm();
         $(".default").attr('selected', true);
          SearchWithParameter();

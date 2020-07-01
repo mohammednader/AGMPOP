@@ -140,7 +140,7 @@ namespace AGMPOP.BL.Repositories
             catch { }
             return result;
         }
-
+       
         public override void Remove(Role role)
         {
             try
@@ -149,6 +149,26 @@ namespace AGMPOP.BL.Repositories
                 base.Remove(role);
             }
             catch { }
+        }
+
+        public bool IsRelatedToUser(int roleId)
+        {
+            try
+            {
+                var result = Context.Role
+                                        .Include(r => r.LnkUserRole)
+                                        .Where(r => r.Id == roleId && r.LnkUserRole.Any()).ToList();
+                                        
+                if(result.Count()>0)
+                {
+                  return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch { return false; }
         }
     }
 }

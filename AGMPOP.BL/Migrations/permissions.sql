@@ -18,7 +18,7 @@ INSERT [dbo].[Permission] ([ID], [Name], [DisplayName], [Description], [ParentID
 GO
 INSERT [dbo].[Permission] ([ID], [Name], [DisplayName], [Description], [ParentID], [Order], [PermissionType], [PermissionURL], [StyleClass], [IsDeleted]) VALUES (9, N'department-index', N'Departments', NULL, 1, 5, 1, N'/department', NULL, NULL)
 GO
-INSERT [dbo].[Permission] ([ID], [Name], [DisplayName], [Description], [ParentID], [Order], [PermissionType], [PermissionURL], [StyleClass], [IsDeleted]) VALUES (10, N'product-index', N'BBos & Products', NULL, 1, 6, 1, N'/product', NULL, NULL)
+INSERT [dbo].[Permission] ([ID], [Name], [DisplayName], [Description], [ParentID], [Order], [PermissionType], [PermissionURL], [StyleClass], [IsDeleted]) VALUES (10, N'product-index', N'Products', NULL, 1, 6, 1, N'/product', NULL, NULL)
 GO
 INSERT [dbo].[Permission] ([ID], [Name], [DisplayName], [Description], [ParentID], [Order], [PermissionType], [PermissionURL], [StyleClass], [IsDeleted]) VALUES (11, N'inventory-index', N'Inventory', NULL, 1, 7, 1, N'/inventory', NULL, NULL)
 GO

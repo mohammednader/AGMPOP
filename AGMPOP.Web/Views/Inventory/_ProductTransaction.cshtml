@@ -1,36 +1,26 @@
 ﻿@model List<AGMPOP.BL.Models.ViewModels.ProductDTO>
 
 <div class="row">
-    <div class="col-12 text-right my-1 ">
-
-
-
-        <button type="button" class="material-tooltip-main  btn   text-center  px-3 waves-effect waves-light mr-0  " style="background-color:#080a2e; color:white;" onclick='ExportInventory()'>
+    <div class="col-12 text-right">
+        <button type="button" class="btn btn-success btn-md" onclick='ExportInventory()'>
             Export&nbsp;
 
-            <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:15px;"></i>
+            <i class="fas fa-file-excel" ></i>
         </button>
-
+        <hr />
     </div>
 </div>
 
-
-
-
 <div class="row">
     <div class="col-md-12">
-        <div class="card card-body">
-
-
-
-            <table id="dtBasicExample" class="table table-responsive-sm table-responsive-md table-striped table-bordered" cellspacing="0" width="100%">
+            <table id="dtBasicExample" class="table table-responsive-sm table-striped" cellspacing="0" >
                 <thead>
                     <tr>
-                        <th data-field="photo" class="text-center">Photo</th>
-                        <th data-field="name" data-sortable="true" class="w-25 text-center">Name</th>
-                        <th data-field="quantity" class="text-center">quantity</th>
-                        <th data-field="DepartmentId" class="text-center">Department</th>
-                        <th class="td-actions text-center" style="width:300px;">Actions</th>
+                        <th data-sortable="false" data-field="photo" class="text-center"></th>
+                        <th data-field="name" data-sortable="true">Name</th>
+                        <th data-field="quantity">quantity</th>
+                        <th data-field="DepartmentId">Department</th>
+                        <th class="td-actions text-center" data-sortable="false">Actions</th>
 
                     </tr>
                 </thead>
@@ -44,28 +34,26 @@
                             {
                                 <tr>
                                     <td class="text-center">
-                                        <div class="img-container">
-                                            <img class="img-circle" src="@item.Image" style="border-radius:5%;height:40px; width:40px;" />
-                                        </div>
+                                        <div class="img-circle product-img" style="background-image:url('@item.Image.Replace(@"\", "/")');" />
                                     </td>
-                                    <td class="text-center">
-                                        <a class="btn-link font-weight-bold" style="text-decoration:underline" onclick="ShowProductDetails(@item.ProductId)">@item.ProductName</a>
+                                    <td>
+                                        <b><a class="btn-link text-primary" onclick="ShowProductDetails(@item.ProductId)">@item.ProductName</a></b>
 
                                     </td>
                                     @if (item.ShowUpdateBtns == true)
                                     {
                                         <td>
-                                            <input type="number" class="form-control" style="width:250px; margin-left:10px" value="@item.InventoryQnty" id="@item.ProductId" onclick="changeQuantity(@item.InventoryQnty)" disabled />
+                                            <input type="number" class="form-control" data-toggle="tooltip" title="Please enter greater than this number" style="width:250px; margin-left:10px" value="@item.InventoryQnty" id="@item.ProductId" onclick="changeQuantity(@item.InventoryQnty)" disabled />
                                             <input id="temp" type="hidden" value="@item.InventoryQnty" />
                                         </td>
                                     }
                                     else
                                     {
-                                        <td class="text-center">
+                                        <td>
                                             <p>@item.InventoryQnty</p>
                                         </td>
                                     }
-                                    <td class="text-center">
+                                    <td>
 
                                         <p>@item.DepartmentName</p>
 
@@ -73,22 +61,24 @@
 
 
                                     <td class="text-center">
-                                        <a href="@Url.Action("TransactionProductDetails", "Inventory", new { id = item.ProductId })" target="_blank" class="material-tooltip-main btn-warning  btn btn-floating my-0 p-0" data-toggle="tooltip" title="View log"> <i class="fas fa-info-circle " style="font-size:15px; margin-top:-5px;"></i></a>
+
+                                        <a href="@Url.Action("TransactionProductDetails", "Inventory", new { id = item.ProductId })" target="_blank" class="material-tooltip-main btn-warning btn-floating btn-sm m-1" data-toggle="tooltip" title="View Transaction">
+                                        <i class="fas fa-list"></i></a>
 
                                         @if (item.ShowUpdateBtns == true)
                                         {
 
-                                            <button class="material-tooltip-main btn-primary  btn btn-floating my-0 p-0" data-toggle="tooltip" title="Edit" id="@(item.ProductId + "edit")" onclick="javascript:editQunt(@item.ProductId)">
-                                                <i class="fas fa-edit " style="font-size:15px; margin-top:-5px;"></i>
+                                            <button class="material-tooltip-main btn-primary btn-floating btn-sm m-1" data-toggle="tooltip" title="Edit" id="@(item.ProductId + "edit")" onclick="javascript:editQunt(@item.ProductId)">
+                                                <i class="fas fa-pencil-alt"></i>
                                             </button>
 
 
-                                            <button class="material-tooltip-main btn-danger  btn btn-floating my-0 p-0 d-none" data-toggle="tooltip" title="Cancel" id="@(item.ProductId + "cancle")" onclick="cancelQunt(@item.ProductId)">
-                                                <i class="fas fa-times-circle " style="font-size:15px; margin-top:-5px;"></i>
+                                            <button class="material-tooltip-main btn-danger  btn-floating btn-sm d-none m-1" data-toggle="tooltip" title="Cancel" id="@(item.ProductId + "cancle")" onclick="cancelQunt(@item.ProductId)">
+                                                <i class="fas fa-times"></i>
                                             </button>
 
-                                            <button class="material-tooltip-main btn-success  btn btn-floating my-0 p-0 d-none" data-toggle="tooltip" title="Save" id="@(item.ProductId + "save")" onclick="saveQunt(@item.ProductId)">
-                                                <i class="fas fa-save " style="font-size:15px; margin-top:-5px;"></i>
+                                            <button class="material-tooltip-main btn-success btn-floating btn-sm d-none m-1" data-toggle="tooltip" title="Save" id="@(item.ProductId + "save")" onclick="saveQunt(@item.ProductId)">
+                                                <i class="fas fa-check"></i>
                                             </button>
                                         }
                                     </td>
@@ -111,18 +101,11 @@
 
             </table>
 
-
-
-        </div><!--  end card  -->
-
-
     </div> <!-- end col-md-12 -->
 </div> <!-- end row -->
 @*pagination*@
 <script type="text/javascript">
-    $(function () {
-        $('.material-tooltip-main').tooltip();
-    })
+   
     var $table = $('#cycles-table');
     $table.bootstrapTable({
         toolbar: ".toolbar",
@@ -162,6 +145,7 @@
 </script>
 
 <script>
+    var show = 0;
     function TransactionProduct(id) {
 
         window.location.href = "Inventory/TransactionProductDetails/" + id;
@@ -182,14 +166,16 @@
 
     @* Edite Button partial view *@
     function editQunt(id) {
+        if (show == 0) {
+            $("#" + id).prop('disabled', false);
+            $("#" + id + "save").toggleClass('d-inline');
+            $("#" + id + "edit").toggleClass('d-none');
+            $("#" + id + "cancle").toggleClass('d-inline');
+            $("#msg").addClass('d-none');
 
-        $("#" + id).prop('disabled', false);
-        $("#" + id + "save").toggleClass('d-inline');
-        $("#" + id + "edit").toggleClass('d-none');
-        $("#" + id + "cancle").toggleClass('d-inline');
-        $("#msg").addClass('d-none');
-
-        changeQunt(id);
+            changeQunt(id);
+        }
+         show = 1;
     }
 
     @* cancle Button partial view *@
@@ -203,7 +189,7 @@
         $("#msg").addClass('d-none');
 
         $("#" + id).prop('disabled', true);
-
+          show = 0;
 
     }
 
@@ -216,7 +202,7 @@
 
     @* update Qauntity *@
     function saveQunt(id) {
-
+        show = 0;
         if (!$("#" + id).val()) {
 
             $("#msg").css('display', 'inline-block');
@@ -249,7 +235,9 @@
 
                                 }
                                 else {
-                                    swal.fire({
+                                     var temp = $("#temp").val();
+                                     $("#" + id).val(temp);
+                                     swal.fire({
                                         text: data.message,
                                         icon: 'error',
 
@@ -279,7 +267,6 @@
                 swal.fire({
                     text: 'Nothing has changed !!',
                     icon: 'info',
-                    buttonsStyling: false
                 });
                 $("#" + id + "save").toggleClass('d-inline');
                 $("#" + id + "edit").toggleClass('d-none');
@@ -298,12 +285,15 @@
 
 
 <script>
-
+    $(function () {
+        $('.material-tooltip-main').tooltip();
+    })
 
     async function ExportInventory() {
 
         var now = moment().format();
-         fetch('@Url.Action("ExportInventory")', {
+        var form = $('#inventory').serialize();
+         fetch('@Url.Action("ExportInventory")?'+form, {
              method: 'get',
 
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

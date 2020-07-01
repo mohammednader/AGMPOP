@@ -7,9 +7,9 @@
         foreach (var prod in Model)
         {
             <tr>
-                <td class="img-warp text-center">
-                    <img src="@prod.ProductImg" style="height:40px; width:40px;" />
-
+                <td class="text-center" width="100">
+                    <div class="img-circle product-img" style="background-image:url('@prod.ProductImg.Replace(@"\", "/")');" />
+                    
                 </td>
                 <td>
                     @prod.ProductName
@@ -18,7 +18,7 @@
                 @{
                     if (ViewBag.IsRequest == true)
                     {
-                        <td class="text-center d-flex">
+                        <td class="text-center">
 
                             <input style="width:100px;" name="@prod.ProductName" id="@prod.ProductId" class="form-control mx-auto valid product" placeholder="0" value="0" min="0" oninput="this.value = Math.abs(this.value)" type="number" />
 
@@ -27,7 +27,7 @@
                     else
                     {
 
-                        <td class="text-center d-flex">
+                        <td class="text-center">
                             <input style="width:100px;" name="@prod.ProductName" id="@prod.ProductId" data-trans="@prod.InventoryQuantity" class="form-control mx-auto valid product" onkeyup="checkValues(event)" placeholder="0" value="0" min="0" oninput="this.value = Math.abs(this.value)" type="number" />
 
                         </td>

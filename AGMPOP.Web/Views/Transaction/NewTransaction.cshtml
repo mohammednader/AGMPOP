@@ -48,7 +48,7 @@
     <div class="text-right">
 
         <button id="save" type="button" style="display:none;" class="btn px-4 btn-primary about text-center mr-0" onclick="javascript:AddTransaction()">
-            Add
+            Save
         </button>
     </div>
 </form>
@@ -64,7 +64,7 @@
             $('#divResult').html(''); $('#divResultNew').html('');
             $(".DfooterProduct").hide();
             $(".Dfooter").hide( );
-$("#save").hide( );
+            $("#save").hide();
              getCycleUser();
 
 
@@ -204,7 +204,7 @@ $("#save").hide( );
 
         var Arr = [];
         var checkValues = 0;
-        var myTrackingContent = "<table class='table table-bordered' width='100%'>"
+        var myTrackingContent = " <div class='text-center mb-3'>  <h3>Review & Confirm </h3></div> <table class='table table-bordered' width='100%'>"
         //Adding Dynamic products from Action controller To DOM
         $(".product").each(function (i, item) {
             var id = item.id;
@@ -213,7 +213,7 @@ $("#save").hide( );
             if (val > 0) {
                 checkValues++;
                 Arr.push(id + ":" + val);
-                myTrackingContent += "<tr><td class='text-left'><span>" + name + "</span></td> <td><span>" + val + "</span></td></tr>";
+                myTrackingContent += "<tr><td class='text-center'><span>" + name + "</span></td> <td><span>" + val + "</span></td></tr>";
             }
         });
 
@@ -221,11 +221,9 @@ $("#save").hide( );
         myTrackingContent += "</table>";
         if (checkValues > 0) {
 
-            swal.fire({
-                text: "Review & Confirm",
-
+            swal.fire({ 
                 html: myTrackingContent,
-                icon: 'warning',
+                icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: 'Ok',
 

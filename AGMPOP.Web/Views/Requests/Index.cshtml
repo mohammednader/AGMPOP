@@ -8,50 +8,49 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+<div class="row">
+    <div class="col-12 text-right">
+        <button type="button" class="btn btn-primary btn-md" onclick="location.href='@Url.Action("NewRequest", "Requests" )'">
+            Add Request&nbsp; <i class="fas fa-plus"></i>
+        </button>
+
+
+    </div>
+</div>
 <div class="card card-body mt-2 pb-1">
 
     <form data-ajax="true" data-ajax-mode="Replace" data-ajax-update="#PartialRequests" asp-action="RequestSearch" asp-controller="Requests" method="post" enctype="multipart/form-data">
 
         <div class="row">
 
-            <div class="col-lg-3 mb-2">
-                <input placeholder="From Date" name="CreateDate" class="datepicker form-control" id="from_Date" />
-
-
-            </div>
-            <div class="col-lg-2 mb-2">
-                <input placeholder="To Date" class="datepicker form-control" name="to_Date" id="to_Date" />
-
-
+            <div class="col-md-2">
+                <input placeholder="From Date" name="fromDate" class="datepicker form-control mt-2" id="from_Date" />
 
             </div>
-            <div class="col-lg-2">
-                <select class="mdb-select" title="Req Status" name="Status" id="Req_status">
+            <div class="col-md-2">
+                <input placeholder="To Date" class="datepicker form-control mt-2" name="toDate" id="to_Date" />
+            </div>
+            <div class="col-md-2">
+                <select class="mdb-select mt-2" title="Req Status" name="status" id="Req_status">
                     <option value="" selected disabled>Select Status</option>
                     <option value="false">Pending</option>
                     <option value="true">Received</option>
                 </select>
             </div>
-            <div class="col-lg-5 text-right">
-                <button type="button" class="material-tooltip-main  btn btn-danger  text-center ml-0 mt-0 px-3 waves-effect waves-light" onclick="location.href='@Url.Action("Index", "Requests")'">
-                    Clear &nbsp; <i class="fal  fa-trash fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary btn-md">
+                    Search&nbsp;&nbsp;<i class="fa fa-search"></i>
                 </button>
-
-                <button type="submit" class=" material-tooltip-main  btn btn-primary  text-center ml-0 mt-0 px-3 waves-effect waves-light">
-                    Search &nbsp; <i class="fal fa-search fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
+                <button type="button" class="btn btn-secondary btn-md" onclick="location.href='@Url.Action("Index", "Requests")'">
+                    Clear&nbsp;&nbsp;<i class="fa fa-times"></i>
                 </button>
-
-                <button type="button" class="material-tooltip-main  btn btn-primary  text-center mr-0 ml-0 mt-0 px-3 waves-effect waves-light " onclick="location.href='@Url.Action("NewRequest", "Requests" )'">
-                    Add Request &nbsp; <i class="fal  fa-plus fa-align-center" style="vertical-align: middle !important; font-size:20px;"> </i>
-                </button>
-
-
             </div>
+            
         </div>
     </form>
 </div>
 
-<div id="PartialRequests" class="mt-2">
+<div id="PartialRequests" class="mt-3">
 
 </div>
  

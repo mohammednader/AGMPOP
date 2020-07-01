@@ -2,6 +2,7 @@
 using AGMPOP.BL.Models.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace AGMPOP.BL.CoreBL.IRepositories
@@ -21,6 +22,7 @@ namespace AGMPOP.BL.CoreBL.IRepositories
         List<AppUser> GetHrUsers(List<int> selectedusers);
         bool UserAssignToJobTitle(int id);
         AppUser GetUserWithDetails(int userId);
+        List<AppUser> GetAllWithSystemAdmin(Expression<Func<AppUser, bool>> predicate = null);
 
 
     }

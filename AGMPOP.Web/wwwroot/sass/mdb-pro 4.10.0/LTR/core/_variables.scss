@@ -196,11 +196,11 @@ $btn-font-size-large                         : .94rem !default;
 
 $btn-padding-y-medium                        : .7rem !default;
 $btn-padding-x-medium                        : 1.6rem !default;
-$btn-font-size-medium                        : .7rem !default;
+$btn-font-size-medium                        : .85rem !default; 
 
 $btn-padding-y-small                         : .5rem !default;
 $btn-padding-x-small                         : 1.6rem !default;
-$btn-font-size-small                         : .64rem !default;
+$btn-font-size-small                         : .7rem !default;
 
 $btn-outline-padding-y-basic                 : .7rem !default;
 $btn-outline-padding-y-large                 : .88rem !default;
@@ -444,7 +444,7 @@ $list-group-transition                       : .5s !default;
 // ===========================================================================
 
 // Tables
-$table-th-font-size                          : .9rem !default;
+$table-th-font-size                          : 1rem !default;
 $table-td-font-size                          : $table-th-font-size !default;
 $table-th-padding-top                        : 1.1rem !default;
 $table-td-padding-bottom                     : 1rem !default;

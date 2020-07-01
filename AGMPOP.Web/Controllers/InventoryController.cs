@@ -94,7 +94,7 @@ namespace AGMPOP.Web.Controllers
 
             var UserIds = productTrans?.Select(t => t.UserId).ToList();
 
-            var AllUsers = UnitOfWork.AppUserBL.Find(u => UserIds.Contains(u.Id)).ToList();
+            var AllUsers = UnitOfWork.AppUserBL.GetAllWithSystemAdmin(u => UserIds.Contains(u.Id));
             var model = productTrans.Select(f => new InventoryTransaction(f)
             {
                 createdBy = AllUsers
@@ -119,8 +119,8 @@ namespace AGMPOP.Web.Controllers
                     var product = UnitOfWork.InventoryLogBL.GetProductsWithTransaction(id).FirstOrDefault();
                     if (product != null)
                     {
-                        int ProductQuantity = int.Parse(Qunt);
-                        if (product.InventoryQnty < Quantity)
+                        //int ProductQuantity = int.Parse(Qunt);
+                        if (product.InventoryQnty.Value < Quantity)
                         {
                             product.InventoryLog.Add(
                                                       new InventoryLog
@@ -136,9 +136,6 @@ namespace AGMPOP.Web.Controllers
 
                             product.InventoryQnty = Quantity;
                             UnitOfWork.ProductBL.Update(product);
-
-
-
 
                             if (UnitOfWork.Complete(LoggedUserId) > 0)
                             {
@@ -170,66 +167,43 @@ namespace AGMPOP.Web.Controllers
             }
         }
 
-        //[PermissionNotRequired]
-        //public JsonResult GetAllDept()
-        //{
-        //    //Get ALL Dept in dropdown
-
-        //    var Depts = UnitOfWork.DepartmentBL.GetAll().Select(c => new { id = c.Id, name = c.Name }).ToArray();
-
-        //    return Json(Depts);
-        //}
-
-        //[PermissionNotRequired]
-        //public JsonResult GetAllTypes()
-        //{
-        //    //Get ALL Types in dropdown
-
-        //    var Types = UnitOfWork.ProductBL.ProductTypeList();
-        //    return Json(Types);
-        //}
 
         [HttpGet]
-        public FileResult ExportInventory()
+        public FileResult ExportInventory(ProductDTO obj)
         {
-            var stream = new MemoryStream();
-            try
-            {
-                var ProductList = UnitOfWork.ProductBL.GetAllProductList().Select(p => new ProductDTO
+            using (var stream = new MemoryStream())
+                try
                 {
+                    var ProductList = UnitOfWork.ProductBL.FilterProducts(obj).Select(p => new ProductDTO
+                    {
+                        DepartmentName = p.Department.Name,
+                        ProductName = p.Name,
+                        InventoryQnty = p.InventoryQnty,
+                        ProductId = p.ProductId,
+                    }).ToArray();
 
-                    Code = p.Code,
-                    CreatedBy = p.CreatedBy,
-                    Image = p.Image,
-                    DepartmentName = p.Department.Name,
-                    // typeId = p.TypeId,
-                    ProductName = p.Name,
-                    InventoryQnty = p.InventoryQnty,
-                    ProductId = p.ProductId,
 
-                }).ToList();
-                var listToExport = new List<InventoryExport>();
+                    var LstToExport = ProductList
+                                        .Select(p => new InventoryExport(p))
+                                        .ToArray();
 
-                foreach (var item in ProductList)
-                {
-                    listToExport.Add(new InventoryExport() { ProductName = item.ProductName, Quantity = item.InventoryQnty ?? 0, DepartmentName = item.DepartmentName });
+
+                    var ProdDT = Helper.GenerateDataTable(LstToExport);
+
+                    using (var wb = new XLWorkbook())
+                    {
+                        wb.Worksheets.Add(ProdDT, "Inventory");
+
+                        wb.SaveAs(stream);
+                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Inventory.xlsx");
+
+                    }
                 }
-                var ProdDT = Helper.GenerateDataTable(listToExport.ToArray());
-
-                using (var wb = new XLWorkbook())
+                catch (Exception e)
                 {
-                    wb.Worksheets.Add(ProdDT, "Inventory");
-
-                    wb.SaveAs(stream);
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Inventory.xlsx");
+                    return File(stream.ToArray(), e.ToString());
 
                 }
-            }
-            catch (Exception e)
-            {
-                return File(stream.ToArray(), e.ToString());
-
-            }
 
 
 

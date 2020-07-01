@@ -23,10 +23,12 @@ namespace AGMPOP.BL.Models.ViewModels
         [Display(Name = "End Date")]
 
         public string EndDate { get; set; }
+        [Display(Name = "Action")]
 
         public List<int?> Actions { get; set; }
 
        
+        public int AuditId { get; set; }
         public string SessionId { get; set; }
         public string UserName{ get; set; }
         public string TableName { get; set; }
@@ -35,6 +37,7 @@ namespace AGMPOP.BL.Models.ViewModels
         public string OldData { get; set; }
         public string NewData { get; set; }
         public DateTime? Date { get; set; }
+        
 
 
     }

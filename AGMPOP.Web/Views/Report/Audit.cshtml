@@ -4,9 +4,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class=" card px-3 py-1 m-0  mb-2  accordion">
+<div class=" card px-3 py-1 mt-2  mb-2  accordion">
     <div class="" style="overflow: visible">
-        <div class="d-flex justify-content-between  "
+        <div class="d-flex justify-content-between  collapsed"
              data-toggle="collapse"
              href="#divCollapseSearch"
              role="button"
@@ -18,46 +18,47 @@
 
         </div>
 
-        <div id="divCollapseSearch" class="collapse">
+        <div id="divCollapseSearch" class="collapse show">
             <hr /><br />
-            <form id="formSearchCycles">
+            <form id="formSearchCycles" class="pl-3 pr-3">
                 <input type="hidden" id="hfTerritories" name="SelectedTerritories" />
 
                 <div class="row">
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="DepartmentIds"></label>
                         <select asp-for="DepartmentIds" class="mdb-select" multiple Searchable="Search here...">
                             <option class="default" value="" selected disabled>Select depatrtment</option>
                         </select>
                     </div>
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Users"></label>
                         <select asp-for="Users" class="mdb-select" multiple Searchable="Search here...">
                             <option value="" selected disabled>Select user</option>
                         </select>
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="StartDate"></label>
                         <input name="startDate" class="form-control datetimepicker2" />
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="EndDate"></label>
                         <input name="endDate" class="form-control datetimepicker2" />
                     </div>
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Actions"></label>
                         <select asp-for="Actions" class="mdb-select" multiple Searchable="Search here...">
                         
                         </select>
                     </div>
-                    <div class="col-12 text-right">
-                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
-                            Clear
+                    <div class="col-9 text-right">
+                        <div style="height:23px;"></div>
+                        <button type="submit" class="btn mr-0  btn-primary btn-md">
+                            Search&nbsp;&nbsp;<i class="fas fa-search"></i>
                         </button>
-                        <button type="submit" class="btn mr-0  btn-primary px-3">
-                            Search
+                        <button type="button" class="btn btn-secondary btn-md" onclick="clearBTN()">
+                            Clear&nbsp;&nbsp;<i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
@@ -66,22 +67,48 @@
         </div>
     </div>
 </div>
- <div id="divResult"></div>
+ <div id="divResult">
+
+ </div>
+
+ <div class="modal fade" id="auditDataModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+     <div class="modal-dialog" role="document">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h4 class="modal-title">Data Audit</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                     <span aria-hidden="true">&times;</span>
+                 </button>
+             </div>
+             <div class="modal-body">
+                 <table id="old-data" class="table table-bordered">
+                     <thead><tr><th class="text-center">Key</th><th class="text-center">Value</th></tr></thead>
+
+                     <tbody></tbody>
+                 </table>
+
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+             </div>
+
+         </div>
+     </div>
+ </div>
 
 <script>
 
     function getUsersPerDepart() {
         var department = $("#DepartmentIds").val();
          $('#Users').empty();
-         $('#Users').append('<option  class="default" value="" selected disabled>Select Users</option>');
+         $('#Users').append('<option class="default" value="" selected disabled>Select User</option>');
 
           $.ajax({
                 url: `@Url.Action("GetAllUsers","Cycles")?department=${department}`,
               method: 'GET',
               async: false,
               success: response => {
-                  console.log(response.items);
-                  var data = response.items;
+                   var data = response.items;
                   if (data) {
                       if (data && data.length) {
 
@@ -96,7 +123,7 @@
 
      function getAllDepartments() {
         $('#DepartmentIds').empty();
-        $('#DepartmentIds').append('<option  class="default" value="" selected disabled>Select Department</option>');
+        $('#DepartmentIds').append('<option class="default" value="" selected disabled>Select Department</option>');
 
         $.ajax({
             url: '@Url.Action("GetAllDepartments", "Common")',
@@ -113,7 +140,7 @@
 
          function getAllAuditActions() {
              $('#Actions').empty();
-             $('#Actions').append('<option  class="default" value="" selected disabled>Select Action</option>');
+             $('#Actions').append('<option class="default" value="" selected disabled>Select Action</option>');
 
         $.ajax({
             url: '@Url.Action("GetAllAuditAction", "Common")',
@@ -127,31 +154,7 @@
             }
         });
     }
-
-    @*function getUsersPerDepart() {
-        var department = $("#DepartmentIds").val();
-        var $list = $("#Users");
-
-        $list.find("option").remove();
-        if (department) {
-            $.ajax({
-                url: `@Url.Action("GetAllUsers","Cycles")?department=${department}`,
-                method: 'Get',
-                success: function (res) {
-                    console.log(res);
-                    if (res && res.length) {
-                        res.forEach(j => {
-                            $('#Users').append(`<option value="${j.id}">${j.name}</option>`);
-                        });
-                    }
-                },
-                error: function (e) {
-                    console.log("error" + e)
-                }
-            })
-        }
-
-    }*@
+ 
 
     function auditSearch(e) {
         if (e) {
@@ -159,13 +162,11 @@
             e.returnValue = false;
         }
         var form = $("#formSearchCycles").serialize();
-        console.log(form);
-        $.ajax({
+         $.ajax({
             url: "/report/_AuditReport?" + form,
             type: "GET",
             success: (res) => {
-                console.log(res);
-                if (res) {
+                 if (res) {
                     $("#divResult").html(res);
 
                 }
@@ -188,4 +189,73 @@
         $("#formSearchCycles").on("submit", auditSearch);
     });
 
+</script>
+
+<script>
+
+    function ViewData(data) {
+        $('#old-data tbody').empty();
+        var obj =/* JSON.parse(*/data//);
+        for (let [key, value] of Object.entries(obj)) {
+            $('#old-data tbody').append('<tr><td class="text-center">' + key + '</td><td class="text-center">' + value + '</td></tr>');
+        }
+        $("#auditDataModal").modal("show");
+    }
+</script>
+
+<!--reset feilds -->
+<script>
+    function clearBTN() {
+        console.log("reset");
+        $("#formSearchCycles").resetForm();
+        $(".default").attr('selected', true);
+        FilterCycles();
+    }
+
+</script>
+
+<!-- Export Audit-->
+<script>
+
+
+    async function ExportAudit() {
+
+        var now = moment().format();
+        var form = $('#formSearchCycles').serialize();
+
+         fetch('@Url.Action("ExportAuditReport")?' + form, {
+             method: 'get',
+
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }).then(response => {
+            return response.blob();
+        }).then(blob => {
+            if (!blob) {
+                swal.fire({
+                    icon: 'error',
+                    text: 'No file to download',
+                });
+                return;
+            } else if (!blob.size){
+                swal.fire({
+                    icon: 'error',
+                    text: 'You don\'t have permission',
+                });
+                return;
+            }
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `Audit_${now}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            }).catch(err => {
+                swal.fire({
+                icon: 'error',
+                text: 'An error occured',
+            });
+        });
+    }
 </script>

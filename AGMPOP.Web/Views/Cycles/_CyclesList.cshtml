@@ -1,23 +1,23 @@
 ﻿@model List<AGMPOP.BL.Models.ViewModels.CycleVM>
 @using AGMPOP.BL.Models.ViewModels
-@{var CurrentDate = DateTime.Today;}
+@{var CurrentDate = DateTime.Now;}
 <div class="row">
     <div class="col-md-12">
         <div class="card card-body">
 
-            <table id="cycles-table" class="table table-bordered table-striped table-responsive-sm table-responsive-md table-responsive-lg">
+            <table id="cycles-table" class="table table-striped table-responsive-sm">
                 <thead>
                     <tr>
                         <th data-field="id" class="text-center">ID</th>
-                        <th data-field="name" class="text-center">Name</th>
+                        <th data-field="name">Name</th>
                         <th data-field="type" class="text-center">Type</th>
                         <th data-field="department" class="text-center">Department</th>
                         <th data-field="from" class="text-center">From</th>
                         <th data-field="to" class="text-center">To</th>
                         <th data-field="reconciliationdate" class="text-center">Reconciliation Date</th>
                         <th class="text-center">Status</th>
-                        <th class="text-center">Active/Inactive</th>
-                        <th class=" text-right">Actions</th>
+                        <th class="text-center">Active</th>
+                        <th data-sortable="false" >Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,13 +35,13 @@
                                     <td class="text-center">
                                         @item.CycleId
                                     </td>
-                                    <td class="text-center">
-                                        <a href="CycleDetails/@item.CycleId" class="btn-link">@item.Name</a>
+                                    <td>
+                                        <a href="CycleDetails/@item.CycleId" class="btn-link text-primary">@item.Name</a>
                                     </td>
                                     <td class="text-center">
                                         @if (item.CycleType == 1)
                                         {
-                                            @(((POPEnums.CycleType.NationWide)).ToString())
+                                            @(((POPEnums.CycleType.Nation_Wide)).ToString().Replace("_"," "))
 
                                         }
                                         else
@@ -49,7 +49,7 @@
                                             @(((POPEnums.CycleType.Event)).ToString())
                                         }
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @item.DepartmentName
                                     </td>
                                     <td class="text-center">
@@ -64,7 +64,7 @@
                                     <td class="text-center">
                                         @if (item.StartDate > CurrentDate)
                                         {
-                                            @(((POPEnums.CycleStatus.New)).ToString())
+                                            @(((POPEnums.CycleStatus.Upcoming)).ToString())
                                         }
                                         else if (item.StartDate <= CurrentDate && item.EndDate >= CurrentDate)
                                         {
@@ -79,30 +79,30 @@
                                     <td class=" text-center">
                                         @if (item.CycleIsActive == true)
                                         {
-                                            <text>Active</text>
+                                            <i title="Active" class="material-tooltip-main text-success fas fa-check-circle" data-toggle="tooltip" style="font-size:20px;"><span class="sr-only">1</span></i>
                                         }
                                         else
                                         {
-                                            <text>Inactive</text>
+                                            <i title="Inactive" class="material-tooltip-main text-danger fas fa-times-circle" data-toggle="tooltip" style="font-size:20px;"><span class="sr-only">0</span></i>
                                         }
                                     </td>
                                     <td class="text-center">
-                                        <a class="material-tooltip-main btn-primary  btn btn-floating my-0 p-0" data-toggle="tooltip" title="Edit" href='@Url.Action("UpdateCycle", "Cycles", new { Id = item.CycleId })'>
-                                            <i class="fas fa-edit " style="font-size:15px; margin-top:-5px;"></i>
+                                        <a class="material-tooltip-main btn-primary btn-floating btn-sm" data-toggle="tooltip" title="Edit" href='@Url.Action("UpdateCycle", "Cycles", new { Id = item.CycleId })'>
+                                            <i class="fas fa-pencil-alt"></i>
                                         </a>
 
                                         @if (item.CycleIsActive == false)
                                         {
-                                            <button class="material-tooltip-main btn btn-success btn-floating my-0 p-0 btnActivation" data-toggle="tooltip" title="active" value="@item.CycleId">
-                                                <i class="fad fa-user-check" style="font-size:15px; margin-top:-5px;"></i>
+                                            <button class="material-tooltip-main btn-success btn-floating btn-sm btnActivation" data-toggle="tooltip" title="Active" value="@item.CycleId">
+                                                <i class="fas fa-lock-open"></i>
                                             </button>
 
 
                                         }
                                         else
                                         {
-                                            <button class="material-tooltip-main btn btn-danger btn-floating my-0 p-0 btnDectivation " data-toggle="tooltip" title="Deactivate" value="@item.CycleId">
-                                                <i class="fad fa-user-times " style="font-size:15px; margin-top:-5px;"></i>
+                                            <button class="material-tooltip-main btn-danger btn-floating btn-sm btnDectivation" data-toggle="tooltip" title="Deactivate" value="@item.CycleId">
+                                                <i class="fas fa-lock"></i>
                                             </button>
 
                                         }
@@ -115,7 +115,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="10"> There is no data to view</td>
+                                <td colspan="10" class="lead">There is no data to view</td>
                             </tr>
 
                         }
@@ -136,13 +136,10 @@
                 // "order": [[3, "desc"]]
             });
 
-
+           
         });
     </script>
 }
-
-
-
 
 <script type="text/javascript">
         $(function () {
@@ -150,12 +147,9 @@
                 var CycletId = $(this).val();
 
                 Swal.fire({
-                     text: "Active Cycle!",
+                     text: "Active Cycle ?",
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#888',
-                    confirmButtonText: 'Yes, Activate it!'
                 }).then((result) => {
                     if (result.value) {
                         $.ajax({
@@ -166,11 +160,11 @@
 
                                 if (data.success == true) {
                                     Swal.fire({
-                                        text: data.message,
+                                        text: "Cycle activated successfully",
                                         icon: 'success'
                                     }).then(
                                         function () {
-                                            loadCycleData();
+                                            loadCycles();
 
                                         }
                                     );
@@ -196,12 +190,9 @@
             $(".btnDectivation").click(function (e) {
                 var CycletId = $(this).val();
                 Swal.fire({
-                    text: "Deactivate Cycle!",
+                    text: "Deactivate Cycle ?",
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, Deactivate it!'
                 }).then((result) => {
                     if (result.value) {
                         $.ajax({
@@ -212,11 +203,11 @@
 
                                 if (data.success == true) {
                                     Swal.fire({
-                                        text: data.message,
+                                        text: "Cycle deactivated successfully",
                                         icon: 'success'
                                     }).then(
                                         function () {
-                                            loadCycleData();
+                                            loadCycles();
 
                                         }
                                     );

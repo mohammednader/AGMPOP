@@ -21,8 +21,7 @@
 
 <html lang="en">
 <head>
-
-    <meta charset="utf-8" />
+     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] | AGM</title>
     <!-- ============== jquery ===============  -->
@@ -72,18 +71,26 @@
 
 
 
+    <!-- PWA Assets -->
+    <link rel="manifest" href="~/manifest.json" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="@ViewData["Title"] | AGM">
+
+    <link rel="apple-touch-icon" href="~/images/icons/apple/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="~/images/icons/apple/apple-touch-icon-57x57.png" />                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+    <link rel="apple-touch-icon" sizes="72x72" href="~/images/icons/apple/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="~/images/icons/apple/apple-touch-icon-76x76.png" />   
+    <link rel="apple-touch-icon" sizes="114x114" href="~/images/icons/apple/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="~/images/icons/apple/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="~/images/icons/apple/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="~/images/icons/apple/apple-touch-icon-152x152.png" />                                                                                                                                    
+    <link rel="apple-touch-icon" sizes="180x180" href="~/images/icons/apple/apple-touch-icon-180x180.png" />
+
     <style>
-        .btn {
-            box-shadow: none !important;
+        td > .badge {
+            font-size: 14px;
         }
-
-        td, th {
-            text-align: center;
-        }
-
-            td > .badge {
-                font-size: 14px;
-            }
 
         .modal-body {
             max-height: 60vh;
@@ -93,6 +100,16 @@
 </head>
 <body aria-busy="true">
     <script>
+        // init loader
+        $(document)
+            .ajaxStart(function () {
+                $('.Loader').show();
+            })
+            .ajaxStop(function () {
+                $('.Loader').hide();
+            });
+
+
         const proxyurl = "@Configuration["APIProxyUrl"]";
         const BaseAPIurl = "@Configuration["APIBaseUrl"]";
         const DeviceId = "@Configuration["APIDevice"]";
@@ -146,18 +163,6 @@
 
 
     </script>
-    <script>
-        $(document).ready(function () {
-            $(document)
-                .ajaxStart(function () {
-
-                    $('.Loader').show();
-                })
-                .ajaxStop(function () {
-                    $('.Loader').hide();
-                })
-        });
-    </script>
     @RenderSection("Scripts", required: false)
     <div class="loader  " style="display:none; opacity:0.4;">
         <div class="spinner-border text-primary" role="status">
@@ -175,7 +180,7 @@
             <div class="sidebar-content">
                 <div class="sidebar-brand">
                     <a class="text-center" style="margin-bottom:2px;" href="#">
-                         <img src="~/images/AGM-IMS-logo-01.png" height="110" width="140" />
+                        <img src="~/images/MagintsLogo3.png" height="110" width="140" />
                     </a>
                     <div id="close-sidebar">
                         <i class="fas fa-times" style="margin-top:-45px; font-size:26px;"></i>
@@ -391,5 +396,19 @@
             })
         </script>
     }
+    <script>
+        $(document).ready(function () {
+            $('.material-tooltip-main').tooltip();
+        });
+        
+        if ('serviceWorker' in navigator) {
+            var scope = `/`;
+            navigator.serviceWorker
+                .register("/service-worker.js", { scope })
+                .catch(err => {
+                    console.log("error registering SW : ", err);
+                });
+        }
+    </script>
 </body>
 </html>

@@ -57,7 +57,7 @@ namespace AGMPOP.BL.Models.ViewModels
             Name = c.Name;
             CycleType = c.Type;
             StartDate = c.StartDate;
-            ReconciliationDate = c.EndDate;
+            ReconciliationDate = c.ReconciliationDate;
             EndDate = c.EndDate;
             CycleStatus = c.Status;
             CycleIsActive = c.IsActive;

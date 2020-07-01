@@ -1,6 +1,6 @@
 ﻿@model AGMPOP.BL.Models.ViewModels.ProductDTO
 @{
-    ViewData["Title"] = "Stock Report";
+    ViewData["Title"] = "Inventory Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -13,21 +13,21 @@
              aria-expanded="false"
              aria-controls="divCollapseSearch"
              style="cursor: pointer">
-            <h5 class="mt-2 font-weight-bold"><i class="far fa-search" style="font-size: 20px;"></i>  Search</h5>
+            <h5 class="mt-2 font-weight-bold"><i class="fas fa-search" style="font-size: 20px;"></i>&nbsp;&nbsp;Search</h5>
             <span><i class="fa fa-angle-double-down " style="margin-top:10px"></i></span>
 
         </div>
 
         <div id="divCollapseSearch" class="collapse ">
             <hr /><br />
-            <form id="inventory">
+            <form id="inventory" class="pl-3 pr-3">
                 <div class="row">
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label> Product Name</label>
                         <input asp-for="ProductName" class="form-control" />
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Department"></label>
                         <select id="DepartmentIds" name="DepartmentIds" class="mdb-select" multiple Searchable="Search here...">
                             <option value="" selected disabled>Select Department</option>
@@ -41,13 +41,15 @@
         </div>*@
 
 
-                    <div class="col-12 text-right">
-                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
-                            Clear
-                        </button>
+                    <div class="col-md-6">
+                        <div style="height:23px;"></div>
                         <button id="btnsearch" type="button" class="btn btn-primary px-3 mr-0">
-                            Search
+                            Search&nbsp;&nbsp;<i class="fas fa-search"></i>
                         </button>
+                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
+                            Clear&nbsp;&nbsp;<i class="fas fa-times"></i>
+                        </button>
+
 
                     </div>
                 </div>

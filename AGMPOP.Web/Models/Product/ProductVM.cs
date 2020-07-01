@@ -23,13 +23,12 @@ namespace AGMPOP.Web.Models
 
         public int DepartmentID { get; set; }
         [Required(AllowEmptyStrings = false, ErrorMessage = "Code is required")]
-
         public string Code { get; set; }
+
         //[Required(AllowEmptyStrings = false, ErrorMessage = "Upload Image")]
-
         public string Image { get; set; }
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Enter Inventory Quantity")]
 
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Enter Inventory Quantity")]
         public decimal? InventoryQnty { get; set; }
         public DateTime? CreatedDate { get; set; }
          public int? CreatedBy { get; set; }

@@ -7,8 +7,8 @@ var selectedProductType = 0;
 const PRODUCT_MARKUP = `<div class="list-group-item d-flex align-items-center row">
                                 <span style="display:#HIDE_QUANTITY#" class="col-2 border-right">#QUANTITY#</span>
                                 <span class="col-6 pl-2">#NAME#</span>
-                                <span class="col-4 form-check ml-auto">
-                                    <a class="btn btn-warning" for="tras-#ID#" href="/Report/transactionIndex?productName=#NAME#&cycleName=#CycleName#">transaction</a>
+                                <span class="col-4 form-check ml-auto text-right">
+                                    <a class="btn btn-warning" for="tras-#ID#" href="/Report/transactionIndex?productName=#NAME#&cycleName=#CycleName#" target="_blank">transaction</a>
                                 </span>
                             </div>`;
 

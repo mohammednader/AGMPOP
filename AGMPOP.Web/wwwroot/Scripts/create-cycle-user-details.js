@@ -7,7 +7,7 @@ var selectedUserDepartment = 0, selectedUserJobTitle = 0;
 const USER_MARKUP = `<div class="list-group-item d-flex align-items-center">
                                 <span class="ml-2">#NAME# <small class="text-secondary">#JOBTITLE#</small></span>
                                 <span class="form-check ml-auto">
-                                    <a class="btn btn-warning" for="tras-#ID#" href="/Report/transactionIndex?userName=#NAME#&cycleName=#CycleName#">transaction</a>
+                                    <a class="btn btn-warning" for="tras-#ID#" href="/Report/transactionIndex?userName=#NAME#&cycleName=#CycleName#" target="_blank">transaction</a>
                                 </span>
                             </div>`;
 

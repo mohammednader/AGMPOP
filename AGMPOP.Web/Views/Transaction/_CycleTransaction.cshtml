@@ -28,7 +28,7 @@
                     <td>@item.ToUserName</td>
                     <td>@(((POPEnums.TransactionTypes)item.Type).ToString())</td>
                     <td>@item.Date</td>
-                    <td>@(((POPEnums.TransactionStatus)item.Status).ToString())</td>
+                    <td>@(((POPEnums.TransactionStatus)item.Status).ToString().Replace("_"," "))</td>
                     <td class="text-center">
                         <span class="badge badge-pill badge-primary"> <a class="btn-link" onclick="showDetials(@item.TransId)" title=''>@item.TotalItem.Sum(a => a.TransAmount)</a> </span>
                     </td>

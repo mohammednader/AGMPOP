@@ -7,31 +7,27 @@
         display: none
     }
 </style>
-
-<div class="card  px-3 py-2 mt-2">
+ 
+<div class="card p-4 mt-2">
     <div class="row">
         <div class="col-sm-12 col-md-3">
             <div class="ui-widget">
-                <input class="form-control mt-1" placeholder="Department Name" id="DeptName" style="height:39px;">
-                <span class="d-none" id="sp_msg" style="color:red">This field is required.</span>
+                <input class="form-control mt-2" placeholder="Department Name" id="DeptName">
+                <span class="d-none text-danger" id="sp_msg">This field is required.</span>
             </div>
 
         </div>
         <div class="">
-            <button type="button" class="btn btn-secondary mr-0 px-3" style="height: 37px;" id="cancelMsg">Clear</button>
-            <button class="btn btn-primary px-3" id="save" style="height: 37px;"> Add Department </button>
+            <button class="btn btn-primary btn-md" id="save">
+                Add Department&nbsp;&nbsp;<i class="fas fa-plus"></i>
+            </button>
+            <button type="button" class="btn btn-secondary btn-md" id="cancelMsg">CANCEL&nbsp;&nbsp;<i class="fa fa-times"> </i></button>
         </div>
     </div>
-
 </div>
-
 <div class="card card-body my-3">
     <div id="divResult"></div>
 </div><!--  end card  -->
-
-
-
-
 <script type="text/javascript">
 
     $().ready(function () {
@@ -46,7 +42,6 @@
     });
 
 </script>
-
 <script>
 
     $(document)
@@ -112,7 +107,6 @@
 
     });
 </script>
-
 <script type="text/javascript">
 
     var show = 0;
@@ -252,11 +246,13 @@
      async function deactivateDept(id) {
         var confirm = await Swal.fire({
             icon: 'question',
-            text: 'Are you sure you want to deactivate this Department?',
+            text: 'Are you sure you want to deactivate this Department',
             showCancelButton: true,
-            confirmButtonColor: '#4285f4', 
-            cancelButtonColor: '#a1a1a1',
-            confirmButtonText: 'Ok' 
+            confirmButtonText: 'Ok',
+            buttonStyle: false,
+           confirmButton: 'btn btn-danger',
+
+ 
            
         });
         if (confirm && confirm.value) {
@@ -284,10 +280,8 @@
     async function activateDept(id) {
         var confirm = await Swal.fire({
             icon: 'question',
-            text: 'Are you sure you want to activate this Department?',
+            text: 'Are you sure you want to activate this Department',
             showCancelButton: true,
-            confirmButtonColor: '#4285f4',
-            cancelButtonColor: '#a1a1a1',
             confirmButtonText: 'Ok' 
            
         });
@@ -315,5 +309,4 @@
     
 
 </script>
-
 

@@ -49,19 +49,20 @@ table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, tab
   display: block;
   opacity: .3; }
 
+.form-control.error {
+  border-color: red !important; }
+
 .btn {
-  padding: 0.5rem 0.7rem; }
+  box-shadow: none !important; }
 
+/*.btn-floating {
+    margin: 1px;
+    width: 32px;
+    height: 32px;
+}*/
 .btn-floating {
-  margin: 1px;
-  width: 36px;
-  height: 36px; }
-
-    .btn-floating i {
-        font-size: 1.25rem;
-        line-height: 44px;
-        margin-top: -4px !important
-    }
+  border-width: 0;
+  box-shadow: none !important; }
 
 .loader {
   position: fixed;
@@ -79,3 +80,13 @@ table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, tab
   div.dataTables_wrapper div.dataTables_info, div.dataTables_wrapper div.dataTables_paginate {
     padding-bottom: 0rem !important;
     padding-top: 0.5rem !important; } }
+
+.product-img {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+  margin: 0 auto; }

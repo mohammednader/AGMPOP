@@ -1,16 +1,13 @@
 ﻿@model NewTransactionVM
 @{
-    ViewData["Title"] = "cancel transaction";
+    ViewData["Title"] = "Cancel Transaction";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-
-
 <form>
     <div class="card card-body my-2">
         <div class="row">
             <div class="form-group col-sm-4">
-                <label  class="control-label">Cycle Name </label>
+                <label  class="control-label">Cycle   </label>
                 <select asp-for="CycleId" class="mdb-select" id="cycleDDL">
                     <option value="">Select One</option>
                     @foreach (var item in Model.CycleList)
@@ -23,10 +20,10 @@
             
         </div>
     </div>
-    <div class="my-3 mt-5 Dfooter" style="display:none">
+    <div class="my-3 mt-2 Dfooter" style="display:none">
         <div class="card">
             <div class="card-header">
-                <h5 class="font-weight-bolder"  >Cancel transaction</h5>
+                <h5 class="font-weight-bolder"  >Cancel Transaction</h5>
             </div>
             <div class="card-body" id="divResult"></div>
         </div>
@@ -91,11 +88,10 @@
         var item = $("#" + id + "cancel")[0];
         console.log(item);
         swal.fire({
-            text: 'Are you sure delete this transaction?',
-            icon: 'error',
-            showCancelButton: true,
-            confirmButtonClass: 'btn btn-danger',
-            confirmButtonText: 'Yes, delete it!',
+            text: 'Are you sure you want to cancel this transaction?',
+            icon: 'question',
+            showCancelButton: true,           
+            confirmButtonText: 'Ok',
 
         }).then((result) => {
 

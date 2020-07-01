@@ -5,15 +5,13 @@
 
 
 
-
-
 <form id="formCreateProduct" autocomplete="off" enctype="multipart/form-data" asp-action="Create" asp-controller="Product">
     <div class="modal-body">
 
         <div class="row">
             <div class="col-12 ">
                 <label class=" control-label">
-                    Item Name
+                    <b> Item Name</b>
                 </label>
                 <div class="form-group">
                     <input asp-for="Name" class="form-control" required="required" />
@@ -26,7 +24,7 @@
             <div class="col-12 ">
                 <div class="form-group">
                     <label class=" control-label">
-                        Code
+                        <b>Code</b>
                     </label>
                     <div class="form-group">
                         <input asp-for="Code" class="form-control" />
@@ -37,10 +35,10 @@
 
             </div>
 
-        <div class="col-12">
-            <label class="control-label">
-                Product quantity
-            </label>
+            <div class="col-12">
+                <label class="control-label">
+                    <b>Product quantity</b>
+                </label>
 
                 <input asp-for="InventoryQnty" min="0" class="form-control" />
                 <span asp-validation-for="InventoryQnty" class="text-danger"></span>
@@ -55,41 +53,31 @@
             </style>
             <div class="col-12 mt-2">
                 <label class="control-label">
-                    Department
+                    <b>  Department</b>
                 </label>
                 <select id="DepartmentId" class="md-form mdb-select mt-0" name="DepartmentID" asp-for="DepartmentID" Searchable="Search here...">
                     <option value="" disabled>Select Department</option>
                 </select>
             </div>
 
-
-            @*<div class="col-12 mt-2">
-                <label class="control-label">
-                    Type
-                </label>
-                <select class="md-form mdb-select mt-0" name="TypeId" asp-for="TypeId" Searchable="Search here...">
-                    <option value="" disabled>Select Type</option>
-                </select>
-            </div>*@
-
             <div class="col-12 mt-1">
                 <label class="control-label">
-                    Product Photo
+                    <b> Product Photo</b>
                 </label>
-                <input type="file" asp-for="Image" accept="image/png, image/jpeg" name="file" onchange="readfile(this);">
-             </div>
-
-
-
+            </div>
             <div class="col-12 mt-1">
-                <img id="image_preview" class="" src="#" loading="lazy" alt="" style="max-height:50px;min-width:50px; width:50px;" />
+                <input type="file" required name="file" asp-for="Image" accept="image/png, image/jpeg"  onchange="readfile(this);">
+                <img id="image_preview" loading="lazy" alt="" style="max-height:70px;min-width:70px; width:70px;" />
+            </div>
+            <div class="col-12 mt-1">
+              <span id="MsgRequiredImage" class="text-danger" style="display:none"> Upload Image</span>
+            </div>
             </div>
         </div>
-    </div>
     <div class="modal-footer pb-0">
         @*    <button class="btn btn-primary" type="submit" id="savedbtn">Save</button>*@
         <button type="button" class="btn btn-grey" data-dismiss="modal">Close</button> 
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" id="save" class="btn btn-primary">Save</button>
 
 
     </div>
@@ -103,7 +91,7 @@
       //  getAllType();
         $('#DepartmentId').materialSelect();
         $('#TypeId').materialSelect();
-
+        //$('#save').on("click",saveNewProduct)
 
     });
 </script>
@@ -117,6 +105,7 @@
                 $('#image_preview').attr('src', e.target.result);
             }
             reader.readAsDataURL(input.files[0]);
+             $("#MsgRequiredImage").css("display", "none");
         }
     }
 
@@ -129,6 +118,9 @@
 
 
     $('#formCreateProduct').ajaxForm(response => {
+         if ($('#Image').val() != null) {
+            $("#MsgRequiredImage").css("display", "inline-block");
+        }
         if (response) {
             if (response.success) {
                 $('#CreateProductModal').modal('hide');

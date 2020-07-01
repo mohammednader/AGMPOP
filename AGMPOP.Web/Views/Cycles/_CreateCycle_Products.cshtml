@@ -1,7 +1,7 @@
 ﻿<style>
     #lstProducts, #product-filter-field {
         max-height: 55vh;
-        overflow-y: auto;
+        //overflow-y: auto;
     }
 
     @@keyframes shake {
@@ -35,7 +35,7 @@
 <div>
     <div class="container-fluid" id="product-tab-container">
         <div class="row">
-            <div class="col-12 col-sm-6 col-md-8 row border-right">
+            <div class="col-12 col-sm-6 col-md-8 row border-right" >
                 <div class="col-12" style="border-bottom:1px solid rgba(0, 0, 0, 0.125); padding-bottom:20px">
                     <input type="text" id="txtSearchProduct" class="form-control" placeholder="Search for products..." />
                 </div>
@@ -52,7 +52,7 @@
                         <div id="lstProductDepartments" class="d-flex flex-column align-items-start"></div>
                     </div>
                 </div>*@
-                <div class="col-6 col-sm-9 pt-4 px-4">
+                <div class="col-6 col-sm-12 pt-4 px-4" style="overflow: auto;">
                     <p class="font-weight-bold" id="productCount"></p>
                     <div id="lstProducts" class="list-group"></div>
                 </div>

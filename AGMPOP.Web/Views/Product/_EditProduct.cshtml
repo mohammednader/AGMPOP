@@ -10,9 +10,10 @@
         <div class="row">
             <div class="col-12 ">
                 <input asp-for="ProductId" hidden class="form-control" />
+                <input asp-for="DepartmentID" hidden class="form-control" />
 
                 <label class=" control-label">
-                    Item Name
+                    <b>  Item Name </b>
                 </label>
                 <div class="form-group">
                     <input asp-for="Name" class="form-control" />
@@ -25,7 +26,7 @@
             <div class="col-12 ">
                 <div class="form-group">
                     <label class=" control-label">
-                        Code
+                        <b>  Code </b>
                     </label>
                     <div class="form-group">
                         <input asp-for="Code"   class="form-control" />
@@ -39,7 +40,7 @@
 
             <div class="col-12">
                 <label class="control-label">
-                    Inventory Quantity
+                    <b> Inventory Quantity</b>
                 </label>
 
                 <input asp-for="InventoryQnty" name="InventoryQnty" min="0" readonly class="form-control" />
@@ -54,37 +55,30 @@
 
             <div id="department-container" class="col-12 mt-2">
                 <label class="control-label">
-                    Department
+                    <b> Department </b>
                 </label>
-                <select id="DepartmentId" class="md-form mdb-select mt-0" name="DepartmentID" asp-for="DepartmentID" Searchable="Search here...">
+                <input asp-for="DepartmentName"  readonly class="form-control" />
+
+                @*<select class="md-form mdb-select mt-0" asp-for="DepartmentID" Searchable="Search here...">
                     <option value="" disabled>Select Department</option>
-                </select>
+                </select>*@
             </div>
 
-
-            @*<div class="col-12 mt-2">
-                <label class="control-label">
-                    Type
-                </label>
-                <select class="md-form mdb-select mt-0" name="TypeId" asp-for="TypeId" Searchable="Search here...">
-                    <option value="" disabled>Select Type</option>
-                </select>
-            </div>*@
-
+ 
             <div class="col-12 ">
-                <label class="pt-n mt-n">Product Photo</label>
-
-                <input type="file" asp-for="Image" accept="image/png, image/jpeg" name="file" onchange="readfile(this);" id="CreateFileUploader">
+                <label class="pt-n mt-n"><b>Product Photo </b></label>
              </div>
             <div class="col-12  ">
-                <img id="image_preview" class="" src="" alt="" style="max-height:50px;min-width:50px; width:50px;" />
+                <input type="file" asp-for="Image" accept="image/png, image/jpeg" name="file" onchange="readfile(this);" id="CreateFileUploader">
+                <img id="image_preview"  src="@Model.Image" alt="" style="max-height:50px;min-width:50px; width:50px;" />
             </div>
         </div>
     </div>
     <div class="modal-footer  pb-0">
-        @*    <button class="btn btn-primary" type="submit" id="savedbtn">Save</button>*@ 
-        <button type="button" class="btn btn-grey px-3" data-dismiss="modal">Close</button> 
-        <button type="submit" class="btn btn-primary px-3 mr-0 ">Save</button>
+        @*    <button class="btn btn-primary" type="submit" id="savedbtn">Save</button>*@
+        <button type="submit" class="btn btn-primary btn-md">Save</button>
+        <button type="button" class="btn btn-grey btn-md" data-dismiss="modal">Cancel</button>
+
     </div>
 
 
@@ -94,15 +88,15 @@
 <script>
     // Material Select Initialization
     $(document).ready(function () {
-        getAllDept();
+     //   getAllDept();
     //    getAllType();
-        $('#DepartmentId').materialSelect();
-        $('#TypeId').materialSelect();
+     //   $('#DepartmentID').materialSelect();
+        @*$('#TypeId').materialSelect();
 
         var departmentReadOnly = @Html.Raw(Json.Serialize(ViewBag.DepartmentReadOnly));
         if (departmentReadOnly) {
             $('#department-container').css('pointer-events', 'none');
-        }
+        }*@
     });
 </script>
 <!--preview pic-->
@@ -147,31 +141,13 @@
     });
 
 
-    @*function getAllType() {
-         $('#TypeId').empty();
-         $('#TypeId').append('<option  disabled>Select Type</option>');
+ 
 
-        $.ajax({
-            url: '@Url.Action("GetAllProductTypes","common")',
-            method: 'GET',
-
-            success: response => {
-                console.log(response);
-
-                if (response && response.length) {
-                    response.forEach(r => {
-                        $('#TypeId').append(`<option value="${r.id}">${r.name}</option>`);
-                    });
-                }
-            }
-        });
-    }*@
-
-    function getAllDept() {
+    @*function getAllDept() {
         return new Promise((resolve, reject) => {
 
-            $('#DepartmentId').empty();
-            $('#DepartmentId').append('<option value="" disabled>Select Department</option>');
+            $('#DepartmentID').empty();
+            $('#DepartmentID').append('<option value="" disabled>Select Department</option>');
 
             $.ajax({
                 url: '@Url.Action("GetAllDepartments", "common")',
@@ -182,13 +158,13 @@
                     console.log(response);
                     if (response) {
                         response.forEach(d => {
-                            $('#DepartmentId').append(`<option value="${d.id}">${d.name}</option>`);
+                            $('#DepartmentID').append(`<option value="${d.id}">${d.name}</option>`);
                         });
                     }
                     resolve();
                 }
             });
         });
-    }
+    }*@
 
 </script>

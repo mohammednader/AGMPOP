@@ -260,7 +260,7 @@ namespace AGMPOP.Web.Controllers
                         return Json(new
                         {
                             Success = true,
-                            Message = "User deactivated successfully",
+                            Message = "User deactivate successfully",
                         });
                     }
                     else
@@ -309,7 +309,7 @@ namespace AGMPOP.Web.Controllers
                         return Json(new
                         {
                             Success = true,
-                            Message = "User activated successfully",
+                            Message = "User activate successfully",
                         });
                     }
                     else

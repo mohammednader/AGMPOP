@@ -54,7 +54,7 @@ namespace AGMPOP.BL.Repositories
                         {
                             query = query.Where(c => c.EndDate < CurrentDate);
                         }
-                        else if (search.Status == (int)POPEnums.CycleStatus.New)
+                        else if (search.Status == (int)POPEnums.CycleStatus.Upcoming)
                         {
                             query = query.Where(c => c.StartDate > CurrentDate);
                         }
@@ -120,7 +120,7 @@ namespace AGMPOP.BL.Repositories
                     result.Add(new
                     {
                         TypeId = (int)e,
-                        Name = e.ToString(),
+                        Name = e.ToString().Replace("_", " "),
                     });
                 });
 

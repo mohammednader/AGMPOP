@@ -1,37 +1,44 @@
-﻿
+﻿@{
+    ViewBag.Title = "Import Territories";
+}
+
 <div class="row">
-    <div class="col-8">
+    <div class="col-9">
         <div class="card card-body mt-2">
 
             <form id="importFrom" asp-action="ImportTerr" asp-controller="Territory">
 
-                <input name="fileExcel" id="importTerr" type="file" />
+                <input name="fileExcel" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required id="importTerr" type="file" />
                 <button type="submit" class="btn btn-primary">Import</button>
 
             </form>
         </div>
 
     </div>
-   
 
-    <div class="col-4">
+
+    <div class="col-3">
         <div class="card card-body mt-2">
-            <h6>
-                <a href="~/Uploads/Templete/Excel/Territories.xlsx" download="Territories.xlsx" id="TerritoriesExcel" class="btn btn-link" title="Download file">[Download Template file]  </a>
-             </h6>
+            <a class="btn btn-primary"  href="~/Uploads/Templete/Excel/Territories.xlsx" download>
+                [Download Template file]
+            </a>
+            @*<button href="~/Uploads/Templete/Excel/Territories.xlsx" download="Territories.xlsx" id="TerritoriesExcel" class="btn btn-primary" title="Download file">[Download Template file]  </button>*@
         </div>
     </div>
 
 </div>
 <script>
     $('#importFrom').ajaxForm(response => {
- 
+
         if (response) {
             if (response.success) {
-                 Swal.fire({
+                Swal.fire({
                     icon: 'success',
                     text: response.message,
-                })
+                }).then(function () {
+
+                    window.location.href = "/territory/index";
+                });
             }
             else {
                 Swal.fire({

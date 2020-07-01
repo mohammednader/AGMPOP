@@ -22,7 +22,7 @@ namespace AGMPOP.BL.Repositories
             if (territory.TerritoryId == 0)
             {
                 
-                territory.Inactive = false;
+                territory.IsActive = true;
                 Context.Territories.Add(territory);
             }
             else
@@ -33,16 +33,6 @@ namespace AGMPOP.BL.Repositories
                     EditTerritory.Name = territory.Name;
                 if (territory.ParentId != null)
                     EditTerritory.ParentId = territory.ParentId;
-
-                //if (territory.Users != null)
-                //{
-
-                //    foreach (var item in territory.Users)
-                //    {
-                //        EditTerritory.Users.Add(item);
-                //    }
-
-                //}
              }
 
 
@@ -64,7 +54,7 @@ namespace AGMPOP.BL.Repositories
             try
             {
                 result = Context.Territories
-                                .Where(t =>  t.Inactive !=true && t.UserTerritory.Any(ut => ut.UserId == userId))
+                                .Where(t =>  t.IsActive !=false && t.UserTerritory.Any(ut => ut.UserId == userId))
                                 .ToList();
             }
             catch
@@ -78,7 +68,7 @@ namespace AGMPOP.BL.Repositories
             try
             {
                 result = Context.Territories
-                                .Where(t => t.Inactive != true)
+                                .Where(t => t.IsActive != false)
                                 .ToList();
             }
             catch (Exception e)
@@ -94,7 +84,7 @@ namespace AGMPOP.BL.Repositories
             try
             {
                 var allTerritories = Context.Territories
-                                            .Where(s => s.Inactive != true)
+                                            .Where(s => s.IsActive != false)
                                             .ToList();
 
                 var grantedTerritories = Context.CycleTerritory
@@ -192,7 +182,7 @@ namespace AGMPOP.BL.Repositories
             try
             {
                 result = Context.Territories
-                                .Where(t => t.Inactive != true && t.CycleTerritory.Any(ut => ut.CycleId == cycleId))
+                                .Where(t => t.IsActive != false && t.CycleTerritory.Any(ut => ut.CycleId == cycleId))
                                 .ToList();
             }
             catch

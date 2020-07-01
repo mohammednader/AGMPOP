@@ -1,11 +1,11 @@
 ﻿@model IEnumerable<AGMPOP.BL.Models.Domain.Department>
-<table id="dtBasicExample" class="table table-striped table-bordered" cellspacing="0" width="100%">
+<table id="dtBasicExample" class="table table-striped" cellspacing="0">
     <thead>
         <tr>
             <th></th>
             <th class="th-sm">Department Name</th>
-            <th>Status</th>
-            <th class="th-sm text-center" style="width:285px !important">Actions</th>
+            <th class="text-center">Status</th>
+            <th data-sortable="false" class="th-sm" width="150">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -24,48 +24,48 @@
                         <input id="temp" type="hidden" value="@item.Name" />
 
                     </td>
-                    <td>
+                    <td class="text-center">
                         @if (item.IsActive == true)
                         {
-                            <i title="Active" class="text-success fas fa-check-circle" style="font-size:20px;"><span class="sr-only">1</span></i>
+                            <i title="Active" class="material-tooltip-main text-success fas fa-check-circle" data-toggle="tooltip" style="font-size:20px;"><span class="sr-only">1</span></i>
                         }
                         else
                         {
-                            <i title="Inactive" class="text-danger fas fa-times-circle" style="font-size:20px;"><span class="sr-only">0</span></i>
+                            <i title="Inactive" class="material-tooltip-main text-danger fas fa-times-circle" data-toggle="tooltip" style="font-size:20px;"><span class="sr-only">0</span></i>
                         }
                     </td>
-                    <td class="text-center">
+                    <td>
 
 
-                        <button class="material-tooltip-main btn-primary  btn btn-floating my-0 p-0" data-toggle="tooltip" title="Edit" id="@(item.Id + "edit")" onclick="javascript:editDept(@item.Id)">
-                            <i class="fas fa-edit " style="font-size:15px; margin-top:-5px;"></i>
+                        <button class="material-tooltip-main btn-primary btn-floating btn-sm" data-toggle="tooltip" title="Edit" id="@(item.Id + "edit")" onclick="javascript:editDept(@item.Id)">
+                            <i class="fas fa-pencil-alt"></i>
                         </button>
 
 
-                        <button class="material-tooltip-main btn-danger  btn btn-floating my-0 p-0 d-none" data-toggle="tooltip" title="Cancel" id="@(item.Id + "cancle")" onclick="cancleDept(@item.Id)">
-                            <i class="fas fa-times-circle " style="font-size:15px; margin-top:-5px;"></i>
+                        <button class="material-tooltip-main btn-danger btn-floating my-0 p-0 btn-sm d-none" data-toggle="tooltip" title="Cancel" id="@(item.Id + "cancle")" onclick="cancleDept(@item.Id)">
+                            <i class="fas fa-times"></i>
                         </button>
 
-                        <button class="material-tooltip-main btn-primary  btn btn-floating my-0 p-0 d-none" data-toggle="tooltip" title="Save" id="@(item.Id + "save")" onclick="saveDept(@item.Id)">
-                            <i class="fas fa-save " style="font-size:15px; margin-top:-5px;"></i>
+                        <button class="material-tooltip-main btn-success btn-floating btn-sm d-none" data-toggle="tooltip" title="Save" id="@(item.Id + "save")" onclick="saveDept(@item.Id)">
+                            <i class="fas fa-check"></i>
                         </button>
 
 
 
-                        @*<button class="material-tooltip-main btn btn-danger btn-floating my-0 p-0" data-toggle="tooltip" title="Delete" onclick="showSwal(@item.Id)">
-                                <i class="fa fa-trash-alt" style="font-size:15px; margin-top:-5px;"></i>
+                        @*<button class="material-tooltip-main btn-danger btn-floating  btn-sm" data-toggle="tooltip" title="Delete" onclick="showSwal(@item.Id)">
+                                <i class="fa fa-trash-alt" ></i>
                             </button>*@
 
                         @if (item.IsActive == true)
                         {
-                            <button class="material-tooltip-main btn btn-danger btn-floating my-0 p-0" data-toggle="tooltip" title="Deactivate" onclick="deactivateDept(@item.Id)">
-                                <i class="fad fa-user-times   " style="font-size:15px; margin-top:-5px;"></i>
+                            <button class="material-tooltip-main btn-danger btn-floating btn-sm" data-toggle="tooltip" title="Deactivate" onclick="deactivateDept(@item.Id)">
+                                <i class="fas fa-lock"></i>
                             </button>
                         }
                         else
                         {
-                            <button class="material-tooltip-main btn btn-success btn-floating my-0 p-0" data-toggle="tooltip" title="Activate" onclick="activateDept(@item.Id)">
-                                <i class="fad fa-user-check" style="font-size:15px; margin-top:-5px;"></i>
+                            <button class="material-tooltip-main btn-success btn-floating btn-sm" data-toggle="tooltip" title="Activate" onclick="activateDept(@item.Id)">
+                                <i class="fas fa-lock-open"></i>
                             </button>
 
                         }
@@ -88,10 +88,8 @@
 
 <script>
     $(document).ready(function () {
-
-
         $('.material-tooltip-main').tooltip({
-            template: '<div class="tooltip md-tooltip"><div class="tooltip-arrow md-arrow"></div><div class="tooltip-inner md-inner"></div></div>'
+            //template: '<div class="tooltip md-tooltip"><div class="tooltip-arrow md-arrow"></div><div class="tooltip-inner md-inner"></div></div>'
         });
 
         $("select").removeClass("custom-select");
@@ -106,7 +104,8 @@
                     "targets": [0],
                     "visible": false,
                 }
-            ]
+            ],
+            "autoWidth": false
         });
     });
 </script>

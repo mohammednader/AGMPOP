@@ -17,7 +17,7 @@ namespace AGMPOP.BL.Models.ViewModels
 
         public enum TransactionStatus
         {
-            NewRequst = 1,
+            New_Request = 1,
             Pending = 2,
             Confirmed = 3,
             Canceled = 4
@@ -30,7 +30,7 @@ namespace AGMPOP.BL.Models.ViewModels
         {
 
             Running = 1,
-            New = 2,
+            Upcoming = 2,
             Ended = 3
         }
         public enum UserType
@@ -55,7 +55,7 @@ namespace AGMPOP.BL.Models.ViewModels
 
         public enum CycleType
         {
-            NationWide = 1,
+            Nation_Wide = 1,
             Event = 2,
         }
         public enum ProductType
@@ -71,7 +71,7 @@ namespace AGMPOP.BL.Models.ViewModels
             Delivery = 1,
             Return = 2,
             Transfer = 3,
-            Clearance = 4,
+             
         }
 
 
@@ -89,7 +89,7 @@ namespace AGMPOP.BL.Models.ViewModels
 
         public enum NotificationType
         {
-            NotConfirmed = 1,
+            Unconfirmed = 1,
             Confirmed = 2
         }
 

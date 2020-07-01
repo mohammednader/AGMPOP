@@ -26,7 +26,7 @@ namespace AGMPOP.BL
         public IInventoryLogRepository InventoryLogBL { get; set; }
         public INotificationsRepository NotificationsBL { get; set; }
         public IUserClearanceRepository UserClearanceBL { get; set; }
-        public IAuditRepository IAuditBL{ get; set; }
+        public IAuditRepository AuditBL{ get; set; }
 
         public UnitOfWork(
             AGMPOPContext context,
@@ -68,7 +68,7 @@ namespace AGMPOP.BL
             InventoryLogBL = inventoryLogRepository;
             NotificationsBL = notificationsRepository;
             UserClearanceBL = userClearanceRepository;
-            IAuditBL = AuditRepository;
+            AuditBL = AuditRepository;
 
         }
 

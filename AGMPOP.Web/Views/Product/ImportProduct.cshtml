@@ -7,7 +7,7 @@
 
 <div class="row">
     <div class="col-md-8">
-        <form id="importProductsForm" asp-action="UploadFiles" asp-controller="product" enctype="multipart/form-data"> 
+        <form id="importProductsForm" asp-action="UploadFiles" asp-controller="product" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-md-12">
                     <div class="card card-body">
@@ -17,10 +17,10 @@
                             <div class="p-lg">
                                 <div class="alert alert-info alert-dismissible has-error" role="alert">
                                     - Image name has not to contain characters(<b>!@@#$%^*/~\</b>) <br />
-                                    - collect all the image in a <b>Zip file</b><br />
-                                    - max size is <b>1MB</b> per image
+                                    - Collect all the image in a <b>Zip file</b><br />
+                                    - Max size is <b>1MB</b> per image
                                 </div>
-                                <input type="file" required name="Zip" />
+                                <input type="file" accept="application/zip" required name="Zip" />
                                 <br />
 
                             </div>
@@ -38,17 +38,18 @@
 
                             </h4>
                             <h6>
-                                <a href="~/Uploads/Templete/Excel/Product.xlsx" download="Product.xlsx" id="ProductExcel" class="btn btn-link" title="Download file">[Download Template file]  </a>
+                                 <a class="btn btn-primary" href="~/Uploads/Templete/Excel/Product.xlsx" id="ProductExcel" class="btn btn-primary" title="Download file" download>
+                                    [Download Template file]
+                                </a>
+                            </h6>
 
-                             </h6>
-                        
                             <hr />
                             <div class="p-lg">
 
-                                <div class="alert alert-info alert-dismissible has-error" role="alert">
+                                <div class="ert alert-info alert-dismissible has-error" role="alert">
                                     Number of rows must be less than 10000
                                 </div>
-                                <input type="file" required id="ProductsExcelFile" name="ProductsExcelFile" />
+                                <input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required id="ProductsExcelFile" name="ProductsExcelFile" />
                                 <br />
                                 <button type="submit" class="btn btn-primary float-right">Add</button>
 
@@ -81,47 +82,76 @@
 </div>
 
 
+<div class="modal fade" id="FalidProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Data Audit</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="old-data" class="table table-bordered">
+                    <thead><tr><th>Name</th><th>Reason</th></tr></thead>
+
+                    <tbody></tbody>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <script>
     var errorList;
     $('#importProductsForm').ajaxForm(response => {
+        $('#old-data tbody').empty();
+
         if (response) {
             if (response.ok == true) {
                 errorList = response.err;
-                console.log(errorList);
+                if (errorList) {
+                    for (var i = 0; i < errorList.length; i++) {
+                        $('#old-data tbody').append('<tr><td>' + errorList[i].name + '</td><td>' + errorList[i].reason + '</td></tr>');
+
+                    }
+                }
+
                 Swal.fire({
                     icon: 'success',
                     text: response.message,
                 }).then(_ => {
-                    location.reload();
+                    if (errorList && errorList.length) {
+                        $("#FalidProduct").modal("show");
+                    }
+                    else {
+                      window.location.href = "/product/index";
+
+                    }
                 });
             }
             else {
- 
-
-                console.log(response.err);
+                errorList = response.err;
+                if (errorList) {
+                    for (var i = 0; i < errorList.length; i++) {
+                        $('#old-data tbody').append('<tr><td>' + errorList[i].name + '</td><td>' + errorList[i].reason + '</td></tr>');
+                    }
+                }
                 Swal.fire({
                     icon: 'error',
                     text: response.message,
+                }).then(_ => {
+                    if (errorList && errorList.length) {
+                        $("#FalidProduct").modal("show");
+                    }
                 });
             }
         }
     });
-
- 
-
-    //async function ExportProdcut() {
-
-    //    var now = moment().format();
-    //    const url = window.URL.createObjectURL(blob);
-    //    const a = document.createElement('a');
-    //    a.style.display = 'none';
-    //    a.href = url;
-    //    a.download = `Product_${now}.xlsx`;
-    //    document.body.appendChild(a);
-    //    a.click();
-    //    window.URL.revokeObjectURL(url);
-    //}
 </script>
 
- 

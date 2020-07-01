@@ -53,17 +53,7 @@ namespace AGMPOP.Web.Models
                     var prop = props[j];
                     var value = prop.GetValue(item);
                     row[j] = value ?? DBNull.Value;
-                    //if (value != null
-                    //    && (value.GetType() == typeof(DateTime)
-                    //    || Nullable.GetUnderlyingType(value.GetType()) == typeof(DateTime))
-                    //    && (DateTime)value == DateTime.MinValue)
-                    //{
-                    //    row[j] = DBNull.Value;
-                    //}
-                    //else
-                    //{
-                    //    row[j] = value ?? DBNull.Value;
-                    //}
+
                 }
                 dt.Rows.Add(row);
             }

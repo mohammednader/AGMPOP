@@ -4,7 +4,7 @@
     ViewData["Title"] = "Cycle: " + ViewBag.Title;
 
 }
-<div class="container card card-body">
+<div class="card card-body mt-3">
     <input hidden value="@Model.CycleId" id="cyceleId" />
     <ul id="tabs" class="nav nav-tabs">
         <li id="liStep_1" class="nav-item active">
@@ -25,7 +25,7 @@
     </ul>
     <div class="tab-content">
         <div id="home" class="tab-pane fade in active show">
-            @await Html.PartialAsync("_BasicCycleDetalis", Model)
+            @await Html.PartialAsync("_BasicCycleDetailsTab", Model)
         </div>
         <div id="territories" class="tab-pane fade in"></div>
         <div id="products" class="tab-pane fade in"></div>
@@ -51,7 +51,7 @@
     function LoadProducts() {
         var cyceleId = $("#cyceleId").val();
         $.ajax({
-            url: "/Cycles/_ProductCycleDetalis",
+            url: "/Cycles/_CycleProductDetails",
             type: "Get",
             data: { cyceleId },
             success: response => {

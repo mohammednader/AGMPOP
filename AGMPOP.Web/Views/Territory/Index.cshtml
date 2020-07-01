@@ -3,38 +3,25 @@
     ViewBag.Title = "Territories";
 }
 
+<div class="card card-body mt-2">
+
 
     <div class="row">
-
-        <div class="col-12 text-right mb-1"> 
-
-
-                <button type="button" class="material-tooltip-main mr-0 btn btn-default  text-center px-3 waves-effect waves-light" onclick="location.href='@Url.Action("ImportPage", "Territory")'">
-                    Import
-                    <i class="fal fa-arrow-up fa-align-center" h style="vertical-align: middle !important; font-size:15px;"></i>
-                </button>
-
-
-
-
-                <button type="button" class="material-tooltip-main  btn mr-0  text-center  px-3 waves-effect waves-light" style="background-color:#080a2e; color:white;" onclick='ExportTerritories()'>
-                    @*@Html.ActionLink("ExportTerritories", "ExportTerritories",new {@class= "waves-light" })*@ Export&nbsp;
-
-                    <i class="fal fa-arrow-down fa-align-center " style="vertical-align: middle !important; font-size:15px;"></i>
-                </button>
-
-         </div>
-
-
+        <div class="col-12 text-right mb-1">
+            <button type="button" class="btn btn-outline-success btn-md" onclick="location.href='@Url.Action("ImportPage", "Territory")'">
+                Import&nbsp;&nbsp;<i class="fal fa-arrow-up fa-align-center align-middle"></i>
+            </button>
+            <button type="button" class="btn btn-success btn-md" onclick='ExportTerritories()'>
+                Export&nbsp;&nbsp;<i class="fas fa-file-excel fa-align-center align-middle"></i>
+            </button>
+        </div>
         <div class="col-12">
-            <div id="JsTreeHere" class="card card-body ">
+            <div id="JsTreeHere">
 
             </div>
         </div>
-
     </div>
-
-
+</div>
 
 <script>
 
@@ -62,12 +49,7 @@
 
 </script>
 
-
-
-
 <script>
- 
-
     async function ExportTerritories() {
         var now = moment().format();
          fetch('@Url.Action("ExportTerritories")', {

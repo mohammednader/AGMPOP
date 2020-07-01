@@ -78,6 +78,7 @@ namespace AGMPOP.BL.Repositories
 
             var data = Context.Product.Where(f => f.ProductId == id).Include(f => f.Department).Select(c => new ProductDTO
             {
+                ProductId = c.ProductId,
                 Name = c.Name,
                 //TypeId = c.TypeId.GetValueOrDefault(),
                 Code = c.Code,

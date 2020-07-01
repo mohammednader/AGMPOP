@@ -7,22 +7,7 @@
 <link href="~/mobile/assets/css/site.css" rel="stylesheet" />
 <div class=" mt-2 ">
     <div id="cyclelist">
-        <a href="../Mobile/CycleName?cycleId=8">
-            <div class="card card-body mb-2 Home" style="cursor:pointer">
-                <div class="row">
-                    <div class="col-3 col-xl-1 text-md-center d-flex justify-content-md-left align-items-md-left">
-                        <span class="LeftCardLogo">N</span>
-                    </div>
-                    <div class="col-7 col-xl-10 d-flex flex-column justify-content-center">
-                        <label></label>
-                        <h4>Test Cycle  &nbsp;<i class="fas fa-circle" style="font-size:18px;"></i></h4>
-                    </div>
-                    <div class="col-2 col-xl-1 d-flex flex-column justify-content-center text-center">
-                        <i class="fas fa-chevron-right"></i>
-                    </div>
-                </div>
-            </div>
-        </a>
+         
     </div>
 </div>
 <style>
@@ -54,8 +39,7 @@
         //var userlat = currLocation.latitude;
         //var userlng = currLocation.longitude;
         //const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/" + userID + "/cycles?Page=" + 1 + "&Limit=" + 20;
-        debugger;
-        var divCycleList = $('#cyclelist');
+         var divCycleList = $('#cyclelist');
         divCycleList.empty();
 
 
@@ -78,7 +62,7 @@
                                 <span class="LeftCardLogo">${cycletype}</span >
                             </div>
                             <div class="col-7 col-xl-10 d-flex flex-column justify-content-center">
-                                <label>${moment(res.data[i].startDate).format('DD/MM/YYYY')}  - ${moment(res.data[i].endDate).format('DD/MM/YYYY')}</label>
+                                <label>${moment(res.data[i].startDate).format('DD/MM/YYYY HH:mm')}  - ${moment(res.data[i].endDate).format('DD/MM/YYYY HH:mm')}</label>
                                 <h4>${res.data[i].name} &nbsp;${res.data[i].name == true ? `<i class="fas fa-circle" style="font-size:15px;"></i>` : `<i class="fas fa-circle d-none"></i>`}</h4>
                             </div>
                             <div class="col-2 col-xl-1 d-flex flex-column justify-content-center text-center">
@@ -89,8 +73,8 @@
                             divCycleList.append(cycleDetailsDiv);
                         }
                     }
-                    else if (res.data[i].length == 0) {
-                        divCycleList.append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">Sorry ,, No cycles Found !!</div>`);
+                    else   {
+                        divCycleList.append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert"> No active cycles Found </div>`);
                 }
                 console.log(cycleDetailsDiv);
                 }

@@ -12,8 +12,9 @@
 
 
         <div class="col-6 col-lg-4  text-right ">
+             
             <span class="pt-3 pb-3 stock-card d-flex flex-column justify-content-center align-items-center float-right">
-                <h5>Total Items</h5>
+                <h6>Total Items</h6>
                 <span class="BigNum"></span>
             </span>
         </div>
@@ -23,10 +24,10 @@
 </div>
 
 <div class="ContentAfterTopBar">
-    <label class="p-2">Transactions Details</label>
 
 
-    <div class=" card card-body mb-4  pl-md-5 pr-md-5 TransferDetails">
+    <div class="card card-body mb-4  pl-md-5 pr-md-5 TransferDetails">
+        <h4 class="text-center mb-4">Transactions Details</h4>
 
     </div>
 
@@ -37,15 +38,21 @@
     .table tbody tr td {
         vertical-align: middle;
     }
+    .product-img {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+  margin: 0 auto; }
 </style>
 
 <script>
     // ================== JQUERY ================== //
     $(document).ready(function () {
-        $('.dataTables_length').addClass('bs-select');
-        $("select").removeClass("custom-select");
-        $("#AvailableActions").hide();
-        GetCycleName();
+          GetCycleName();
     });
 
     // ================== GLOBAL VARIABLES ================== //
@@ -54,7 +61,7 @@
     var NotificationID = x.NotificationId;
     var TransID = x.TransactionId;
     // ================== GET TRANSACTION DETAILS ================== //
- 
+
 
         function GetCycleName() {
         var cycleId = CycleID;
@@ -68,7 +75,7 @@
                 if (res) {
                     var cycletype = res.cycleType == 1 ? "NationWide" : "Event";
                     var Name = `<h4 style="display:contents">${res.name}</h4><label style="display:contents; font-size : 16px" > - ${cycletype}</label>
-                    <label class="mt-2">${moment(res.startDate).format('DD/MM/YYYY')} - ${moment(res.endDate).format('DD/MM/YYYY')}</label>`
+                    <label class="mt-2">${moment(res.startDate).format('DD/MM/YYYY HH:mm')} - ${moment(res.endDate).format('DD/MM/YYYY HH:mm')}</label>`
                     $(".cycleDetails").append(Name);
                 }
                 else {
@@ -82,7 +89,7 @@
 
     }
 
- 
+
 
     // ================== GET PRODUCTS DETAILS ================== //
 
@@ -97,29 +104,43 @@
             data: { cycleId, TransID },
             success: response => {
                 var res = response.data;
-
                  if (res) {
+                var header = ` <div class="row">
+                       <div class="col-3 m-auto text-center">
+                          <b>  Image </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                          <b>  Name </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                          <b> Code  </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                         <b> Quantity  </b>
+                       </div>
+                   </div><hr />`
+                $(".TransferDetails").append(header);
                     // ======== append cycle date =======
                     for (i = 0; i < res.length; i++) {
                         var Products_List = ` <div class="row">
-                            <div class="col-3 m-auto">
-                                <img src="${res[i].productImg}" style="border-radius:50%" width="80" height="80">
+                            <div class="col-3 m-auto text-center">
+                                <img src="${res[i].productImg} "class="img-circle product-img">
                             </div>
-                            <div class="col-3 m-auto">
+                            <div class="col-3 m-auto text-center">
                                 <h6>${res[i].productName}</h6>
                             </div>
-                            <div class="col-3 m-auto">
+                            <div class="col-3 m-auto text-center">
                                 <h6>${res[i].code}</h6>
                             </div>
- 
-                            <div class="col-3 text-center text-md-right m-auto">
+
+                            <div class="col-3  m-auto  text-center">
                                 <span class="ProductsNum">${res[i].quantity}</span>
                             </div>
                         </div><hr /> `
                         $(".TransferDetails").append(Products_List);
                     }
                 }
- 
+
             },
             //ShowNotification()
         })
@@ -147,7 +168,7 @@
                          $(".cycleDetails").append(CycleDetails);
                     }
                     else {
-                        $(".cycleDetails").append("ERROR");
+                        $(".cycleDetails").append("");
                     }
 
              },
@@ -155,38 +176,8 @@
         });
 
     }
+
  
-
-    // ================== NOTIFICATION FUNCTION ================== //
-
-    async function ShowNotification() {
-        var currLocation = await getCurrentLocation();
-        var userlat = currLocation.latitude;
-        var userlng = currLocation.longitude;
-        const APIurl = BaseAPIurl + userlat + "/" + userlng + "/" + DeviceId + "/users/" + userID + "/notification/" + NotificationID;
-
-        let apiResponse = await fetch(proxyurl + APIurl, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + AccessToken,
-                //'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-            },
-            body: JSON
-        });
-
-        var res;
-        if (apiResponse.ok) {
-
-            res = await apiResponse.json();
-            if (res["data"] != null) {
-                console.log(res["data"])
-            } else {
-                console.log("false")
-            }
-        }
-    }
 </script>
 
 

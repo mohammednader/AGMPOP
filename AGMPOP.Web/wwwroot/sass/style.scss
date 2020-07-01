@@ -57,18 +57,21 @@ table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, tab
     display: block;
     opacity: .3;
 }
- 
-.btn {
-    padding: 0.5rem 0.7rem;
+.form-control.error {
+    border-color: red !important;
 }
-.btn-floating {
+.btn {
+    //padding: 0.5rem 0.7rem;
+    box-shadow: none !important;
+}
+/*.btn-floating {
     margin: 1px;
     width: 32px;
     height: 32px;
-}
-.btn-floating i {
-    font-size: 1.25rem;
-    line-height: 40px;
+}*/
+.btn-floating {
+    border-width: 0;
+    box-shadow: none !important;
 }
 
 //loader
@@ -94,4 +97,15 @@ position: fixed;
         padding-bottom:0rem !important;
         padding-top:0.5rem !important;
     }
+}
+
+.product-img{
+    background-position:center;
+    background-repeat:no-repeat;
+    background-size:cover;
+    border:1px solid #ccc;
+    border-radius:50%;
+    height:50px;
+    width:50px;
+    margin:0 auto;
 }

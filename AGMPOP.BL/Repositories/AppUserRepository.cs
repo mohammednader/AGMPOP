@@ -253,6 +253,28 @@ namespace AGMPOP.BL.Repositories
             return result;
         }
 
+        public  List<AppUser> GetAllWithSystemAdmin(Expression<Func<AppUser, bool>> predicate = null)
+        {
+            var result = new List<AppUser>();
+            try
+            {
+              var  query = Context.AppUser
+                                .Where(u => u.IsDeleted != true)
+                                .Include(u => u.JobTitle)
+                                .AsQueryable();
+
+
+                if (predicate != null)
+                {
+                    query = query.Where(predicate);
+                }
+
+                result = query.ToList();
+            }
+            catch (Exception e)
+            { }
+            return result;
+        }
         public AppUser GetUserWithJobTitle(int userId)
         {
             var model = Context.AppUser.Where(f => f.Id == userId).Include(f => f.JobTitle).FirstOrDefault();

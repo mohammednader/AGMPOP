@@ -1,21 +1,16 @@
 ﻿@model List<AGMPOP.Web.Models.UserVM>
 
-<style>
-    th, td {
-        text-align: center;
-    }
-</style>
-<table id="tblUsers" class="table table-striped table-bordered table-responsive-sm table-responsive-md table-responsive-lg">
+<table id="tblUsers" class="table table-striped  table-responsive-sm">
     <thead>
         <tr>
             <th>Name</th>
             <th>Email</th>
-            <th>Phone</th>
+            <th style="width:150px;">Phone</th>
             <th>Role(s)</th>
             <th>Department</th>
             <th>Job Title</th>
-            <th>Active</th>
-             <th>Actions</th>
+            <th class="text-center">Active</th>
+            <th data-sortable="false" class="text-center">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -25,43 +20,41 @@
             {
                 var item = Model[i];
                 <tr>
-                    <td>@item.Name</td>
+                    <td><b>@item.Name</b></td>
                     <td>@item.Email</td>
                     <td>@item.PhoneNumber</td>
                     <td>@item.Roles</td>
                     <td>@item.Department</td>
                     <td>@item.JobTitle</td>
-                    <td>
+                    <td class="text-center">
                         @if (item.IsActive)
                         {
-                            <i title="Active" class="text-success fas fa-check-circle" style="font-size:20px;"><span class="sr-only">1</span></i>
+                            <i title="Active" class="material-tooltip-main text-success fas fa-check-circle" data-toggle="tooltip" style="font-size:20px;"><span class="sr-only">1</span></i>
                         }
                         else
                         {
-                            <i title="Inactive" class="text-danger fas fa-times-circle" style="font-size:20px;"><span class="sr-only">0</span></i>
+                            <i title="Inactive" class="material-tooltip-main text-danger fas fa-times-circle"  style="font-size:20px;"><span class="sr-only">0</span></i>
                         }
                     </td>
                   
                     <td class="text-center">
- 
-
-                        <button class="material-tooltip-main btn btn-info btn-floating my-0 p-0" data-toggle="tooltip" title="reset password" onclick="resetPassword(@item.Id)">
-                            <i class="far fa-key" style="font-size:17px; margin-top:-5px;"></i>
+                        <button class="material-tooltip-main btn btn-info btn-floating btn-sm my-0 p-0" data-toggle="tooltip" title="Reset Password" onclick="resetPassword(@item.Id)">
+                            <i class="fas fa-key" ></i>
                          </button>
 
-                        <a href="@Url.Action("UpdateUser", new { Id = item.Id })" class="material-tooltip-main btn-primary  btn btn-floating my-0 p-0" data-toggle="tooltip" title="Edit">
-                            <i class="fas fa-edit " style="font-size:15px; margin-top:-5px;"></i>
+                        <a href="@Url.Action("UpdateUser", new { Id = item.Id })" class="material-tooltip-main btn-primary btn btn-floating btn-sm my-0 p-0" data-toggle="tooltip" title="Edit">
+                            <i class="fas fa-pencil-alt"></i>
                         </a>
                         @if (item.IsActive)
                         {
-                            <button class="material-tooltip-main btn btn-danger btn-floating my-0 p-0" data-toggle="tooltip" title="deactivate" onclick="deactivateUser(@item.Id)">
-                                <i class="fad fa-user-times   " style="font-size:15px; margin-top:-5px;"></i>
+                            <button class="material-tooltip-main btn btn-danger btn-floating btn-sm my-0 p-0" data-toggle="tooltip" title="Deactivate" onclick="deactivateUser(@item.Id)">
+                                <i class="fas fa-lock"></i>
                             </button>
                         }
                         else
                         {
-                            <button class="material-tooltip-main btn btn-success btn-floating my-0 p-0" data-toggle="tooltip" title="activate" onclick="activateUser(@item.Id)">
-                                <i class="fad fa-user-check   " style="font-size:15px; margin-top:-5px;"></i>
+                            <button class="material-tooltip-main btn btn-success btn-floating btn-sm my-0 p-0" data-toggle="tooltip" title="Activate" onclick="activateUser(@item.Id)">
+                                <i class="fas fa-lock-open"></i>
                             </button>
 
                         }
@@ -81,7 +74,13 @@
     $(document).ready(function () {
         var count = @Html.Raw(Model?.Count);
         if (count) {
-            $("#tblUsers").dataTable();
+            $('#btnExport').show(); 
+            $("#tblUsers").DataTable({
+                "ordering": true
+
+            });
+        } else {
+            $('#btnExport').hide();
         }
 
         $(function () {

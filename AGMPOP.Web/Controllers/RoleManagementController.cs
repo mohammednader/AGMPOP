@@ -30,7 +30,7 @@ namespace AGMPOP.Web.Controllers
         public PartialViewResult _RoleList(RoleSC search)
         {
             var roles = UnitOfWork.RoleBL.SearchRoles(search);
-            var users = UnitOfWork.AppUserBL.Find(u => roles.Any(r => r.CreatedBy == u.Id || r.LastModifiedBy == u.Id));
+            var users = UnitOfWork.AppUserBL.GetAllWithSystemAdmin(u => roles.Any(r => r.CreatedBy == u.Id || r.LastModifiedBy == u.Id));
             var landingPages = UnitOfWork.PermissionBL.Find(p => roles.Any(r => r.DefaultPageId == p.Id));
 
             var model = roles.Select(r => new RoleVM(r)
@@ -241,6 +241,14 @@ namespace AGMPOP.Web.Controllers
         [HttpDelete]
         public JsonResult DeleteRole(int id)
         {
+            if (UnitOfWork.RoleBL.IsRelatedToUser(id))
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Message = "you can't delete this role"
+                });
+            }
             UnitOfWork.RoleBL.RemoveFound(r => r.Id == id);
             if (UnitOfWork.Complete(LoggedUserId) > 0)
             {

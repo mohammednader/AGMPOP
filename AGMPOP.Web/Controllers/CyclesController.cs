@@ -135,6 +135,9 @@ namespace AGMPOP.Web.Controllers
         #endregion
 
 
+        #region Cycle Details
+
+        #region DetailsIndexTab
         [HttpGet]
         public IActionResult CycleDetails(int id)
         {
@@ -162,19 +165,21 @@ namespace AGMPOP.Web.Controllers
 
         [HttpGet]
         [PermissionNotRequired]
-        public PartialViewResult _BasicCycleDetalis()
+        public PartialViewResult _BasicCycleDetailsTab()
         {
 
-            return PartialView("_BasicCycleDetalis");
+            return PartialView("_BasicCycleDetailsTab");
         }
+
+        #endregion
 
         #region _Product Detalis Tab
 
         [HttpGet]
         [PermissionNotRequired]
-        public IActionResult _ProductCycleDetalis()
+        public IActionResult _CycleProductDetails()
         {
-            return View("_ProductCycleDetalis");
+            return View("_CycleProductDetails");
         }
 
         [PermissionNotRequired]
@@ -205,25 +210,29 @@ namespace AGMPOP.Web.Controllers
             }).ToList();
             return Json(products);
         }
+        #endregion
 
+        #region Territory Details Tab
         [PermissionNotRequired]
-        public PartialViewResult TerritoiesCycleDetalis()
+        public PartialViewResult CycleTerritoryDetails()
         {
-
-            return PartialView("cycleDetailter");
+            return PartialView("CycleTerritoryDetails");
         }
-        [PermissionNotRequired]
-        public PartialViewResult cycleUserDetails()
-        {
+        #endregion
+        //[PermissionNotRequired]
+        //public PartialViewResult cycleUserDetails()
+        //{
 
-            return PartialView();
-        }
+        //    return PartialView();
+        //}
 
+        #region User Details Tab
         [PermissionNotRequired]
         public PartialViewResult _CycleUserDetails()
         {
             return PartialView();
         }
+        
 
         [PermissionNotRequired]
         public JsonResult GetAllUsersCycleDetails(int? cycleId = null)
@@ -246,11 +255,21 @@ namespace AGMPOP.Web.Controllers
             };
             return Json(model);
         }
+        #endregion
+
+
+
 
 
         #endregion
 
 
+        [PermissionNotRequired]
+        [HttpPost]
+        public JsonResult CycleDetalisTab(_CycleDetalisTab model)
+        {
+            return Json(ModelState.IsValid);
+        }
 
         #region NewCycle
 
@@ -265,7 +284,7 @@ namespace AGMPOP.Web.Controllers
         [HttpGet]
         public IActionResult UpdateCycle(int id)
         {
-            ViewBag.Title = $"Update Cycle #{id}";
+            ViewBag.Title = $"Update Cycle";
             var cycle = UnitOfWork.CyclesBL.GetByID(id);
             return View("NewCycle", new _CycleDetalisTab(cycle));
         }
@@ -305,12 +324,18 @@ namespace AGMPOP.Web.Controllers
             if (LoggedIsSystemAdmin)
             {
                 Result = UnitOfWork.DepartmentBL
-                                               .Find(d => d.IsActive == true).ToList();
+                                               .Find(d => d.IsActive == true
+                                               && (d.Product.Count(p => p.IsActive == true && p.InventoryQnty > 0) > 0)
+                                               && (d.AppUser.Count(u => u.IsActive == true) > 0))
+                                               .ToList();
             }
             else // normal user 
             {
                 Result = UnitOfWork.DepartmentBL
-                                               .Find(d => d.Id == LoggedUserDepartmentId).ToList();
+                                               .Find(d => d.Id == LoggedUserDepartmentId
+                                                 && (d.Product.Count(p => p.IsActive == true && p.InventoryQnty > 0) > 0)
+                                               && (d.AppUser.Count(u => u.IsActive == true) > 0))
+                                                                                                 .ToList();
             }
             var model = Result?
                                .Select(d => new { d.Id, d.Name })
@@ -345,6 +370,7 @@ namespace AGMPOP.Web.Controllers
             try
             {
                 var terList = UnitOfWork.TerritoriesBL.CycleTerritoies(cycleId);
+                terList = terList.Select(t => { t.state.selected = false; return t; }).ToList();
                 var json = JsonConvert.SerializeObject(terList);
 
                 return Json(new { Success = true, data = json });
@@ -370,7 +396,7 @@ namespace AGMPOP.Web.Controllers
                                    .Select(int.Parse)
                                    .ToList();
             }
-           
+
 
 
             if (!LoggedIsSystemAdmin)
@@ -458,12 +484,6 @@ namespace AGMPOP.Web.Controllers
         #endregion
 
 
-        [PermissionNotRequired]
-        [HttpPost]
-        public JsonResult CycleDetalisTab(_CycleDetalisTab model)
-        {
-            return Json(ModelState.IsValid);
-        }
 
         [PermissionNotRequired]
         public JsonResult CheckCycleName(int id, string name, int Department)
@@ -545,16 +565,16 @@ namespace AGMPOP.Web.Controllers
                 }
                 #region cycle basic details
                 DateTime StartDate = DateTime.ParseExact(model.Details.StartDate, "dd/MM/yyyy HH:mm", null);
-               // DateTime StartDateTime = StartDate.Date.AddHours(model.Details.start_time); // + new TimeSpan(model.Details.start_time, 0, 0);
+                // DateTime StartDateTime = StartDate.Date.AddHours(model.Details.start_time); // + new TimeSpan(model.Details.start_time, 0, 0);
                 DateTime EndDate = DateTime.ParseExact(model.Details.EndDate, "dd/MM/yyyy HH:mm", null);
-               // DateTime EndDateTime = EndDate.Date.AddHours(model.Details.End_time); //+ new TimeSpan(model.Details.End_time, 0, 0);
+                // DateTime EndDateTime = EndDate.Date.AddHours(model.Details.End_time); //+ new TimeSpan(model.Details.End_time, 0, 0);
                 DateTime ReconciliationDate = DateTime.ParseExact(model.Details.ReconciliationDate, "dd/MM/yyyy HH:mm", null);
-               // DateTime ReconDatetime = ReconciliationDate.Date.AddHours(model.Details.Reconciliation_time);// + new TimeSpan(model.Details.Reconciliation_time, 0, 0);
+                // DateTime ReconDatetime = ReconciliationDate.Date.AddHours(model.Details.Reconciliation_time);// + new TimeSpan(model.Details.Reconciliation_time, 0, 0);
 
                 var newCycle = new Cycles
                 {
                     Name = model.Details.Name,
-                   Type = model.Details.Type ?? 0,
+                    Type = model.Details.Type ?? 0,
                     DepartmentId = model.Details.Department,
                     //  StartDate = DateTime.ParseExact(model.Details.StartDate, "dd/MM/yyyy", null),
                     StartDate = StartDate,
@@ -563,7 +583,7 @@ namespace AGMPOP.Web.Controllers
                     //ReconciliationDate = DateTime.ParseExact(model.Details.ReconciliationDate, "dd/MM/yyyy", null),
                     ReconciliationDate = ReconciliationDate,
                     IsActive = true,
-                    Status = (int)POPEnums.CycleStatus.New, // edit by mo salah
+                    Status = (int)POPEnums.CycleStatus.Upcoming, // edit by mo salah
                 };
                 #endregion
 
@@ -663,8 +683,8 @@ namespace AGMPOP.Web.Controllers
                 {
 
                     CreatedAt = DateTime.Now,
-                    Title = NotificationType.NotConfirmed.ToString(),
-                    Notificationtype = (int)NotificationType.NotConfirmed,
+                    Title = NotificationType.Unconfirmed.ToString(),
+                    Notificationtype = (int)NotificationType.Unconfirmed,
                     IsSeen = false,
                     ToUserId = model.BBXUser
                 });
@@ -674,7 +694,7 @@ namespace AGMPOP.Web.Controllers
                 var transaction = new Transaction
                 {
                     TransType = (int)TransactionTypes.Delivery,
-                    Status = (int)TransactionStatus.NewRequst,
+                    Status = (int)TransactionStatus.New_Request,
                     CreatedById = LoggedUserId,
                     CreateDate = now,
                     InventoryLog = inventoryLogs,

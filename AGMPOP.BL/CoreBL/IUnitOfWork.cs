@@ -25,7 +25,7 @@ namespace AGMPOP.BL.CoreBL
         IInventoryLogRepository  InventoryLogBL { get; }
         INotificationsRepository NotificationsBL { get; }
         IUserClearanceRepository UserClearanceBL { get; }
-        IAuditRepository IAuditBL { get; }
+        IAuditRepository AuditBL { get; }
         int Complete(int userId);
     }
 }

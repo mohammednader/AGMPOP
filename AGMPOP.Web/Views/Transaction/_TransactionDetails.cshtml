@@ -9,13 +9,13 @@
     </div>
     <div class="modal-body">
 
-        <table id="cycles-table" class="table">
+        <table id="cycles-table" class="table table-bordered">
             <thead>
                 <tr>
-                    <th data-field="photo">Photo</th>
-                    <th data-field="name">Name</th>
-                    <th data-field="code">Code</th>
-                    <th data-field="type">Quantity</th>
+                    <th class="text-center" data-field="photo">Photo</th>
+                    <th class="text-center" data-field="name">Name</th>
+                    <th class="text-center" data-field="code">Code</th>
+                    <th class="text-center" data-field="type">Quantity</th>
     
                 </tr>
             </thead>
@@ -23,13 +23,13 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="">
-                            <img src="@item.ProductImg" style="height:40px; width:40px;" />
+                        <td class="text-center">
+                            <img src="@item.ProductImg"class="img-circle product-img" />
                         </td>
-                        <td>
+                        <td class="text-center">
                             <a>@item.ProductName</a>
                         </td>
-                        <td>@item.Code</td>
+                        <td class="text-center">@item.Code</td>
     
     
                         <td class="text-center">

@@ -30,7 +30,7 @@ namespace AGMPOP.BL.Repositories
                 {
                     if (search.DepartmentIds?.Count > 0)
                     {
-                        query = query.Where(c => search.DepartmentIds.Contains(c.User.DepartmentId));
+                  query = query.Where(c => search.DepartmentIds.Contains(c.User.DepartmentId));
                     }
                     if (search.Users?.Count > 0)
                     {

@@ -81,20 +81,20 @@ namespace AGMPOP.Web.Controllers
                 int.TryParse(parent, out _parent);
                  if (_parent != 0)
                 {
-                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.ParentId == _parent && f.Name.ToLower() == text.ToLower() && f.Inactive == false).ToList();
+                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.ParentId == _parent && f.Name.ToLower() == text.ToLower() && f.IsActive == true).ToList();
                     if (terrWithSameName.Count == 0)
                     {
                         UnitOfWork.TerritoriesBL.Save(new Territories() { TerritoryId = _id, Name = text, ParentId = _parent });
                     }
                     else
                     {
-                        return Json(new { Success = false, Message = "This name is exist" });
+                        return Json(new { Success = false, Message = "This name is already existing" });
                     }
 
                 }
                 else
                 {
-                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.TerritoryId == _id && f.Name.ToLower() == text.ToLower() && f.Inactive == false).ToList();
+                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.TerritoryId == _id && f.Name.ToLower() == text.ToLower() && f.IsActive == true).ToList();
                     if (terrWithSameName.Count == 0)
 
                     {
@@ -102,7 +102,7 @@ namespace AGMPOP.Web.Controllers
                     }
                     else
                     {
-                        return Json(new { Success = false, Message = "This name is exist" });
+                        return Json(new { Success = false, Message = "This name is already existing" });
 
                     }
                 }
@@ -144,7 +144,7 @@ namespace AGMPOP.Web.Controllers
                 int.TryParse(parent, out _parent);
                 if (_parent != 0)
                 {
-                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.ParentId == _parent && f.Name.ToLower() == text.ToLower() && f.Inactive == false).ToList();
+                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.ParentId == _parent && f.Name.ToLower() == text.ToLower() && f.IsActive == true).ToList();
                     if (terrWithSameName.Count == 0)
                     {
                         UnitOfWork.TerritoriesBL.Save(new Territories() { Name = text, ParentId = _parent });
@@ -152,13 +152,13 @@ namespace AGMPOP.Web.Controllers
                     }
                     else
                     {
-                        return Json(new { Success = false, Message = "This name is exist" });
+                        return Json(new { Success = false, Message = "This name is already existing" });
                     }
                 }
 
                 else
                 {
-                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.TerritoryId == _id && f.Name.ToLower() == text.ToLower() && f.Inactive == false).ToList();
+                    var terrWithSameName = UnitOfWork.TerritoriesBL.GetAll().Where(f => f.TerritoryId == _id && f.Name.ToLower() == text.ToLower() && f.IsActive == true).ToList();
                     if (terrWithSameName.Count == 0)
 
                     {
@@ -166,7 +166,7 @@ namespace AGMPOP.Web.Controllers
                     }
                     else
                     {
-                        return Json(new { Success = false, Message = "This name is exist" });
+                        return Json(new { Success = false, Message = "This name is already existing" });
 
                     }
                 }
@@ -202,7 +202,7 @@ namespace AGMPOP.Web.Controllers
                 var UserAssignedtoTerr = UnitOfWork.TerritoriesBL.userTerritory(id);
 
                 //*** get all child from this parent (id) ***//
-                var ParentIds = UnitOfWork.TerritoriesBL.Find(f => f.ParentId == id && f.Inactive == false).ToList();
+                var ParentIds = UnitOfWork.TerritoriesBL.Find(f => f.ParentId == id && f.IsActive == true).ToList();
                 var cyclesInTerr = UnitOfWork.TerritoriesBL.GetCycleInTerr(id);
 
                 string Msg = "";
@@ -225,17 +225,17 @@ namespace AGMPOP.Web.Controllers
 
                 {
                     var item = UnitOfWork.TerritoriesBL.GetByID(id);
-                    item.Inactive = true;
+                    item.IsActive = false;
                     UnitOfWork.TerritoriesBL.Update(item);
                 }
                 if (UnitOfWork.Complete(LoggedUserId) > 0)
                 {
                     // success
-                    return Json(new { Success = true, Message = ApplicationMessages.DeleteSuccess });
+                    return Json(new { Success = true, Message = "Deleted successfully " });
                 }
                 else
                 {
-                    return Json(new { Success = false, Message = ApplicationMessages.DeleteFailed });
+                    return Json(new { Success = false, Message = Msg });
                 }
             }
             catch (Exception e)
@@ -263,15 +263,15 @@ namespace AGMPOP.Web.Controllers
                 foreach (var item in TerritoryLst)
                 {
                     if (item.Parent != null)
-                        sheet.Add(new TerritoryExport() { SubTerritory = item.Name, Territory = item.Parent.Name });
-                    else
-                        sheet.Add(new TerritoryExport() { SubTerritory = item.Name });
+                        sheet.Add(new TerritoryExport() { ParentTerritory = item.Parent.Name, Territory = item.Name });
+                    //else
+                    //    sheet.Add(new TerritoryExport() { Territory = item.Name });
                 }
                 var TerrDT = Helper.GenerateDataTable(sheet.ToArray());
 
                 using (var wb = new XLWorkbook())
                 {
-                    wb.Worksheets.Add(TerrDT, "TerritoriestList");
+                    wb.Worksheets.Add(TerrDT, "Sheet1");
 
                     wb.SaveAs(stream);
                     return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "TerritoriestList.xlsx");
@@ -289,6 +289,9 @@ namespace AGMPOP.Web.Controllers
         }
         #endregion
 
+        #region MyRegion
+
+   
         public ActionResult ImportPage()
         {
             return View();
@@ -296,7 +299,7 @@ namespace AGMPOP.Web.Controllers
 
         [HttpPost]
         [PermissionNotRequired]
-        public JsonResult ImportTerr(IFormFile fileExcel, string testname)
+        public JsonResult ImportTerr(IFormFile fileExcel)
         {
             try
             {
@@ -323,8 +326,8 @@ namespace AGMPOP.Web.Controllers
                    
                     wb.SaveAs(Fullpath);
                     wb.TryGetWorksheet("Sheet1", out sheet);
- 
- 
+
+
                     if (sheet != null)
                     {
                         // get last row
@@ -337,74 +340,110 @@ namespace AGMPOP.Web.Controllers
 
                         var territories = new List<TerritoryExport>();
                         var rowsCount = rowRange.Count();
+                        var firstrowRange = sheet.Rows(1, 2).ToList();
+                        var FirstRowcols = firstrowRange[0].Cells().ToList();
 
-                        try
-                        {
 
-                            for (int i = 0; i < rowsCount; i++)
+                        if (FirstRowcols[0].Value.ToString().ToLower() == "territory" && FirstRowcols[1].Value.ToString().ToLower() == "parent territory")
+                        { 
+                            try
                             {
-                                var cols = rowRange.ElementAt(i).Cells().ToList();
-                                if (!string.IsNullOrEmpty(cols.ElementAt(0).Value.ToString()))
+                                for (int i = 0; i < rowsCount; i++)
                                 {
+                                    var row = rowRange.ElementAt(i).Cells().ToList();
+                                    int rowlenght = row.Count;
 
-                                    territories.Add(new TerritoryExport
+                                    // check terr and sub terr has two values
+                                    if (rowlenght==2)
                                     {
-                                        Territory = (string)cols.ElementAt(0).Value,
-                                        SubTerritory = (string)cols.ElementAt(1).Value,
+                                        territories.Add(new TerritoryExport
+                                        {
+                                            Territory = (string)row.ElementAt(0).Value,
+                                            ParentTerritory = (string)row.ElementAt(1).Value,
+                                        });
+                                    }
+                                }
+                                if (territories.Count==0)
+                                {
+                                    return Json(new
+                                    {
+                                        success = false,
+                                        Message = "There is no territories",
+                                    });
+
+                                }
+                                bool IsUploded = false;
+                                for (int i = 0; i < territories.Count; i++)
+                                {            
+                                    var allActiveTerr = UnitOfWork.TerritoriesBL.Find(t => t.IsActive == true).ToList();
+
+                                    var _terr = territories[i];
+                                    int _parentId = allActiveTerr
+                                                            .Where(f => f.Name.ToLower().Trim() == _terr.ParentTerritory.ToLower().Trim()
+                                                                    && f.IsActive == true)
+                                                                                             .Select(f => f.TerritoryId)
+                                                                                                                         .FirstOrDefault();
+                                    if (_parentId != 0)
+                                    {
+                                        var terrWithSameName = allActiveTerr.Where(pa => pa.ParentId == _parentId && pa.IsActive == true && pa.Name.ToLower().Trim() == _terr.Territory.ToLower().Trim()).ToList();
+                                                                               
+                                        if (terrWithSameName.Count ==0)
+                                        {
+                                            var NewTerr = new Territories()
+                                            {
+                                                Name = _terr.Territory,
+                                                ParentId = _parentId,
+                                                IsActive = true,
+                                            };
+
+                                            UnitOfWork.TerritoriesBL.Add(NewTerr);
+                                            UnitOfWork.Complete(LoggedUserId);
+                                            IsUploded = true;
+                                        }
+                                    }
+                                }
+
+                                if (IsUploded == false)
+                                {
+                                    return Json(new
+                                    {
+                                        success = false,
+                                        Message = "No territories uploaded.",
                                     });
                                 }
                             }
-                            for (int i = 0; i < territories.Count; i++)
+
+                            catch (Exception ex)
                             {
-                                var _terr = territories[i];
-                                int _parentId = UnitOfWork.TerritoriesBL
-                                    .Find(f => f.Name.ToLower().Trim() == _terr.SubTerritory.ToLower().Trim() && f.Inactive == false)
-                                    .Select(f => f.TerritoryId)
-                                    .FirstOrDefault();
-                                if (_parentId != 0)
+                                return Json(new
                                 {
-                                    var NewTerr = new Territories()
-                                    {
-                                        Name = _terr.Territory,
-                                        ParentId = _parentId,
-                                        Inactive = false,
-                                    };
-                                    UnitOfWork.TerritoriesBL.Add(NewTerr);
-                                    UnitOfWork.Complete(LoggedUserId);
-                                }
+                                    success = false,
+                                    Message = "Invalid file structure",
+                                });
                             }
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            return Json(new
-                            {
-                                success = false,
-                                Message = "Invalid file structure",
-                            });
-                        }
-                        if (territories.Count == 0)
-                        {
-                            return Json(new { success = false, Message = "File is empty" });
-                        }
-                    }
+                            return Json(new { success = false, Message = "Please download right template" });
 
+                        }                    
+                    }
                     else
                     {
-                        return Json(new { success = false, Message = "Something went wrong , please try again later" });
+                        return Json(new { success = false, Message = "Please download right template and sheet name should be Sheet1" });
 
                     }
+
                 }
- 
-            }
- 
-            catch (Exception e)
+             }
+             catch (Exception e)
             {
                 return Json(new { success = false, Message = "Something went wrong , please try again later" });
             }
             return Json(new { success = true, Message = "Territories Uploaded" });
         }
 
- 
+      #endregion
     }
 
 }

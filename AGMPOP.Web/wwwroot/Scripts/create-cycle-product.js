@@ -7,7 +7,7 @@ var SelectedProductIds = [];
 var selectedProductType = 0, selectedProductDepartment = 0;
 
 const PRODUCT_MARKUP = `<div class="list-group-item d-flex align-items-center">
-                                <span style="content: url(#IMAGE#); width:30px; height:30px; border-radius:50%" class="mr-2"></span>
+                                <img src="#IMAGE#" style="width:30px; height:30px; border-radius:50%" class="mr-2"/>
                                 <span class="ml-2">#NAME#</span>
                                 <span class="form-check ml-auto">
                                     <input type="checkbox" class="form-check-input chkProduct" #DISABLED# #CHECKED# id="chkProduct-#ID#" onchange="toggleSelectProduct(this)" />
@@ -21,7 +21,7 @@ const PRODUCT_TYPE_MARKUP = '<button onclick=searchProductType(#ID#) class="btn 
 
 const SELECTED_PRODUCT_MARKUP = `<div data-product="#ID#" style="#DISABLED#" class="list-group-item px-1 py-1 selected-product-item">
                                 <div class="d-flex align-items-center">
-                                    <!--<span style="content: url(/Content/Images/logo.png); width:20px; height:20px; border-radius:50%" class="mr-2"></span>-->
+                                    <img src="#IMAGE#" style="width:20px; height:20px; border-radius:50%" class="mr-2"/> 
                                     <span class="font-small" style="max-width: 30ch; text-overflow:ellipsis">#NAME# <small class="text-secondary"> </small></span>
                                     <div style="display:#HIDE_QUANTITY#" class="form-group ml-auto my-0">
                                         <input type="number" min="1" max="#MAX#" value="#QTY#" class="txtQuantity" style="max-width: 7ch;" id="txtQuantity-#ID#" />
@@ -165,7 +165,7 @@ function addProduct(id, qty = 1, hideQuantity = false) {
         var markup = SELECTED_PRODUCT_MARKUP
             .replace(/#ID#/g, id)
             .replace(/#NAME#/g, product.name)
-        //    .replace(/#TYPE#/g, product.typeName)
+            .replace(/#IMAGE#/g, product.image)
             .replace(/#MAX#/g, product.maxQuantity)
             .replace(/#QTY#/g, product.quantity);
 
@@ -198,6 +198,7 @@ function removeProduct(id) {
 function validateQuantity(element) {
     var qty = element.value;
     var id = element.id.split('-')[1];
+    element.style.borderColor = "";
     $(`#errQuantity-${id}`).text('');
     if (!isNaN(id) && !isNaN(qty)) {
         var product = Products.find(p => p.id == id);
@@ -207,7 +208,8 @@ function validateQuantity(element) {
                 setTimeout(() => {
                     $(element).removeClass('shake-element');
                 }, 500);
-                qty = 1;
+                element.style.borderColor = "red";
+                qty = null;
             }
             else if (qty > product.maxQuantity) {
                 $(`#errQuantity-${id}`).text(`maximum: ${product.maxQuantity}`);
@@ -232,6 +234,9 @@ function getSelectedProducts(e) {
 function validateCycleProducts() {
     var products = getSelectedProducts();
     if (products && products.length) {
+        if (products.some(p => !p.quantity)) {
+            return null;
+        }
         return products.map(p => {
             return {
                 id: p.id,

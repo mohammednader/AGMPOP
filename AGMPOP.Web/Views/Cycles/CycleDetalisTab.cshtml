@@ -21,73 +21,71 @@
                     <div class="form-group col-4">
                         <label asp-for="Type" class="control-label"></label>
 
-                        <select id="Type" name="Type" class="mdb-select  pl-0">
-                        </select>
+                        <select id="Type" name="Type" class="mdb-select  pl-0"></select>
                         <span class="text-danger" id="errCycleType"></span>
                     </div>
 
                     <div class="form-group col-4">
                         <label asp-for="Department" class="control-label"></label>
-                        <select id="Department" name="Department" class="mdb-select  pl-0">
-                        </select>
+                        <select id="Department" name="Department" class="mdb-select  pl-0"></select>
                         <span class="text-danger" id="errCycleDepartment"></span>
                     </div>
 
                     <div class="form-group col-4">
-                        <label asp-for="StartDate" class="control-label"> </label>  
+                        <label asp-for="StartDate" class="control-label"> </label>
                         <input asp-for="StartDate" id="StartDate" readonly="@Model.StartDateDisabled" autocomplete="off" class="datetimepicker2 form-control" />
                         <span asp-validation-for="StartDate" class="text-danger"></span>
                         @*<div class="mt-1">
-                            <span><i class="fa fa-clock text-muted"></i></span>
-                            <select id="start_time" asp-for="start_time" class="form-control" style="width:100px; display:inline-block ">
-                                <option value="0" selected>00:00</option>
-                                @for (int i = 1; i < 24; i++)
-                                {
-                                    <option value="@i">@i:00</option>
-                                }
-                                 
-                            </select>
+                                <span><i class="fa fa-clock text-muted"></i></span>
+                                <select id="start_time" asp-for="start_time" class="form-control" style="width:100px; display:inline-block ">
+                                    <option value="0" selected>00:00</option>
+                                    @for (int i = 1; i < 24; i++)
+                                    {
+                                        <option value="@i">@i:00</option>
+                                    }
+
+                                </select>
 
 
-                        </div>*@
+                            </div>*@
                     </div>
                     <div class="form-group col-4">
                         <label asp-for="EndDate" class="control-label"></label>
                         <input asp-for="EndDate" name="endDate" id="endDate" class="datetimepicker2 form-control " autocomplete="off" />
                         <span asp-validation-for="EndDate" class="text-danger"></span>
                         @*<div class="mt-1">
-                            <span><i class="fa fa-clock text-muted"></i></span>
-                            <select id="End_time" asp-for="End_time" class="form-control" style="width:100px; display:inline-block ">
-                                <option value="0" selected>00:00</option>
-                                @for (int i = 1; i < 24; i++)
-                                {
-                                    <option value="@i">@i:00</option>
-                                }
+                                <span><i class="fa fa-clock text-muted"></i></span>
+                                <select id="End_time" asp-for="End_time" class="form-control" style="width:100px; display:inline-block ">
+                                    <option value="0" selected>00:00</option>
+                                    @for (int i = 1; i < 24; i++)
+                                    {
+                                        <option value="@i">@i:00</option>
+                                    }
 
-                            </select>
+                                </select>
 
 
-                        </div>*@
+                            </div>*@
                     </div>
                     <div class="form-group col-4">
                         <label asp-for="ReconciliationDate" class="control-label"></label>
                         <input asp-for="ReconciliationDate" id="recoDate" class="datetimepicker2 form-control " autocomplete="off" />
                         <span asp-validation-for="ReconciliationDate" class="text-danger"></span>
                         @*<div class="mt-1">
-                            <span><i class="fa fa-clock text-muted"></i></span>
-                            <select id="Reconciliation_time" asp-for="Reconciliation_time" class="form-control" style="width:100px; display:inline-block ">
-                                <option value="0" selected>00:00</option>
-                                @for (int i = 1; i < 24; i++)
-                                {
-                                    <option value="@i">@i:00</option>
-                                }
+                                <span><i class="fa fa-clock text-muted"></i></span>
+                                <select id="Reconciliation_time" asp-for="Reconciliation_time" class="form-control" style="width:100px; display:inline-block ">
+                                    <option value="0" selected>00:00</option>
+                                    @for (int i = 1; i < 24; i++)
+                                    {
+                                        <option value="@i">@i:00</option>
+                                    }
 
-                            </select>
+                                </select>
 
 
-                        </div>*@
+                            </div>*@
                     </div>
- 
+
                 </div>
             </form>
         </div>
@@ -111,7 +109,7 @@
             let selectedId = @Html.Raw(Json.Serialize(Model?.Department));
 
             $.ajax({
-                url: '@Url.Action("GetAllDepartments", "common")',
+                url: '@Url.Action("LoadCycleDepartments", "Cycles")',
                 method: 'GET',
 
                 success: response => {
@@ -167,9 +165,12 @@
 
     function validateStartDate() {
         var startDate = $('#StartDate').val();
+        var endDate = moment(startDate, "DD/MM/YYYY HH:mm").add(1, 'hours').format('DD/MM/YYYY HH:mm');
+        var recoDate = moment(startDate, "DD/MM/YYYY HH:mm").add(30, 'minutes').format('DD/MM/YYYY HH:mm');
+
         if (startDate) {
-            $('#endDate').data("DateTimePicker").minDate(startDate);
-            $('#recoDate').data("DateTimePicker").minDate(startDate);
+            $('#endDate').data("DateTimePicker").minDate(endDate);
+            $('#recoDate').data("DateTimePicker").minDate(recoDate);
             if (EndDate && RecoDate) {
                 $('#endDate').val(EndDate);
                 $('#recoDate').val(RecoDate);
@@ -210,7 +211,7 @@
     async  function CheckCycleName() {
 
         return new Promise(function (resolve, reject) {
-            try { 
+            try {
             var id = $('#Id').val();
             var name = $('#Name').val();
             var Department = $('#Department').val();
@@ -231,9 +232,9 @@
             } catch (e) {
                 resolve(2);
             }
-           
+
         });
-        
+
     }
 </script>
 
@@ -281,8 +282,8 @@
                 resolve(ReturnObject);
             });
 
-           
-            if (exist== 0) {
+
+            if (exist == 0) {
                 $('#CycleDetalisTab').submit();
             }
             else if (exist == 1) {

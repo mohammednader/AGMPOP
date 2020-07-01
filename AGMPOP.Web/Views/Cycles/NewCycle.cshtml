@@ -48,14 +48,16 @@
                     <div class="form-group">
                         <label>select HR user</label>
                         <select id="firstHr" name="firstHr" class="mdb-select" Searchable="Search here...">
-                            <option value="" selected disabled>Select First Hr</option>
+                            <option value="" selected disabled>Select First HR</option>
                         </select>
                         <span class="text-danger" id="firstHrMsg"> </span>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="btn_cancelHR" class="btn btn-secondary">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Cancel">
+                    Cancel
+                </button>
                 <button type="button" id="btn_chooseHR" class="btn btn-success">Save</button>
             </div>
         </div>
@@ -66,26 +68,6 @@
     var CycleId = @Model.Id;
 </script>
 
-<script>
-
-    function GetfirstHr() {
-        $('#firstHr').empty();
-        $('#firstHr').append('<option value="" selected disabled>Select First Hr</option>');
-          $.ajax({
-              url: '@Url.Action("LoadCycleStatus", "cycles")',
-              method: 'GET',
-              async: false,
-
-              success: response => {
-                  if (response) {
-                      response.forEach(d => {
-                          $('#firstHr').append(`<option value="${d.statusId}">${d.name}</option>`);
-                      });
-                  }
-              }
-          });
-    }
-</script>
 <script>
 
 
@@ -127,6 +109,7 @@
                 if (response) {
                     $('#users').html(response);
                     $('.nav-tabs a[href="#users"]').tab('show');
+                    //$('#btnNext').val('Save');
                 }
             }
         })
@@ -302,7 +285,7 @@
                         if (hrId <= 0) {
                             Swal.fire({
                                 icon: 'warning',
-                                text: 'You must select hr user',
+                                text: 'You must select HR user',
                             });
                             return;
                         }
@@ -367,7 +350,7 @@
             try {
                 var done = false;
                 $('#firstHr').empty();
-                $('#firstHr').append('<option value="" selected disabled>Select First Hr</option>');
+                $('#firstHr').append('<option value="" selected disabled>Select First HR</option>');
                 $('#firstHrMsg').text('');
                 for (var item of hrUsers) {
                     $('#firstHr').append('<option value=' + item.id + ' >' + item.name + ' </option>');

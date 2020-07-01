@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="  card px-3 py-1 m-0 mt-2   accordion">
+<div class="card px-3 py-1 m-0 mt-2 accordion">
     <div class="" style="overflow: visible">
         <div class="d-flex justify-content-between  "
              data-toggle="collapse"
@@ -16,26 +16,25 @@
              style="cursor: pointer">
             <h5 class="mt-2 font-weight-bold"><i class="far fa-search" style="font-size: 20px;"></i>  Search</h5>
             <span><i class="fa fa-angle-double-down " style="margin-top:10px"></i></span>
-
         </div>
 
         <div id="divCollapseSearch" class="collapse ">
             <hr /><br />
-            <form id="inventory">
+            <form id="inventory" class="pl-4 pr-4">
                 <div class="row">
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="ProductName"></label>
                         <input asp-for="ProductName" class="form-control" />
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Department"></label>
                         <select id="DepartmentIds" name="DepartmentIds" class="mdb-select" multiple Searchable="Search here...">
                             <option value="" selected disabled>Select Department</option>
                         </select>
                     </div>
 
-                    @*<div class="form-group col-sm-6 col-md-4">
+                    @*<div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Types"></label>
                         <select asp-for="Types" id="Types" class="mdb-select" multiple Searchable="Search here...">
                             <option value="" selected disabled>Select Type</option>
@@ -43,13 +42,15 @@
                     </div>*@
 
 
-                    <div class="col-12 text-right">
-                        <button type="button" class="btn btn-secondary px-4 m-0" onclick="clearBTN()">
-                            Clear&nbsp; <i class="fa fa-trash"></i>
+                    <div class="col-sm-6 col-md-6">
+                        <div style="height:23px;"></div>
+                        <button id="btnsearch" type="button" class="btn btn-primary btn-md">
+                            Search&nbsp;&nbsp<i class="fa fa-search"></i>
                         </button>
-                        <button id="btnsearch" type="button" class="btn btn-primary px-3">
-                            Search&nbsp; <i class="fa fa-search"></i>
+                        <button type="button" class="btn btn-secondary btn-md" onclick="clearBTN()">
+                            Clear&nbsp;&nbsp;<i class="fa fa-times"></i>
                         </button>
+
 
                     </div>
                 </div>
@@ -59,7 +60,7 @@
     </div>
 </div>
 
-<div id="PartialIndex">
+<div id="PartialIndex" class="card card-body mt-3" >
 
 </div>
 

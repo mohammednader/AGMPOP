@@ -5,7 +5,7 @@
 }
 
 <input type="text" id="geo-tree_q" value="" class="form-control mb-md mb-4" placeholder="Search">
-
+<div class="alert alert-info text-center"> Maximum Territories Level is 10 </div>
     <div id="geo-tree">
 
     </div>
@@ -28,7 +28,7 @@
 
                 },
                 "types": {
-                    "#": { "max_children": 10, "max_depth": 20, "valid_children": ["root"] },
+                    "#": { "max_children": 10, "max_depth": 10, "valid_children": ["root"] },
                     "root": { "icon": "fas fa-suitcase text-success", "valid_children": ["default"] },
                     "default": { "icon": "fas fa-suitcase text-info", "valid_children": ["default", "file"] },
                     "file": { "icon": "fas fa-user", "valid_children": [] }
@@ -75,41 +75,55 @@
         $('#geo-tree')
             // listen for event
             .on('rename_node.jstree', function (e, data) {
-             //   console.log(data.node);
-                var dataToSend = JSON.stringify(data.node);
-                //let _url = '/Territory/Create';
-                //if (data.node.id) {
-                //    _url = '/Territory/Edit';
-                //}
-             //   console.log(dataToSend);
-                $.ajax({
-                    url: '/Territory/Create',
-                    type: 'POST',
-                    data: { str: dataToSend },
-                    dataType: 'json',
-                    success: function (data) {
-                        if (data != null) {
-                            if (data.success == true) {
-                                PartialTerritoies();
-                                Swal.fire({
-                                    text: data.message,
-                                    icon: 'success',
-                                })
-                            }
-                            else if (data.success == false) {
-                                PartialTerritoies();
+                if (!data.text || data.text.toLowerCase() == "new node") {
 
-                                Swal.fire({
-                                    text: data.message,
-                                    icon: 'error',
-                                })
+                    Swal.fire({
+                        icon: "info",
+                        text: 'You shoud enter territory name',
+                    }).then(
+                        function () {
+                            PartialTerritoies();
+                        });
+                }
+                else {
+
+
+                    var dataToSend = JSON.stringify(data.node);
+                    //let _url = '/Territory/Create';
+                    //if (data.node.id) {
+                    //    _url = '/Territory/Edit';
+                    //}
+                    //   console.log(dataToSend);
+                    $.ajax({
+                        url: '/Territory/Create',
+                        type: 'POST',
+                        data: { str: dataToSend },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data != null) {
+                                if (data.success == true) {
+                                    PartialTerritoies();
+                                    Swal.fire({
+                                        text: data.message,
+                                        icon: 'success',
+                                    })
+                                }
+                                else if (data.success == false) {
+                                    PartialTerritoies();
+
+                                    Swal.fire({
+                                        text: data.message,
+                                        icon: 'error',
+                                    })
+                                }
                             }
+                        },
+                        error: function () {
+                            alert('Error in Create or Edit');
                         }
-                    },
-                    error: function () {
-                        alert('Error in Create or Edit');
-                    }
-                });
+                    });
+
+                }
             })
             // create the instance
             .jstree();

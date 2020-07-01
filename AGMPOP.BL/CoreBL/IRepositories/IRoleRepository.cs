@@ -13,5 +13,6 @@ namespace AGMPOP.BL.CoreBL.IRepositories
         List<Role> GetUserRoles(List<int> users);
         void AttachPermissions(int roleId, List<int> permissions);
         void DetachPermissions(int roleId, List<int> permissions = null);
+        bool IsRelatedToUser(int roleId);
     }
 }

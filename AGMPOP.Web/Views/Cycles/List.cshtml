@@ -5,27 +5,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
- 
     <div class="row">
-
-
         <div class="col-12 text-right mt-2 mb-1 mr-0">
-
-            <a class="material-tooltip-main  btn btn-secondary  text-center ml-0 mt-0 px-3 waves-effect waves-light" href='@Url.Action("NewTransaction", "Transaction")'>
-                <i class="fal  fa-plus fa-align-center " style="vertical-align: middle !important; margin-top:-4px; font-size:18px;"> </i> &nbsp;Add Transaction
+            <a class="btn btn-secondary btn-md" href='@Url.Action("NewTransaction", "Transaction")'>
+                Add Transaction&nbsp;&nbsp;<i class="fas fa-plus"></i>
             </a>
-            <a class=" material-tooltip-main  btn btn-primary  text-center ml-0 mt-0 px-3  mr-0 waves-effect waves-light" href='@Url.Action("CreateCycle", "Cycles")'>
-                <i class="fal  fa-plus fa-align-center" style="vertical-align: middle !important; margin-top:-4px; font-size:18px;"> </i> &nbsp; Add Cycle
+            <a class="btn btn-primary btn-md" href='@Url.Action("CreateCycle", "Cycles")'>
+                Add Cycle&nbsp;&nbsp;<i class="fas fa-plus"></i>
             </a>
-
-
-
         </div>
     </div>
  
 
-<div class=" card px-3 py-1 m-0  mb-2  accordion">
+<div class="card px-3 py-1 m-0  mb-2  accordion">
     <div class="" style="overflow: visible">
         <div class="d-flex justify-content-between  "
              data-toggle="collapse"
@@ -34,31 +26,31 @@
              aria-expanded="false"
              aria-controls="divCollapseSearch"
              style="cursor: pointer">
-            <h5 class="mt-2 font-weight-bold"><i class="far fa-search" style="font-size: 20px;"></i>  Search</h5>
+            <h5 class="mt-2 font-weight-bold"><i class="far fa-search" style="font-size: 20px;"></i>&nbsp;&nbsp;Search</h5>
             <span><i class="fa fa-angle-double-down " style="margin-top:10px"></i></span>
 
         </div>
 
         <div id="divCollapseSearch" class="collapse">
             <hr /><br />
-            <form id="formSearchCycles">
+            <form id="formSearchCycles" class="pl-4 pr-4">
                 <input type="hidden" id="hfTerritories" name="SelectedTerritories" />
 
                 <div class="row">
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Name"></label>
                         <input asp-for="Name" class="form-control" />
                     </div>
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="StartDate"></label>
                         <input  name="SearchStartDate" class="form-control datetimepicker2" />
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="EndDate"></label>
                         <input  name="SearchEndDate" class="form-control datetimepicker2" />
                     </div>
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="IsActive"></label>
                         <select asp-for="IsActive" class="mdb-select" multiple Searchable="Search here...">
                             <option value="" class="default" selected disabled>Active/InActive </option>
@@ -66,20 +58,20 @@
                             <option value="false">InActive</option>
                         </select>
                     </div>
-                    <div class=" col-sm-6 col-md-4">
+                    <div class="col-sm-6 col-md-3">
                         <label >Status</label>
                         <select asp-for="Status" class="mdb-select" Searchable="Search here..." >
                             
                         </select>
                     </div>
 
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Type"></label>
                         <select asp-for="Type" class="mdb-select" multiple Searchable="Search here...">
                             <option value="" selected disabled>Select Type</option>
                         </select>
                     </div>
-                    <div class="form-group col-sm-6 col-md-4">
+                    <div class="form-group col-sm-6 col-md-3">
                         <label asp-for="Department"></label>
                         <select asp-for="DepartmentIds" class="mdb-select" multiple Searchable="Search here...">
                             <option class="default" value="" selected disabled>Select depatrtment</option>
@@ -91,11 +83,13 @@
                     </div>
 
                     <div class="col-12 text-right">
-                        <button type="button" class="btn btn-secondary px-4 m-0" onclick ="clearBTN()">
-                            Clear
+
+                        <button type="submit" class="btn btn-primary btn-md">
+                            Search&nbsp;&nbsp;<i class="fas fa-search fa-align-center"> </i>
                         </button>
-                        <button type="submit" class="btn mr-0  btn-primary px-3">
-                            Search
+                        <button type="button" class="btn btn-secondary btn-md" onclick="clearBTN()">
+                            Clear&nbsp;&nbsp;<i class="fas fa-times"></i>
+
                         </button>
                     </div>
                 </div>
@@ -105,14 +99,9 @@
     </div>
 </div>
 
-
-
 <div id="PartialCycleList" >
 
 </div>
-
-
-
 <!--loadCycleData-->
 
 @*<script>
@@ -199,9 +188,6 @@
 <!--LoadExtOrgTree-->
 
 <script>
-
-
-
     function LoadExtOrgTree() {
 
 
@@ -264,13 +250,11 @@
     function clearBTN() {
         $("#formSearchCycles").resetForm();
         $(".default").attr('selected', true);
+         $('#geo-tree').jstree("deselect_all");
         loadCycles();
     }
 
 </script>
-
-
-
 
 <script>
     $(() => {

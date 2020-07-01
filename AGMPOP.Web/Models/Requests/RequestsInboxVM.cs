@@ -15,7 +15,7 @@ namespace AGMPOP.Web.Models.Requests
         public int ReqID { get; set; }
 
         public int ReqByID { get; set; }
-         public DateTime ReqDate { get; set; }
+        public DateTime ReqDate { get; set; }
         public bool ReqStatus { get; set; }
         public string CreartedByName { get; set; }
 

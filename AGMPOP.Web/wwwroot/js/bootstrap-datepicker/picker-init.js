@@ -375,6 +375,7 @@ AGMPOP = {
            // inline: true,
             format: 'DD/MM/YYYY HH:mm',
             sideBySide: true,
+            stepping: 30,
             icons: {
                 time: "fa fa-clock-o",
                 date: "fa fa-calendar",

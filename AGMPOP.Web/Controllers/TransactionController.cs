@@ -188,8 +188,8 @@ namespace AGMPOP.Web.Controllers
                 notification.Add(new Notifications
                 {
                     CreatedAt = DateTime.Now,
-                    Title = POPEnums.NotificationType.NotConfirmed.ToString(),
-                    Notificationtype = (int)POPEnums.NotificationType.NotConfirmed,
+                    Title = POPEnums.NotificationType.Unconfirmed.ToString(),
+                    Notificationtype = (int)POPEnums.NotificationType.Unconfirmed,
                     IsSeen = false,
                     ToUserId = BBxUser.Id
                 });
@@ -198,7 +198,7 @@ namespace AGMPOP.Web.Controllers
                     CreateDate = System.DateTime.Now,
                     CycleId = CId,
                     CreatedById = LoggedUserId,
-                    Status = (int)POPEnums.TransactionStatus.NewRequst,
+                    Status = (int)POPEnums.TransactionStatus.New_Request,
                     ToUserId = UId,
                     TransactionDetail = TranDetList,
                     TransType = (int)POPEnums.TransactionTypes.Delivery,
@@ -273,7 +273,7 @@ namespace AGMPOP.Web.Controllers
                 if (CycleId != 0)
                 {
                     var CycleTransaction = UnitOfWork.TransactionBL.GetCycleTransactions(CycleId)
-                                                                   .Where(t => t.Status == (int)POPEnums.TransactionStatus.Pending || t.Status == (int)POPEnums.TransactionStatus.NewRequst)
+                                                                   .Where(t => t.Status == (int)POPEnums.TransactionStatus.Pending || t.Status == (int)POPEnums.TransactionStatus.New_Request)
                                                                    .ToList();
 
                     return PartialView(CycleTransaction);
@@ -343,7 +343,7 @@ namespace AGMPOP.Web.Controllers
                                         OldQnty = (int)EdProduct.InventoryQnty,
                                         UserId = FromUser.Id,
                                         CreatedDate = DateTime.Now,
-                                        TransactionType = (int)POPEnums.TransactionTypes.Clearance,
+                                        TransactionType = Transaction.TransType,//(int)POPEnums.TransactionTypes.Clearance,
                                         ActionType = (int)POPEnums.InventoryActionType.Increment,
                                         Quantity = item.TransAmount,
                                         NewQnty = (int)EdProduct.InventoryQnty + item.TransAmount,
@@ -353,8 +353,13 @@ namespace AGMPOP.Web.Controllers
                                     UnitOfWork.InventoryLogBL.Add(NewLogTrans);
                                 }
                                 // will take effect when request approved 
-                                //if (CycleProd.Qunt > 0) CycleProd.Qunt -= item.TransAmount;
-                                //if (CycleProd.RemainQunt > 0) CycleProd.RemainQunt -= item.TransAmount;
+                                // in case of confirmed from bbx 
+                                if (Transaction.Status == (int)POPEnums.TransactionStatus.Pending)
+                                {
+                                    if (CycleProd.Qunt > 0) CycleProd.Qunt -= item.TransAmount;
+                                    if (CycleProd.RemainQunt > 0) CycleProd.RemainQunt -= item.TransAmount;
+                                    UnitOfWork.CycleProductBL.Update(CycleProd);
+                                }
                             }
                             else if (FromUser != null && FromUser.JobTitle.Name.ToLower() == "hr")
                             {
@@ -370,11 +375,11 @@ namespace AGMPOP.Web.Controllers
 
                         if (UnitOfWork.Complete(LoggedUserId) > 0)
                         {
-                            return Json(new { success = true, message = "Transaction deleted Successfully" });
+                            return Json(new { success = true, message = "Transaction canceled successfully" });
                         }
                         else
                         {
-                            return Json(new { success = false, message = "Transaction dosn't Cancel Successfully" });
+                            return Json(new { success = false, message = "Failed to cancel transaction" });
 
                         }
                     }

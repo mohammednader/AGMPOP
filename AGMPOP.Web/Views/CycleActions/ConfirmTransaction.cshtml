@@ -8,9 +8,7 @@
 <div class="TopBar0 pl-4 mt-2" style="padding:10px;">
     <div class="row">
         <div class="col-8 col-lg-9 d-flex flex-column justify-items-center align-self-center cycleDetails">
-            <div class="pb-2"><h2 class="d-inline">Cycle Name</h2> <h5 class="d-inline">(hello)</h5></div>
-            <label> &nbsp;  </label>
-            <label> &nbsp;</label>
+
         </div>
         <div class="col-4 col-lg-3 text-right align-self-center">
             <!-- Horizontal Steppers -->
@@ -25,30 +23,27 @@
 
 <!--CONTENT AFTER TOP BAR-->
 <div class="ContentAfterTopBar">
-    <h6 class="">Please review the data below</h6>
-  
 
     <div id="div_firstForm" style="display:none">
-        <h4 class="text-center">Your Last Clearance</h4>
-        <div class=" card card-body mb-4  pl-md-5 pr-md-5" id="trans_actions_container">
+        <div class=" card card-body mb-2 pl-md-5 pr-md-5" id="trans_actions_container">
+            <h4 class="text-center mb-4">Your last clearance</h4>
 
         </div>
         <div class="text-right">
             <input class="btn btn-primary" type="button" value="Next" id="btnNextid" onclick="Nextbtn()" />
         </div>
     </div>
-    <div class=" card card-body mb-4  pl-md-5 pr-md-5 NewDeliveryConfirmationBBX" style="display:none">
-        <h4 class="text-center ">Receive new quantity</h4>
-        <hr />
+
+
+    <div class=" card card-body mb-4  pl-md-5 pr-md-5  NewDeliveryConfirmationBBX" style="display:none">
+
+        <h4 class="text-center mb-4">Review & confirm  quantity</h4>
 
     </div>
-
-
-
-
 
     <div class="viewAll text-right mt-3 mb-3">
     </div>
+
 </div>
 <!-- MODAL -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -67,130 +62,19 @@
     .table tbody tr td {
         vertical-align: middle;
     }
+
+    .product-img {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        height: 50px;
+        width: 50px;
+        margin: 0 auto;
+    }
 </style>
 
-<script>
-
-
-    function getUserClearanceProducts() {
-
-
-        var ValArray = [], y;
-        $.ajax({
-            url: "/CycleActions/GetUserClearanceProducts",
-            type: "Get",
-            data: { CycleID, TransID },
-            success: response => {
-               // console.log(response);
-
-                var res;
-                res = response.data;
-                if (res) {
-                    for (let transaction of res) {
-
-                        var trans_action = ` <div class="row">
-                                            <div class="col-2 m-auto">
-                                                <img src="${transaction.productImg}" style="border-radius:50%" width="80" height="80">
-                                            </div>
-                                            <div class="col-3 m-auto">
-                                                <h6>${transaction.productName}</h6>
-                                            </div>
-                                            <div class="col-3 m-auto">
-                                                <h6>${transaction.code}</h6>
-                                            </div>
-                                            <div class="col-2 m-auto">
-                                                <h6>${transaction.typeName}</h6>
-                                            </div>
-                                            <div class="col-2 text-md-right m-auto">
-                                                <input class="ProductCount" id=${transaction.productId} type="number" data-trans=${transaction.quantity} data-product=${transaction.productId} name="value" maxlength="4" size="1" style="height:40px; width:70px; text-align:center; font-size:16px; border-radius:5px;" onkeyup="checkValues(event)" min=0 value="0"> <h4 class="d-inline">
-/ ${transaction.quantity}
-                                            </div>
-                                        </div><hr />`
-                        $("#trans_actions_container").append(trans_action);
-                        y = `${transaction.quantity}`
-                        ValArray.push(y);
-                    }
-
-                }
-
-                else {
-                    $("#Transactions").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">No Actions Available !!</div>`);
-                }
-                $('#dtBasicExample').DataTable();
-                $(".loader").fadeOut();
-
-            },
-        });
-
-    }
-
-
-
-    // ================== CONFIRM WITH VALIDATION FUNCTIONS ================== //
-
-    function GetUserInputProductNum() {
-        var ProductUserInputArray = [];
-
-        for (let item of $(".ProductCount")) {
-
-            var Product = $(item);
-            var obj = {
-                "productId": Product.data('product'),
-                "count": Product.val()
-            };
-            if (obj.count > 0) {
-                ProductUserInputArray.push(obj)
-            }
-        }
-         return ProductUserInputArray;
-    }
-
-    function Nextbtn() {
-        $(".NewDeliveryConfirmationBBX").css("display", "block");
-        $("#div_firstForm").css("display", "none")
-       // $("#btnNextid").css("display", "none")
-         getFormData();
-        GetCycleDetails();
-    }
-
-    function getFormData() {
-
-        var obj = {
-            "cycle_id": CycleID,
-            "TransactionId": TransID,
-            "NotificationId": NotificationID,
-            "transaction_items": GetUserInputProductNum(),
-        };
-        return obj;
-    }
-
-
-
-
-    // ================== JQUERY ================== //
-    $(document).ready(function () {
-        var firstForm =  @Json.Serialize(ViewBag.FirstForm)
-            console.log(firstForm) ;
-        $('.dataTables_length').addClass('bs-select');
-        $("select").removeClass("custom-select");
-        $("#AvailableActions").hide();
-        $("#hello1").text("New Delivery Confirmation");
-        $(".cycleDetails").empty();
-
-        GetCycleName();
-        if (firstForm) {
-
-            $("#div_firstForm").css("display", "block");
-
-            getUserClearanceProducts();
-        }
-        else {
-            $(".NewDeliveryConfirmationBBX").css("display", "block");
-            DeliveryConfirm();
-        }
-    });
-
-</script>
 
 <script>
     // ================== GLOBAL VARIABLES ================== //
@@ -200,7 +84,7 @@
     var NotificationID = x.NotificationId;
 
     // ================== GET NEW ITEMS TO RECIVE AND CONFIRM FUNCTION ================== //
-
+    // second form
     function DeliveryConfirm() {
         var cycleId = CycleID;
         var TransID = x.TransactionId;
@@ -215,19 +99,35 @@
 
                // console.log(response);
                 if (res) {
+                         var header = ` <div class="row mt-4" >
+                       <div class="col-3 m-auto  text-center">
+                          <b>  Image </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                          <b>  Name </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                          <b> Code  </b>
+                       </div>
+                       <div class="col-3  m-auto text-center">
+                         <b> Quantity  </b>
+                       </div>
+                   </div><hr />`
+                $(".NewDeliveryConfirmationBBX").append(header);
+
                     for (i = 0; i < res.length; i++) {
                         var addDelivery = ` <div class="row">
-                <div class="col-3 m-auto">
-                    <img src="${res[i].productImg}" style="border-radius:50%" width="80" height="80">
+                <div class="col-3 m-auto text-center">
+                    <img src="${res[i].productImg}" class="img-circle product-img">
                 </div>
-                <div class="col-3 m-auto">
+                <div class="col-3 m-auto text-center">
                     <h6>${res[i].productName}</h6>
                 </div>
-                <div class="col-3 m-auto">
-                    <h6>#${res[i].code}</h6>
+                <div class="col-3 m-auto text-center">
+                    <h6>${res[i].code}</h6>
                 </div>
-   
-                <div class="col-3 text-center text-md-right m-auto">
+
+                <div class="col-3 m-auto text-center">
                     <span class="d-inline ProductsNum">${res[i].quantity}</span>
                 </div>
             </div><hr /> `
@@ -262,7 +162,7 @@
                 if (res) {
                     var cycletype = res.cycleType == 1 ? "NationWide" : "Event";
                     var Name = `<h4 style="display:contents">${res.name}</h4><label style="display:contents; font-size : 16px" > - ${cycletype}</label>
-                    <label class="mt-2">${moment(res.startDate).format('DD/MM/YYYY')} - ${moment(res.endDate).format('DD/MM/YYYY')}</label>`
+                    <label class="mt-2">${moment(res.startDate).format('DD/MM/YYYY HH:mm')} - ${moment(res.endDate).format('DD/MM/YYYY HH:mm')}</label>`
                     $(".cycleDetails").append(Name);
                 }
                 else {
@@ -311,9 +211,6 @@
 
     }
 
-
-
-
     // ================== CONFIRM FUNCTION ================== //
 
     function ConfirmBtn() {
@@ -332,6 +229,8 @@
                 if (response.success) {
                     res = response;
                     if (res.message != null) {
+
+
                         $("#exampleModal").empty();
                         var modal = `<div class="modal-dialog" role="document">
                         <div class="modal-content mt-3 p-3">
@@ -341,14 +240,24 @@
                             </div>
                         </div>
                     </div> `
-                        $("#exampleModal").append(modal);
-                        $(".loader").fadeOut();
-                        $(".modal-body h3").text("Confirmed").addClass("success")
-                        $("#exampleModal").modal("show");
-                    } else {
-                        $(".loader").fadeOut();
-                        $(".modal-body").text("Failed").addClass("danger")
-                        $("#exampleModal").modal("show");
+                        swal.fire({
+                            icon: 'success',
+                            text: res.message,
+                            content: modal
+
+                        }).then(function () {
+                            window.location.replace("/cycleactions/notifications");
+                         });
+
+                     } else {
+                        swal.fire({
+                            icon: 'error',
+                            text: res.message,
+                            content: modal
+
+                        }).then(function () {
+                            window.location.replace("/cycleactions/notifications");
+                        });
 
                     }
                 }
@@ -358,5 +267,137 @@
         });
     }
 
+
+</script>
+
+<script>
+
+
+    function getUserClearanceProducts() {
+        var ValArray = [], y;
+        $.ajax({
+            url: "/CycleActions/GetUserClearanceProducts",
+            type: "Get",
+            data: { CycleID, TransID },
+            success: response => {
+               // console.log(response);
+
+                var res;
+                res = response.data;
+                if (res) {
+                         var header = ` <div class="row mt-4" >
+                       <div class="col-3 m-auto text-center">
+                          <b>  Image </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                          <b>  Name </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                          <b> Code  </b>
+                       </div>
+                       <div class="col-3 m-auto text-center">
+                         <b> Quantity</b>
+                       </div>
+                   </div><hr />`
+                    $("#trans_actions_container").append(header);
+
+                    for (let transaction of res) {
+
+                        var trans_action = ` <div class="row">
+                                            <div class="col-3 m-auto text-center">
+                                                <img src="${transaction.productImg} class="img-circle product-img">
+                                            </div>
+                                            <div class="col-3 m-auto text-center">
+                                                <h6>${transaction.productName}</h6>
+                                            </div>
+                                            <div class="col-3 m-auto text-center">
+                                                <h6>${transaction.code}</h6>
+                                            </div>
+
+                                            <div class="col-3 m-auto text-center">
+                                                <input class="ProductCount" id=${transaction.productId} type="number" data-trans=${transaction.quantity} data-product=${transaction.productId} name="value" maxlength="4" size="1" style="height:40px; width:70px; text-align:center; font-size:16px; border-radius:5px;" onkeyup="checkValues(event)" min=0 value="0"> <h4 class="d-inline">
+ / ${transaction.quantity}</h4>
+                                            </div>
+                                        </div><hr />`
+                        $("#trans_actions_container").append(trans_action);
+                        y = `${transaction.quantity}`
+                        ValArray.push(y);
+                    }
+
+                }
+
+                else {
+                    $("#Transactions").append(`<div class="alert alert-dark text-center" style="font-size:25px;" role="alert">No Actions Available !!</div>`);
+                }
+                $('#dtBasicExample').DataTable();
+                $(".loader").fadeOut();
+
+            },
+        });
+
+    }
+
+
+
+    // ================== CONFIRM WITH VALIDATION FUNCTIONS ================== //
+
+    function GetUserInputProductNum() {
+        var ProductUserInputArray = [];
+
+        for (let item of $(".ProductCount")) {
+
+            var Product = $(item);
+            var obj = {
+                "productId": Product.data('product'),
+                "count": Product.val()
+            };
+            if (obj.count > 0) {
+                ProductUserInputArray.push(obj)
+            }
+        }
+         return ProductUserInputArray;
+    }
+
+    function Nextbtn() {
+        $(".NewDeliveryConfirmationBBX").css("display", "block");
+        $("#div_firstForm").css("display", "none")
+         getFormData();
+        GetCycleDetails();
+    }
+
+    function getFormData() {
+
+        var obj = {
+            "cycle_id": CycleID,
+            "TransactionId": TransID,
+            "NotificationId": NotificationID,
+            "transaction_items": GetUserInputProductNum(),
+        };
+        return obj;
+    }
+
+
+    // ================== JQUERY ================== //
+    $(document).ready(function () {
+        var firstForm =  @Json.Serialize(ViewBag.FirstForm)
+            console.log(firstForm) ;
+        $('.dataTables_length').addClass('bs-select');
+        $("select").removeClass("custom-select");
+        $("#AvailableActions").hide();
+        $("#hello1").text("New Delivery Confirmation");
+        $(".cycleDetails").empty();
+
+        GetCycleName();
+        if (firstForm) {
+
+            $("#div_firstForm").css("display", "block");
+
+            getUserClearanceProducts();
+        }
+        else {
+            $(".NewDeliveryConfirmationBBX").css("display", "block");
+            DeliveryConfirm();
+        }
+    });
 
 </script>
